@@ -3607,6 +3607,8 @@ export type Queries = {
   ticketSharedDraftStartSingle: TicketSharedDraftStart;
   /** Get a single ticket shared draft in detail view */
   ticketSharedDraftZoomShow: TicketSharedDraftZoom;
+  /** Aggregated ticket statistics for reporting */
+  ticketStatistics: TicketStatistics;
   /** Fetch tickets of a given customer with optional filters */
   ticketsByCustomer: TicketConnection;
   /** Fetch tickets of a given organization with optional filters */
@@ -3991,6 +3993,15 @@ export type QueriesTicketSharedDraftStartSingleArgs = {
 /** All available queries */
 export type QueriesTicketSharedDraftZoomShowArgs = {
   sharedDraftId: Scalars['ID']['input'];
+};
+
+
+/** All available queries */
+export type QueriesTicketStatisticsArgs = {
+  from?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  organizationIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  to?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 };
 
 
@@ -5667,6 +5678,70 @@ export type TicketStateType = {
   updatedAt: Scalars['ISO8601DateTime']['output'];
   /** Last user that updated this record */
   updatedBy?: Maybe<User>;
+};
+
+/** Aggregated ticket statistics, scoped to the tickets the current user may read */
+export type TicketStatistics = {
+  __typename?: 'TicketStatistics';
+  /** Ticket count per creation channel */
+  byChannel: Array<TicketStatisticsBucket>;
+  /** Ticket count per group (service) */
+  byGroup: Array<TicketStatisticsBucket>;
+  /** Ticket count per organization */
+  byOrganization: Array<TicketStatisticsBucket>;
+  /** Ticket count per owning agent */
+  byOwner: Array<TicketStatisticsBucket>;
+  /** Ticket count per priority */
+  byPriority: Array<TicketStatisticsBucket>;
+  /** Ticket count per state */
+  byState: Array<TicketStatisticsBucket>;
+  /** Headline figures */
+  totals: TicketStatisticsTotals;
+  /** Created and closed counts per day */
+  volumeOverTime: Array<TicketStatisticsVolumePoint>;
+};
+
+/** Ticket count for one value of a grouping axis */
+export type TicketStatisticsBucket = {
+  __typename?: 'TicketStatisticsBucket';
+  /** Number of tickets in this bucket */
+  count: Scalars['Int']['output'];
+  /** Identifier of the grouped record */
+  id: Scalars['Int']['output'];
+  /** Human readable label of the grouped record */
+  label: Scalars['String']['output'];
+};
+
+/** Headline figures for the selected period */
+export type TicketStatisticsTotals = {
+  __typename?: 'TicketStatisticsTotals';
+  /** Mean time to closure, in minutes */
+  averageCloseMinutes?: Maybe<Scalars['Float']['output']>;
+  /** Mean time to first response, in minutes */
+  averageFirstResponseMinutes?: Maybe<Scalars['Float']['output']>;
+  /** Share of tickets meeting the closure target */
+  closeInTimePercent?: Maybe<Scalars['Float']['output']>;
+  /** Tickets in a closed state */
+  closed: Scalars['Int']['output'];
+  /** Tickets past their escalation time */
+  escalated: Scalars['Int']['output'];
+  /** Share of tickets meeting the first response target */
+  firstResponseInTimePercent?: Maybe<Scalars['Float']['output']>;
+  /** Tickets not in a closed state */
+  open: Scalars['Int']['output'];
+  /** Tickets created in the period */
+  total: Scalars['Int']['output'];
+};
+
+/** Created and closed ticket counts for a single day */
+export type TicketStatisticsVolumePoint = {
+  __typename?: 'TicketStatisticsVolumePoint';
+  /** Tickets closed on that day */
+  closed: Scalars['Int']['output'];
+  /** Tickets created on that day */
+  created: Scalars['Int']['output'];
+  /** Day in ISO 8601 format */
+  date: Scalars['String']['output'];
 };
 
 /** Monthly ticket stats */
