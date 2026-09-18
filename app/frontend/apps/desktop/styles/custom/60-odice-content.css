@@ -1,0 +1,32 @@
+/* Odice — contenu : listes de tickets, vues d'ensemble, détail de ticket.
+ *
+ * `LayoutPage.vue` relie la route courante au marqueur via
+ * `:data-zammad-target="routeTarget"` : on peut donc restreindre une règle à
+ * une page précise (TicketOverview, TicketDetailView…).
+ */
+
+/* En-têtes de colonnes : capitales tracées en police de titre, comme les
+ * intitulés de la charte. */
+[data-zammad-target='CommonAdvancedTable'] thead th {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-stone-200);
+}
+
+[data-zammad-target='CommonAdvancedTable'] tbody tr:hover {
+  background-color: var(--color-blue-100);
+}
+
+[data-zammad-target='TicketOverviewsSidebar'] {
+  border-inline-end: 1px solid var(--color-neutral-100);
+}
+
+/* Détail de ticket : bulles d'articles arrondies, sans bordure gauche colorée
+ * (motif explicitement proscrit par la charte). */
+[data-zammad-target='TicketDetailView'] [data-zammad-target='ArticleBubbleBody'] {
+  border-radius: var(--od-r-lg, 8px);
+  border-inline-start-width: 1px;
+}

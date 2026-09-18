@@ -1,0 +1,53 @@
+/* Odice — pages publiques : connexion, réinitialisation, inscription, erreurs.
+ *
+ * `LayoutPublicPage.vue` rend un shell `bg-neutral-950` (devenu navy Odice par
+ * le remappage des jetons) et pose `:data-zammad-target="routeTarget"` sur son
+ * <main> : les noms de routes disponibles sont Login, PasswordReset,
+ * PasswordResetVerify, Signup, SignupVerify, AdminPasswordAuth, Logout.
+ *
+ * Le logo de ces pages ne passe PAS par du CSS : il vient du réglage
+ * `product_logo`, appliqué au déploiement par `rake odice:provision`.
+ */
+
+[data-zammad-target='LayoutPublicPage'] main {
+  border-radius: var(--od-r-xl, 12px);
+  box-shadow: var(--od-shadow-3);
+}
+
+[data-zammad-target='LayoutPublicPage'] h1,
+[data-zammad-target='LayoutPublicPage'] h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.005em;
+}
+
+/* Mention « Powered by Zammad » : atténuée mais lisible sur le navy
+ * (l'attribution relève de la licence AGPL, on ne la masque pas). */
+[data-zammad-target='LayoutPublicPage'] footer {
+  color: #9eb6cc;
+}
+
+/* Liens posés sur le shell navy, hors de la carte blanche (« Continuer vers la
+ * version mobile »). Ils portent `text-blue-800`, c'est-à-dire le Bleu 2020 :
+ * calibré pour un fond clair, il tombe à 1,3:1 sur le navy du shell.
+ *
+ * On éclaircit donc TOUS les liens du shell, puis on rend le navy à ceux qui
+ * sont dans la carte (« Mot de passe oublié ? », « S'inscrire ») : le second
+ * sélecteur est plus spécifique, il l'emporte. */
+[data-zammad-target='LayoutPublicPage'] [data-zammad-target='CommonLink'] {
+  color: #cfe0ee;
+  font-weight: 500;
+}
+
+[data-zammad-target='LayoutPublicPage'] [data-zammad-target='CommonLink']:hover {
+  color: #fff;
+}
+
+[data-zammad-target='LayoutPublicPage'] main [data-zammad-target='CommonLink'] {
+  color: var(--color-blue-800);
+  font-weight: inherit;
+}
+
+[data-zammad-target='LayoutPublicPage'] main [data-zammad-target='CommonLink']:hover {
+  color: #0c3258;
+}

@@ -1,0 +1,473 @@
+/* Odice — refonte visuelle du frontend legacy (CoffeeScript).
+ *
+ * Ce que les variables de `01-odice-tokens.css` ne couvrent pas : la marque,
+ * les formes, la typographie et les motifs proscrits par la charte.
+ *
+ * Ces règles sont chargées par `require_tree ./custom/` dans `application.css`,
+ * donc APRÈS `require zammad` : à spécificité égale, l'ordre source suffit et
+ * aucun fichier Zammad n'est modifié.
+ */
+
+/* ============================================================
+   1. Marque — remplacement du logo Zammad
+   ============================================================
+   Les écrans d'installation et de connexion rendent
+   `@Icon('full-logo', 'wizard-logo')`, une icône du sprite legacy. Plutôt que
+   de régénérer le sprite (chaîne gulp obsolète), on masque le tracé et on
+   affiche le logo Odice en fond : un <svg> accepte un background CSS. */
+
+.wizard-logo,
+.logo .icon-full-logo,
+.icon-full-logo {
+  width: 200px;
+  height: 58px;
+  background: url("/assets/images/odice-logo-white.png") center / contain no-repeat;
+}
+
+.wizard-logo > *,
+.logo .icon-full-logo > *,
+.icon-full-logo > * {
+  display: none;
+}
+
+/* Sur fond clair, la version couleur. */
+[data-theme="light"] .content:not(.getstarted) .icon-full-logo {
+  background-image: url("/assets/images/odice-logo.png");
+}
+
+/* ============================================================
+   2. Écrans pleine page — installation, connexion, mot de passe
+   ============================================================ */
+
+:root {
+  /* Aplat navy de la charte, sans dégradé. */
+  --fullscreen-background: #0c3258;
+  --fullscreen-text: #d6e2ec;
+  --fullscreen-text-muted: #9eb6cc;
+}
+
+/* Même en thème sombre, l'écran d'accueil garde le navy de la charte : c'est la
+ * signature de marque, et un charbon plat y serait plus terne. */
+[data-theme="dark"] {
+  --fullscreen-background: #0a2a4a;
+  --fullscreen-text: #d6e2ec;
+  --fullscreen-text-muted: #9eb6cc;
+}
+
+.getstarted,
+.login,
+.reset_password,
+.request_admin_password_auth,
+.signup {
+  padding: 48px 24px;
+}
+
+/* La carte centrale.
+ *
+ * Choix assumé : sur ces écrans-vitrines, la carte reste CLAIRE quel que soit
+ * le thème. Une surface charbon posée sur l'aplat navy produit une dissonance
+ * de température ; le contraste carte claire / fond navy est à la fois plus
+ * lisible et conforme au dosage de la charte (80 % de neutres). */
+.getstarted .hero-unit,
+.getstarted .wizard-slide,
+.login .hero-unit,
+.reset_password .hero-unit,
+.request_admin_password_auth .hero-unit,
+.signup .hero-unit {
+  padding: 36px 40px;
+  border: 0;
+  border-radius: 16px;
+  background-color: #fff;
+  color: #414042;
+  box-shadow:
+    0 18px 48px rgba(6, 20, 40, 0.28),
+    0 2px 8px rgba(6, 20, 40, 0.16);
+}
+
+.hero-unit,
+.wizard-slide {
+  padding: 36px 40px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow:
+    0 12px 32px rgba(12, 20, 32, 0.18),
+    0 2px 6px rgba(12, 20, 32, 0.1);
+}
+
+.wizard-slide {
+  width: 440px;
+  margin-bottom: 24px;
+}
+
+/* Texte et filets dans la carte claire. */
+.getstarted .hero-unit h1,
+.getstarted .hero-unit h2,
+.login .hero-unit h1,
+.login .hero-unit h2 {
+  color: #414042;
+  border-bottom-color: #e1e5e7;
+}
+
+.getstarted .hero-unit hr,
+.login .hero-unit hr {
+  background: #e1e5e7;
+}
+
+.getstarted .hero-unit a,
+.login .hero-unit a,
+.reset_password .hero-unit a,
+.signup .hero-unit a {
+  color: #134c82;
+  font-weight: 500;
+}
+
+.getstarted .hero-unit a:hover,
+.login .hero-unit a:hover {
+  color: #0c3258;
+}
+
+/* Le logo est rendu hors de la carte : on le rapproche pour resserrer la
+   composition, plutôt que de le laisser flotter en haut de page. */
+.wizard-logo {
+  margin: 0 auto 28px;
+}
+
+/* Composition de l'écran-vitrine.
+ *
+ * Deux pièges du balisage Zammad :
+ *   - `.getstarted` est posé sur le MÊME élément que `.main`, pas sur un
+ *     ancêtre : un sélecteur descendant `.getstarted .main` ne matche rien.
+ *   - `.wizard` porte `margin: auto`, dont les marges verticales absorbent
+ *     tout l'espace libre du conteneur flex : la carte se centre et le logo
+ *     est repoussé tout en haut de l'écran.
+ * On neutralise donc la marge verticale et on regroupe logo et carte. */
+.main.getstarted,
+.main.login {
+  gap: 28px;
+}
+
+.main.getstarted .wizard,
+.main.login .wizard {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.wizard h2 {
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+/* Le séparateur « ou … » : filet net plutôt qu'un trait fantôme. */
+.wizard hr,
+.hero-unit hr {
+  height: 1px;
+  margin: 24px 0 16px;
+  border: 0;
+  background: var(--border);
+}
+
+/* ============================================================
+   3. Typographie
+   ============================================================ */
+
+h1,
+h2,
+h3,
+.headline {
+  font-family: "Fundamental Brigade", Inter, "Helvetica Neue", helvetica, arial, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   4. Actions
+   ============================================================ */
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition:
+    background-color 120ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 120ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    color 120ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn--primary {
+  border-color: transparent;
+}
+
+/* Bouton pleine largeur dans les cartes d'installation : cible plus franche. */
+.wizard-slide .btn--primary,
+.wizard-buttonList .btn {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 15px;
+}
+
+/* Action principale des écrans-vitrines : Bleu 2020 plein, sur carte claire.
+   La charte réserve ce bleu à l'action et proscrit les ombres colorées. */
+.getstarted .btn--primary,
+.login .btn--primary,
+.reset_password .btn--primary,
+.signup .btn--primary {
+  display: block;
+  width: 100%;
+  padding: 13px 20px;
+  border: 0;
+  border-radius: 8px;
+  background-color: #134c82;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: none;
+}
+
+.getstarted .btn--primary:hover,
+.login .btn--primary:hover,
+.reset_password .btn--primary:hover,
+.signup .btn--primary:hover {
+  background-color: #0c3258;
+  color: #fff;
+}
+
+/* ============================================================
+   5. Champs de formulaire
+   ============================================================ */
+
+.form-control {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: border-color 120ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.form-control:focus {
+  border-color: #27a9ce;
+}
+
+/* Anneau de focus de la charte : cyan, 2px, à 2px d'offset.
+ * Le cyan pur (#27a9ce) n'atteint pas 3:1 sur fond clair (critère WCAG 1.4.11) :
+ * on retient le cyan profond du design system, visuellement très proche. */
+*:focus-visible {
+  outline: 2px solid #1a82a0;
+  outline-offset: 2px;
+}
+
+[data-theme="dark"] *:focus-visible {
+  outline-color: #27a9ce;
+}
+
+/* ============================================================
+   6. Motifs proscrits par la charte
+   ============================================================
+   Ni dégradé, ni rayure, ni ombre colorée. */
+
+.progress-striped .progress-bar,
+.progress-bar-striped {
+  background-image: none;
+}
+
+.progress {
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background-color: #27a9ce;
+}
+
+/* ============================================================
+   7. Modales et panneaux
+   ============================================================ */
+
+.modal-content {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 20px 48px rgba(12, 20, 32, 0.22),
+    0 4px 12px rgba(12, 20, 32, 0.12);
+}
+
+.sidebar {
+  border-radius: 12px;
+}
+
+/* ============================================================
+   8. Écran d'accueil de l'installation
+   ============================================================
+   `zammad.scss` impose `min-height: 140px` au corps du wizard, ce qui convient
+   aux étapes de formulaire mais laisse un grand vide sur l'écran d'accueil, qui
+   ne contient qu'un bouton. */
+
+.wizard.js-start .wizard-body {
+  min-height: 0;
+}
+
+/* Le lien secondaire est un <span class="u-highlight">, pas un <a> : il tire sa
+   couleur de --text-link, éclairci pour le fond sombre. Sur la carte claire il
+   faut donc la reprendre explicitement. */
+.getstarted .wizard-slide .u-highlight,
+.getstarted .wizard-slide .u-highlight a,
+.getstarted .wizard-slide a:not(.btn),
+.login .hero-unit a:not(.btn) {
+  color: #134c82;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.getstarted .wizard-slide .u-highlight a:hover,
+.getstarted .wizard-slide a:not(.btn):hover {
+  color: #0c3258;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Filet de séparation lisible sur fond blanc (Zammad le pose en noir à 13 %,
+   pensé pour une carte sombre). */
+.getstarted .wizard-aside {
+  padding-top: 18px;
+  margin-top: 4px;
+  border-top-color: #e1e5e7;
+}
+
+/* Libellés et aides des étapes suivantes, sur carte claire. */
+.getstarted .wizard-slide label,
+.getstarted .wizard-slide h2 {
+  color: #414042;
+}
+
+.getstarted .wizard-slide .help-block {
+  color: #6e7274;
+}
+
+/* ============================================================
+   9. Marque dans la barre latérale de l'interface agent
+   ============================================================
+   L'ancienne interface place le colibri Zammad (`.icon-logo`) dans la zone de
+   recherche. Même traitement que pour l'écran d'installation : on masque le
+   tracé et on affiche le pictogramme Odice en fond. La barre est sombre, donc
+   la version blanche, conformément à la charte. */
+
+.search .logo .icon-logo {
+  width: 34px;
+  height: 34px;
+  background: url("/assets/images/odice-picto-white.png") center / contain no-repeat;
+}
+
+.search .logo .icon-logo > * {
+  display: none;
+}
+
+/* ============================================================
+   10. Barre de navigation de l'interface agent
+   ============================================================ */
+
+/* Filet de séparation navy plutôt que noir, et élément actif en Bleu 2020. */
+#navigation .tasks .task.is-active,
+#navigation .primary-navigation .is-active {
+  background-color: #134c82;
+}
+
+#navigation {
+  border-inline-end: 1px solid #1c4e7d;
+}
+
+/* L'action « nouveau » est une action primaire : Bleu 2020, pas vert. */
+#navigation .js-action .icon,
+#navigation .add .icon {
+  color: #7fcfe8;
+}
+
+/* ============================================================
+   11. Boutons de création
+   ============================================================
+   `zammad.scss` peint `.btn--success` / `--create` / `--positive` en vert
+   codé en dur (hsl(145,51%,45%)), sans passer par une variable. Or ce sont des
+   ACTIONS (« Nouvel utilisateur », « Créer »), pas des états de succès : la
+   charte leur assigne le Bleu 2020. Le vert reste réservé au sémantique. */
+
+.btn--success,
+.btn--create,
+.btn--positive {
+  background: #134c82;
+  color: #fff;
+}
+
+.btn--success:hover,
+.btn--create:hover,
+.btn--positive:hover {
+  background: #0c3258;
+}
+
+.btn--success:active,
+.btn--create:active,
+.btn--positive:active {
+  background: #0a2a4a;
+}
+
+/* Variante secondaire : libellé bleu sur fond neutre. */
+.btn--success.btn--secondary,
+.btn--create.btn--secondary,
+.btn--positive.btn--secondary {
+  background: var(--background-secondary);
+  color: #134c82;
+}
+
+/* Bouton « Nouveau » de la barre de navigation : Zammad le peint en vert via
+   un fill codé en dur sur l'icône. C'est une ACTION, donc cyan Odice (la barre
+   est navy : le Bleu 2020 y serait illisible). */
+#navigation .icon-plus,
+#navigation .icon-plus use {
+  fill: #7fcfe8;
+}
+
+#navigation .list-button:hover .icon-plus,
+#navigation .list-button:hover .icon-plus use {
+  fill: #fff;
+}
+
+/* ============================================================
+   12. Rapprochement visuel avec le nouveau frontend
+   ============================================================
+   Les deux interfaces resteront distinctes (jeux d'icônes et densités
+   différents), mais les écarts les plus voyants se corrigent : formes des
+   éléments de navigation, rayon des avatars, épaisseur des séparateurs. */
+
+/* Éléments de navigation : mêmes coins arrondis et mêmes marges internes que
+   les entrées du nouveau frontend, au lieu de bandeaux pleine largeur. */
+#navigation .tasks .task,
+#navigation .primary-navigation > li > a,
+#navigation .primary-navigation .js-menu > a {
+  border-radius: 8px;
+  margin-inline: 8px;
+  padding-inline: 10px;
+}
+
+/* La colonne secondaire (« Manage », « Channels »…) reprend la surface sombre
+   du nouveau frontend plutôt qu'un charbon neutre. */
+.content .sidebar,
+.sidebar-block,
+#manage .sidebar {
+  background-color: #1f2127;
+}
+
+/* Avatars : mêmes coins que dans le nouveau frontend. */
+.avatar {
+  border-radius: 50%;
+}

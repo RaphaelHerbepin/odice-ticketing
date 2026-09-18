@@ -1,0 +1,50 @@
+/* Odice — épaisseur de trait des icônes Lucide.
+ *
+ * `svgToSymbol()` (app/frontend/build/iconsPlugin.mjs) ne conserve QUE le
+ * viewBox de la racine : le `stroke-width="2"` de Lucide est donc perdu, et la
+ * valeur initiale SVG (1) donnerait des icônes anémiques. On la repose ici.
+ *
+ * `stroke-width` est une propriété héritée : appliquée au <svg> externe (.icon,
+ * posé par CommonIcon.vue) elle descend dans l'arbre du <use>.
+ *
+ * Compensation optique : Lucide dessine sur une grille de 24 unités étirée à la
+ * taille du <svg> externe. À trait constant, une icône de 16 px paraît donc
+ * plus épaisse qu'une de 48 px. `usePrivateIcon.ts` écrit la taille dans
+ * l'attribut `width`, ce qui rend chaque palier ciblable. Les valeurs visent la
+ * fourchette de 1,5 à 2 px de la charte.
+ *
+ * Les icônes conservées (logos de marques) sont dessinées en aplat, sans
+ * stroke : ces règles sont sans effet sur elles.
+ */
+
+.icon {
+  stroke-width: 2;
+}
+
+.icon[width='12'] {
+  stroke-width: 2.5;
+}
+
+.icon[width='16'] {
+  stroke-width: 2.25;
+}
+
+.icon[width='20'] {
+  stroke-width: 2.1;
+}
+
+.icon[width='24'] {
+  stroke-width: 2;
+}
+
+.icon[width='32'] {
+  stroke-width: 1.8;
+}
+
+.icon[width='48'] {
+  stroke-width: 1.5;
+}
+
+.icon[width='96'] {
+  stroke-width: 1;
+}

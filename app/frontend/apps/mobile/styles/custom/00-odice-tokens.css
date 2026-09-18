@@ -1,0 +1,55 @@
+/* Odice — palette de marque (charte graphique 2020), application mobile.
+ *
+ * Même principe que le fichier desktop : redéfinition des VALEURS des tokens
+ * déclarés dans `../tokens.css`, sans jamais toucher un fichier Zammad.
+ *
+ * L'app mobile est nativement SOMBRE et sa palette est plate (`--color-blue`,
+ * `--color-gray`… sans échelle) : elle est incompatible par nom avec celle du
+ * desktop, le remappage doit donc être fait séparément.
+ *
+ * Le Bleu 2020 brut (#134c82) ne tient pas le contraste AA sur fond charbon :
+ * l'accent d'action utilise ici la variante éclaircie, identique à celle du
+ * thème sombre desktop.
+ */
+
+/* stylelint-disable custom-property-empty-line-before */
+
+:root {
+  /* ---------- Fonds (dérivés du charcoal #414042) ---------- */
+  --color-black: #1e1d20;
+
+  /* ---------- Gris ---------- */
+  --color-gray: #9ea4a6;       /* Gris moyen — texte secondaire */
+  --color-gray-100: #ced4d7;   /* Gris souris */
+  --color-gray-150: #dde2e4;
+  --color-gray-200: #6e7274;
+  --color-gray-300: #4e4d50;
+  --color-gray-400: #333235;
+  --color-gray-500: #29282a;
+  --color-gray-600: #232225;
+  --color-gray-highlight: #9ea4a626;
+  --color-gray-light: #41404299;
+
+  /* ---------- Accent d'action ---------- */
+  --color-blue: #4a90d9;
+  --color-blue-dark: #0c3258;
+  --color-blue-highlight: #4a90d919;
+
+  /* ---------- Sémantiques ---------- */
+  --color-yellow: #e5a63c;
+  --color-yellow-highlight: #e5a63c1a;
+  --color-yellow-inactive: #96762c;
+
+  --color-red: #e2615f;
+  --color-red-highlight: #e2615f1a;
+  --color-red-bright: #ef7a78;
+  --color-red-dark: #2a1d1d;
+
+  --color-green: #4fb383;
+  --color-green-highlight: #4fb3831a;
+
+  --color-orange: #d98f1e;
+
+  /* La famille pink sert au surlignage d'articles (fonctionnalité utilisateur),
+   * elle n'est pas remappée. */
+}

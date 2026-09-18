@@ -16,20 +16,24 @@ class MobileController < ApplicationController
       layout:       false,
       json:         {
         id:               '/mobile/',
-        short_name:       'Zammad',
+        short_name:       'Odice',
         name:             name,
         # TODO
         # dir: "ltr",
         # lang: "en-US",
         orientation:      'portrait',
-        background_color: '#191919',
-        theme_color:      '#191919',
+        background_color: '#0c3258',
+        theme_color:      '#0c3258',
         display:          'standalone',
         start_url:        '/mobile/',
         icons:            [
           # files are relative to manifest.webmanifest and are stored in public/assets/frontend
           { src: '../assets/frontend/app-icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: '../assets/frontend/app-icon-192.png', sizes: '192x192', type: 'image/png' },
+          # Variantes « maskable » : Android découpe l'icône selon la forme du
+          # lanceur, le pictogramme est donc placé dans la zone de sécurité.
+          { src: '../assets/frontend/app-icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: '../assets/frontend/app-icon-192-maskable.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
         ]
       },
       content_type: 'application/manifest+json'

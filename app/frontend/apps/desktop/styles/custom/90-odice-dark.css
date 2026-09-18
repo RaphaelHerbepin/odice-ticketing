@@ -1,0 +1,24 @@
+/* Odice — garde-fous du thème sombre.
+ *
+ * Pourquoi ce fichier existe : plusieurs jetons Zammad servent À LA FOIS de
+ * couleur de texte et de couleur de fond. Une valeur unique ne peut donc pas
+ * satisfaire le contraste dans les deux rôles. Les surcharges de rôle vivent
+ * ici, séparées des valeurs de palette (00-odice-tokens.css).
+ *
+ * Le ciblage d'une classe utilitaire (`.bg-blue-800`) est un couplage assumé à
+ * un nom de token Zammad stable. C'est le seul endroit du thème qui le fait.
+ */
+
+/* `--color-blue-800` est éclairci en sombre pour rester lisible EN TEXTE
+ * (le navy #134c82 tombe à 1.62:1 sur une carte sombre). Mais utilisé comme
+ * REMPLISSAGE, un bleu clair avec un libellé blanc repasse sous le seuil :
+ * on lui rend une valeur de fond soutenue. */
+
+/* Sélecteur de classe EXACTE, surtout pas `[class*='bg-blue-800']` : un
+ * sélecteur d'attribut « contient » attrape aussi les variantes conditionnelles
+ * de Tailwind (`hover:bg-blue-800`, `dark:bg-blue-800`, `group-hover:…`) et
+ * applique alors le fond en permanence, y compris au repos. C'est ce qui
+ * peignait en bleu le menu utilisateur et les popovers de la barre latérale. */
+[data-theme='dark'] .bg-blue-800 {
+  background-color: #2a7fbd;
+}

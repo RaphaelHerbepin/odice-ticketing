@@ -1,0 +1,286 @@
+/* =====================================================================
+   Odice Design System — Colors & Type
+   Aligned to the official Charte Graphique Groupe Odice (2020).
+   --------------------------------------------------------------------- */
+
+/* Brand fonts. Gilroy + Brandon Grotesque are the official families per
+   the charte. Fundamental Brigade is kept as a robust fallback that
+   matches the heavy geometric character of the wordmark when Gilroy
+   is unavailable. Files live in /fonts. */
+
+@font-face {
+  font-family: Gilroy;
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: local('Gilroy-Regular'), local('Gilroy Regular'),
+       url('./fonts/Gilroy-Regular.woff2') format('woff2'),
+       url('./fonts/Gilroy-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Gilroy;
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: local('Gilroy-Bold'), local('Gilroy Bold'),
+       url('./fonts/Gilroy-Bold.woff2') format('woff2'),
+       url('./fonts/Gilroy-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Brandon Grotesque';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: local('Brandon Grotesque'), local('BrandonGrotesque-Regular'),
+       url('./fonts/BrandonGrotesque-Regular.woff2') format('woff2'),
+       url('./fonts/BrandonGrotesque-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Fundamental Brigade';
+  font-weight: 400; font-style: normal; font-display: swap;
+  src: url('./fonts/Fundamental_Brigade_Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Fundamental Brigade';
+  font-weight: 500; font-style: normal; font-display: swap;
+  src: url('./fonts/Fundamental_Brigade_Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Fundamental Brigade';
+  font-weight: 800; font-style: normal; font-display: swap;
+  src: url('./fonts/Fundamental_Brigade_Heavy.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Academy Engraved';
+  font-weight: 400; font-style: normal; font-display: swap;
+  src: url('./fonts/Academy_Engraved_LET_Fonts.ttf') format('truetype');
+}
+
+:root {
+  /* --------- BRAND CORE (charte 2020) --------- */
+  --odice-bleu-2020:  #134C82;  /* BLEU 2020 — primary action, navy depth */
+  --odice-bleu:       #27A9CE;  /* BLEU ODICE — info, refrigeration accent */
+  --odice-charcoal:   #414042;  /* GRIS CHARCOAL — text, mark, wordmark */
+  --odice-gris-moyen: #9EA4A6;  /* GRIS MOYEN — secondary text, dividers */
+  --odice-gris-souris:#CED4D7;  /* GRIS SOURIS — borders, soft surfaces */
+
+  /* Aliases for clarity + back-compat with earlier token names */
+  --odice-navy:        var(--odice-bleu-2020);
+  --odice-navy-deep:   var(--odice-bleu-2020-deep);
+  --odice-navy-95:     var(--odice-bleu-2020-95);
+  --odice-navy-85:     var(--odice-bleu-2020-85);
+  --odice-cyan:        var(--odice-bleu);
+  --odice-cyan-deep:   var(--odice-bleu-deep);
+  --odice-cyan-95:     var(--odice-bleu-95);
+  --odice-cyan-85:     var(--odice-bleu-85);
+
+  /* Rouge aliases route to the semantic urgence token (not a brand color). */
+  --odice-rouge:       var(--semantic-rouge);
+  --odice-rouge-deep:  var(--semantic-rouge-deep);
+  --odice-rouge-95:    var(--semantic-rouge-95);
+  --odice-rouge-85:    var(--semantic-rouge-85);
+
+  /* --------- DERIVED TINTS --------- */
+  --odice-bleu-2020-95: #E5ECF3;
+  --odice-bleu-2020-85: #B0C4D9;
+  --odice-bleu-2020-deep: #0C3258;
+  --odice-bleu-95:    #E6F4FA;
+  --odice-bleu-85:    #B6E0EE;
+  --odice-bleu-deep:  #1A82A0;
+
+  /* Off-charte accent kept ONLY for urgence / danger semantics
+     (the red pill exists only inside the picto, not in the charte palette). */
+  --semantic-rouge:        #C83433;
+  --semantic-rouge-deep:   #9A2625;
+  --semantic-rouge-95:     #FBECEC;
+  --semantic-rouge-85:     #F1B8B8;
+
+
+
+  /* --------- NEUTRALS (anchored to charte greys) --------- */
+  --neutral-0:    #FFF;
+  --neutral-50:   #FAFAFA;
+  --neutral-100:  #F4F5F5;
+  --neutral-200:  #E8EAEB;
+  --neutral-300:  var(--odice-gris-souris); /* #CED4D7 */
+  --neutral-400:  #B4B9BB;
+  --neutral-500:  var(--odice-gris-moyen);  /* #9EA4A6 */
+  --neutral-600:  #6E7274;
+  --neutral-700:  var(--odice-charcoal);    /* #414042 */
+  --neutral-800:  #2B2A2C;
+  --neutral-900:  #18171A;
+
+  /* --------- SEMANTIC SURFACES & TEXT --------- */
+  --bg:           var(--neutral-0);
+  --bg-soft:      var(--neutral-50);
+  --bg-muted:     var(--neutral-100);
+  --bg-inverse:   var(--neutral-900);
+  --fg-1:         var(--odice-charcoal);
+  --fg-2:         var(--neutral-600);
+  --fg-3:         var(--odice-gris-moyen);
+  --fg-on-dark:   var(--neutral-0);
+  --fg-on-color:  var(--neutral-0);
+  --border:       var(--odice-gris-souris);
+  --border-soft:  var(--neutral-200);
+  --border-strong:var(--neutral-400);
+
+  /* --------- SEMANTIC ACTIONS --------- */
+  --action:           var(--odice-bleu-2020);
+  --action-hover:     var(--odice-bleu-2020-deep);
+  --action-fg:        var(--neutral-0);
+  --info:    var(--odice-bleu);
+  --info-bg: var(--odice-bleu-95);
+  --warn:    #D98F1E;
+  --warn-bg: #FBF1DF;
+  --danger:  var(--semantic-rouge);
+  --danger-bg: var(--semantic-rouge-95);
+  --success: #2E8A5A;
+  --success-bg: #E5F3EB;
+
+  /* --------- TYPOGRAPHY (charte 2020) --------- */
+
+  /* Gilroy — titles, headings, UI. Brandon Grotesque — body / running text. */
+  --font-display: 'Gilroy', 'Fundamental Brigade', system-ui, -apple-system, 'Helvetica Neue', arial, sans-serif;
+  --font-sans:    'Gilroy', 'Fundamental Brigade', system-ui, -apple-system, 'Helvetica Neue', arial, sans-serif;
+  --font-body:    'Brandon Grotesque', 'Gilroy', system-ui, -apple-system, 'Helvetica Neue', arial, sans-serif;
+  --font-thin:    'Gilroy', 'Brandon Grotesque', system-ui, sans-serif;
+  --font-academy: 'Academy Engraved', 'Gilroy', serif; /* Odice Academy contexts */
+  --font-mono:    monaco, ui-monospace, 'SF Mono', menlo, consolas, monospace;
+
+  /* Type scale (1.250 — major third) */
+  --fs-12: 0.75rem;  --fs-14: 0.875rem; --fs-16: 1rem;
+  --fs-18: 1.125rem; --fs-20: 1.25rem;  --fs-24: 1.5rem;
+  --fs-30: 1.875rem; --fs-36: 2.25rem;  --fs-48: 3rem;
+  --fs-60: 3.75rem;  --fs-72: 4.5rem;
+
+  /* --------- SPACING (4px base) --------- */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+  --sp-12: 48px; --sp-16: 64px; --sp-20: 80px; --sp-24: 96px;
+
+  /* --------- RADII --------- */
+  --r-xs: 2px; --r-sm: 4px; --r-md: 8px;
+  --r-lg: 12px; --r-xl: 20px; --r-pill: 999px;
+
+  /* --------- SHADOWS --------- */
+  --shadow-1: 0 1px 2px rgba(24,23,26,0.06), 0 1px 1px rgba(24,23,26,0.04);
+  --shadow-2: 0 4px 12px rgba(24,23,26,0.08), 0 1px 2px rgba(24,23,26,0.05);
+  --shadow-3: 0 12px 32px rgba(24,23,26,0.12), 0 2px 6px rgba(24,23,26,0.06);
+  --shadow-inset: inset 0 0 0 1px rgba(24,23,26,0.06);
+
+  /* --------- MOTION --------- */
+  --ease-out:    cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 120ms; --dur-base: 200ms; --dur-slow: 320ms;
+}
+
+/* =====================================================================
+   SEMANTIC TEXT STYLES — per charte:
+     Titres / emphases       → Gilroy Bold
+     Sous-titres / situation → Gilroy Regular
+     Texte courant           → Brandon Grotesque Regular
+   --------------------------------------------------------------------- */
+
+body, .od-body {
+  font-family: var(--font-body);
+  font-size: var(--fs-16);
+  line-height: 1.55;
+  color: var(--fg-1);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.od-display {
+  font-family: var(--font-display);
+  font-weight: 700;  /* Gilroy Bold */
+  font-size: clamp(var(--fs-48), 6vw, var(--fs-72));
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  color: var(--fg-1);
+}
+
+h1, .od-h1 {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: var(--fs-48); line-height: 1.05;
+  letter-spacing: -0.005em; color: var(--fg-1); margin: 0;
+}
+
+h2, .od-h2 {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: var(--fs-36); line-height: 1.1;
+  letter-spacing: -0.005em; color: var(--fg-1); margin: 0;
+}
+
+h3, .od-h3 {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: var(--fs-24); line-height: 1.2;
+  color: var(--fg-1); margin: 0;
+}
+
+h4, .od-h4 {
+  font-family: var(--font-display); font-weight: 400;  /* Gilroy Regular for sous-titres */
+  font-size: var(--fs-20); line-height: 1.3;
+  color: var(--fg-1); margin: 0;
+}
+
+/* Subtitle = situation / explication, per charte: Gilroy Regular */
+.od-subtitle {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: var(--fs-18); line-height: 1.4;
+  color: var(--fg-2);
+}
+
+/* Eyebrow / label */
+.od-eyebrow {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: var(--fs-14); letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--fg-2);
+}
+
+/* Body */
+p, .od-p {
+  font-family: var(--font-body);
+  font-size: var(--fs-16); line-height: 1.6;
+  color: var(--fg-1); text-wrap: pretty;
+}
+
+.od-lead {
+  font-family: var(--font-body);
+  font-size: var(--fs-20); line-height: 1.5;
+  color: var(--fg-1); font-weight: 400;
+}
+
+.od-small, small {
+  font-family: var(--font-body);
+  font-size: var(--fs-14); color: var(--fg-2);
+}
+
+.od-caption {
+  font-family: var(--font-body);
+  font-size: var(--fs-12); color: var(--fg-2);
+  letter-spacing: 0.02em;
+}
+
+code, .od-code {
+  font-family: var(--font-mono); font-size: 0.92em;
+  background: var(--bg-muted);
+  border: 1px solid var(--border-soft);
+  padding: 0.1em 0.35em; border-radius: var(--r-sm);
+  color: var(--fg-1);
+}
+
+a, .od-link {
+  color: var(--odice-bleu-2020);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+a:hover, .od-link:hover { color: var(--odice-bleu-2020-deep); }
