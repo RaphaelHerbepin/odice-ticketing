@@ -1,0 +1,53 @@
+query ticketStatistics(
+  $from: ISO8601DateTime
+  $to: ISO8601DateTime
+  $groupIds: [ID!]
+  $organizationIds: [ID!]
+) {
+  ticketStatistics(
+    from: $from
+    to: $to
+    groupIds: $groupIds
+    organizationIds: $organizationIds
+  ) {
+    totals {
+      total
+      open
+      closed
+      escalated
+      averageFirstResponseMinutes
+      averageCloseMinutes
+      firstResponseInTimePercent
+      closeInTimePercent
+    }
+    byGroup {
+      label
+      count
+    }
+    byOrganization {
+      label
+      count
+    }
+    byState {
+      label
+      count
+    }
+    byPriority {
+      label
+      count
+    }
+    byOwner {
+      label
+      count
+    }
+    byChannel {
+      label
+      count
+    }
+    volumeOverTime {
+      date
+      created
+      closed
+    }
+  }
+}

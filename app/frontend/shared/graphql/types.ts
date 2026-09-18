@@ -905,6 +905,16 @@ export type UserCurrentDevicesUpdatesSubscriptionVariables = Exact<{ [key: strin
 
 export type UserCurrentDevicesUpdatesSubscription = { userCurrentDevicesUpdates: { __typename: 'UserCurrentDevicesUpdatesPayload', devices: Array<{ __typename: 'UserDevice', id: string, userId: string, name: string, os: string | null | undefined, browser: string | null | undefined, location: string | null | undefined, deviceDetails: any, locationDetails: any, fingerprint: string | null | undefined, userAgent: string | null | undefined, ip: string | null | undefined, createdAt: string, updatedAt: string }> | null | undefined } };
 
+export type TicketStatisticsQueryVariables = Exact<{
+  from?: string | null | undefined;
+  to?: string | null | undefined;
+  groupIds?: Array<string | number> | string | number | null | undefined;
+  organizationIds?: Array<string | number> | string | number | null | undefined;
+}>;
+
+
+export type TicketStatisticsQuery = { ticketStatistics: { __typename: 'TicketStatistics', totals: { __typename: 'TicketStatisticsTotals', total: number, open: number, closed: number, escalated: number, averageFirstResponseMinutes: number | null | undefined, averageCloseMinutes: number | null | undefined, firstResponseInTimePercent: number | null | undefined, closeInTimePercent: number | null | undefined }, byGroup: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byOrganization: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byState: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byPriority: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byOwner: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byChannel: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, volumeOverTime: Array<{ __typename: 'TicketStatisticsVolumePoint', date: string, created: number, closed: number }> } };
+
 export type AiAssistantAnalyticsMetaFragment = { __typename: 'AIAnalyticsMetadata', run: { __typename: 'AIAnalyticsRun', id: string } | null | undefined, usage: { __typename: 'AIAnalyticsUsage', userHasProvidedFeedback: boolean | null | undefined } | null | undefined };
 
 export type IdoitObjectAttributesFragment = { __typename: 'TicketExternalReferencesIdoitObject', idoitObjectId: number, link: string | null | undefined, title: string, type: string, status: string };
