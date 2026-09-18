@@ -1,0 +1,146 @@
+/* Odice — palette de marque pour le frontend legacy (CoffeeScript / Sprockets).
+ *
+ * `zammad.scss` expose ~80 variables CSS en hsl() dans un bloc `:root`. Ce
+ * fichier redéfinit les plus structurantes en valeurs Odice. Il est chargé par
+ * `require_tree ./custom/` dans `application.css`, donc APRÈS `require zammad`
+ * : la surcharge fonctionne sans `!important` et SANS modifier `zammad.scss`.
+ *
+ * Cette palette est indépendante de celle du frontend Vue (noms différents) :
+ * les deux doivent être maintenues en parallèle.
+ */
+
+:root {
+  /* ---------- Action primaire : Bleu 2020 ---------- */
+  --button-primary-background: #134c82;
+  --button-primary-background-active: #0c3258;
+  --text-link: #134c82;
+  --text-nav: #134c82;
+
+  /* ---------- Accent froid / mise en évidence : Bleu Odice ---------- */
+  --highlight: #27a9ce;
+  --border-highlight: #27a9ce;
+  --shadow-highlight: #d7ecf5;
+  --text-muted-highlight: #e6f4fa;
+  --background-highlight: #e6f4fa;
+  --backdrop-clue-start: rgba(12, 50, 88, 0.12);
+  --backdrop-clue-end: rgba(12, 50, 88, 0.88);
+
+  /* ---------- Textes ---------- */
+  --text-normal: #414042;
+  --header-primary: #414042;
+  --header-secondary: #9ea4a6;
+  --text-muted: #9ea4a6;
+  --text-muted-alt: #9ea4a6;
+
+  /* ---------- Surfaces claires ---------- */
+  --background-primary: #fafafa;
+  --background-primary-alt: #f4f5f5;
+  --background-secondary-hover: #eceef0;
+
+  /* ---------- Surfaces sombres (barre de navigation) ----------
+   * Navy, et non charbon : c'est la même surface que la barre latérale du
+   * nouveau frontend (jeton --color-neutral-950), les deux interfaces doivent
+   * se ressembler. */
+  --background-tertiary: #0c3258;
+  --background-quaternary: #0a2a4a;
+  --background-quaternary-alt: #e8eaeb;
+  --background-active: #134c82;
+
+  /* ---------- Bordures ---------- */
+  --border: #ced4d7;
+  --border-alt: #ced4d7;
+
+  /* ---------- Éléments interactifs neutres ---------- */
+  --interactive-muted: #b4b9bb;
+  --interactive-muted-active: #b4b9bb;
+  --interactive-muted-alt: #ced4d7;
+  --nav-icon: #9ea4a6;
+  --menu-icon: #6e7274;
+
+  /* ---------- États d'escalade et sémantiques ----------
+   * Le rouge #c83433 est réservé au danger / à l'urgence (charte). */
+  --supergood-color: #2e8a5a;
+  --good-color: #5f9e4a;
+  --ok-color: #d98f1e;
+  --bad-color: #d4692a;
+  --superbad-color: #c83433;
+  --danger-color: #c83433;
+  --ghost-color: #ced4d7;
+  --pending-color: #6e7274;
+
+  /* ---------- Étiquettes ---------- */
+  --tag-text: #414042;
+  --tag-background: #e8eaeb;
+  --file-icon-color: #ced4d7;
+}
+
+/* ---------- Thème sombre ----------
+ * INDISPENSABLE : `zammad.scss:121` redéfinit l'intégralité des variables dans
+ * un bloc `[data-theme='dark']`. Sans le bloc ci-dessous, les valeurs claires
+ * du `:root` précédent — chargées après, à spécificité égale — s'appliqueraient
+ * AUSSI en thème sombre. C'est ce qui rendait les liens navy illisibles sur
+ * fond charbon.
+ *
+ * Les accents sont donc éclaircis : le Bleu 2020 (#134c82) tombe à 1,6:1 sur
+ * une surface sombre, très en dessous du seuil AA.
+ */
+[data-theme='dark'] {
+  /* Actions et liens : versions éclaircies, lisibles sur charbon */
+  --button-primary-background: #2a7fbd;
+  --button-primary-background-active: #4a90d9;
+  --text-link: #5cc3e3;
+  --text-nav: #d6e2ec;
+  --highlight: #27a9ce;
+  --border-highlight: #27a9ce;
+  --shadow-highlight: #1c4e7d;
+  --background-highlight: #12354f;
+  --text-muted-highlight: #12354f;
+
+  /* Textes */
+  --text-normal: #ced4d7;
+  --header-primary: #fff;
+  --header-secondary: #9ea4a6;
+  --text-muted: #9ea4a6;
+  --text-muted-alt: #9ea4a6;
+
+  /* Surfaces, dérivées du charcoal #414042 */
+  --background-primary: #1e1d20;
+  --background-primary-alt: #232225;
+  --background-secondary: #2b2a2e;
+  --background-secondary-hover: #333237;
+
+  /* La barre de navigation reste NAVY en thème sombre, comme celle du nouveau
+   * frontend : sinon l'administration réapparaît en charbon et donne
+   * l'impression d'un Zammad non rebrandé. */
+  --background-tertiary: #0c3258;
+  --background-quaternary: #0a2a4a;
+  --background-popover: #2b2a2e;
+  --background-active: #134c82;
+
+  /* Bordures : plus visibles que chez Zammad, qui les creusait sous la surface */
+  --border: #403f45;
+  --border-alt: #4a494f;
+
+  /* Éléments interactifs */
+  --interactive-muted: #9ea4a6;
+  --interactive-muted-alt: #4e4d50;
+  --nav-icon: #9ea4a6;
+  --menu-icon: #9ea4a6;
+
+  /* Sémantiques éclaircies */
+  --danger-color: #e2615f;
+  --superbad-color: #e2615f;
+  --supergood-color: #4fb383;
+  --good-color: #4fb383;
+  --ok-color: #e5a63c;
+  --bad-color: #e5a63c;
+  --ghost-color: #6e7274;
+  --pending-color: #9ea4a6;
+  --tag-background: #333237;
+  --tag-text: #ced4d7;
+
+  /* Élévations : jamais colorées */
+  --elevation-stroke: 0 1px rgba(0, 0, 0, 0.2);
+  --elevation-low: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --elevation-high: 0 8px 24px rgba(0, 0, 0, 0.4);
+}

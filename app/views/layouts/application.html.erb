@@ -9,6 +9,25 @@
   <%= stylesheet_link_tag "application", :media => 'all' %>
   <%= stylesheet_link_tag "application-print", :media => 'print' %>
   <%= javascript_tag nonce: true do -%>
+    /* Odice : la racine sert l'ancienne interface. On bascule vers le nouveau
+       frontend (desktop ou mobile selon la largeur d'écran) AVANT de charger
+       les 4 Mo de JavaScript hérité, pour éviter tout affichage transitoire.
+
+       Ne redirige que la racine SANS fragment : `/#manage`, `/#ticket/zoom/1`,
+       etc. continuent de fonctionner, ce qui préserve l'accès à
+       l'administration, non encore portée sur le nouveau frontend.
+       Échappatoire : `/?legacy=1`, mémorisée ensuite pour la session. */
+    try {
+      var odiceForceLegacy = window.location.search.indexOf('legacy') !== -1;
+      if (odiceForceLegacy) { sessionStorage.setItem('odice_force_legacy', '1'); }
+
+      if (window.location.pathname === '/' &&
+          (!window.location.hash || window.location.hash === '#') &&
+          sessionStorage.getItem('odice_force_legacy') !== '1') {
+        window.location.replace(window.matchMedia('(max-width: 767px)').matches ? '/mobile' : '/desktop');
+      }
+    } catch (e) { };
+
     if(window.MSInputMethodContext && document.documentMode){
       var polyfillScriptTag = document.createElement('script');
       polyfillScriptTag.setAttribute('src', '<%= path_to_javascript('ie11CustomProperties.min') %>');

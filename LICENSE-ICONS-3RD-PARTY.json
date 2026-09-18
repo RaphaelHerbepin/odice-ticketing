@@ -1,892 +1,2122 @@
 {
+    "add-square.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "add.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "ai-agent.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "ai-knowledge-base.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "all-tickets.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "archive-fill.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
     "archived-modifier.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "arrow-bar-left.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "arrow-bar-right.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "arrow-clockwise.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "arrow-counterclockwise.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "arrow-down-short.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "arrow-down.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "arrow-left.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "arrow-repeat.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "arrow-right.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "arrow-sm.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "arrow-up-short.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "arrow-up.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "arrows-collapse.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "arrows-expand.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "arrows-fullscreen.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "at-sign.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "at.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "attachment.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "audio.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "backspace2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "bell.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "bold.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "book.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "box-arrow-in-right.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "box-arrow-in-up-right.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "box-arrow-up-right.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "brightness-alt-high.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "buildings-slash.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "buildings.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "calendar-date-time.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "calendar-event.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "calendar-range.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "calendar.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "camera-video-off.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "camera-video.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "camera.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "card-list.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "caret-down.svg": {
-        "author": "",
-        "url": "",
-        "license": ""
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "caret-left.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "caret-right.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "caret-up.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "caret.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "chain.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "change-order.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "chat-left-text.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "chat-right-text.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "chat.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-all.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-box-no.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-box-yes.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-circle-no-ai.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-circle-no.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-circle-outline-dashed.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-circle-outline.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-circle-yes.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-double-circle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-double.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-square-fill.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check-square.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "check.svg": {
-        "author": "",
-        "url": "",
-        "license": ""
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check2-all-circle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check2-all.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check2-circle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check2-square.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "check2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "checkbox-checked.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "checkbox-indeterminate.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "checkbox.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "checked-no.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "checked-yes.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "checklist.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "checkmark.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "chevron-down.svg": {
-        "author": "",
-        "url": "",
-        "license": ""
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "chevron-left.svg": {
-        "author": "",
-        "url": "",
-        "license": ""
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "chevron-right.svg": {
-        "author": "",
-        "url": "",
-        "license": ""
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "chevron-up.svg": {
-        "author": "",
-        "url": "",
-        "license": ""
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "clipboard.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "clipboard2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "clock-history.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "clock.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "close-keyboard.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "close-small.svg": {
-        "author": "",
-        "url": "",
-        "license": ""
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "close.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "cloud.svg": {
         "author": "Kirill Ulitin",
-        "url": "https:\/\/thenounproject.com\/search\/?q=cloud&i=84976",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/search/?q=cloud&i=84976"
+    },
+    "code-slash.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "code-square.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "code.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "cog.svg": {
         "author": "Melvin Salas",
-        "url": "https:\/\/thenounproject.com\/term\/gear\/17369\/",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/term/gear/17369/"
+    },
+    "collection-play.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "color.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "crown-silver.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "crown.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "danger.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "dash-circle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "dash-square.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "dashboard.svg": {
         "author": "Anton Gajdosik",
-        "url": "https:\/\/thenounproject.com\/term\/gauge\/186120",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/term/gauge/186120"
+    },
+    "delete-column.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "delete-row.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "delete-table.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "delete.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "desktop-edit.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "desktop.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "diagonal-cross.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "document.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "double-arrow-left.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "double-arrow-right.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "download.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "draft-modifier.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "draggable.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "dropdown-list.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "edit.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "email-button.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "email.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "encryption-error.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "envelope.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "eraser-fill.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "exclamation-triangle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "external-link.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "external.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "eye-off.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "eye-slash.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "eye.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "eyedropper.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "facebook-button.svg": {
         "author": "Facebook",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "facebook.svg": {
         "author": "Facebook",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "fax.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "file-archive.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "file-audio.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "file-calendar.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "file-code.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "file-email.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "file-excel.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "file-image.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "file-music.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "file-pdf.svg": {
         "author": "Adobe",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "file-play.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "file-powerpoint.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "file-richtext.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "file-text.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "file-unknown.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "file-video.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "file-word.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "file.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "files.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "filter.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "floppy.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "folder-plus.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "folder.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "form.svg": {
         "author": "Pickin Studio",
-        "url": "https:\/\/thenounproject.com\/search\/?q=website&i=16523",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/search/?q=website&i=16523"
     },
     "forward.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "full-logo.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "gear.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "github-button.svg": {
         "author": "Github",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "github-logo.svg": {
         "author": "Github",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "gitlab-button.svg": {
         "author": "GitLab",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "gitlab-logo.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "globe.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "google-button.svg": {
         "author": "Google",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "grip-vertical.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "group.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "hand-thumbs-down.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "hand-thumbs-up.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "hashtag.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "headset.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "help.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "hide.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "highlighter.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "highlighter2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "history.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "home.svg": {
-        "author": "",
-        "url": "",
-        "license": ""
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "horizontal-rule.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "image.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "important.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "in-process.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "inactive-organization.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "inactive-reload.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "inactive-user.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "info-circle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "info.svg": {
-        "author": "Information by Gregor \u010cre\u0161nar from the Noun Project",
-        "url": "https:\/\/thenounproject.com\/search\/?q=info&i=176431",
-        "license": "CC 3.0 Attribution"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "input-cursor-text.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "insert-column-after.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "insert-column-before.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "insert-hr.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "insert-row-after.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "insert-row-before.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "install.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "internal-article.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "internal-modifier.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "ios-share.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "italic.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "kb-archived.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "kb-draft.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "kb-internal.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "kb-published.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "kba-add.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "key.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "keyboard.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "knowledge-base-answer.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "knowledge-base.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "language.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "library.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "lightbulb.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "lightning.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "line-left-arrow.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "line-right-arrow.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "link-45deg.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "link.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "linkedin-button.svg": {
         "author": "Linkedin",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "list-columns-reverse.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "list-ol.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "list-ul.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "list.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "loader.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "loading.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "lock-fill.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "lock-open.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "lock.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "logo.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "logotype.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "long-arrow-down.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "long-arrow-right.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "low-priority.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "macros.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "magic.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "magnifier.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "mail-out.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "mail.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "marker.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "merge-cells.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "merge.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "message.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "microsoft-button.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "minus-small.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "minus.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "mobile-code.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "mood-bad.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "mood-good.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "mood-ok.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "mood-sad.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "mood-superbad.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "mood-supergood.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "moon-stars.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "more-vertical.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "more.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "mute.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "new-customer.svg": {
-        "author": "",
-        "url": "",
-        "license": ""
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "new-organization.svg": {
-        "author": "",
-        "url": "",
-        "license": ""
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "no-notifications.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "not-signed.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "note.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "notification-subscribed.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "notification-unsubscribed.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "oauth2-button.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "one-ticket.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "openid-connect-button.svg": {
         "author": "OpenID",
-        "url": "https://openid.net/",
-        "license": ""
+        "license": "",
+        "url": "https://openid.net/"
+    },
+    "ordered-list.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "organization.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "outbound-calls.svg": {
         "author": "Michael Zenaty",
-        "url": "https:\/\/thenounproject.com\/search\/?q=phone&i=21797",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/search/?q=phone&i=21797"
     },
     "overflow-button.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "overviews.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "package.svg": {
         "author": "Michael Wallner",
-        "url": "https:\/\/thenounproject.com\/search\/?q=package&i=25152",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/search/?q=package&i=25152"
     },
     "paperclip.svg": {
-        "author": "Cheesefork",
-        "url": "https:\/\/thenounproject.com\/search\/?q=attachment&i=197956",
-        "license": "CC 3.0 Attribution"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "paste.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "patch-check.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "patch-x.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "pen.svg": {
         "author": "Dmitry Baranovskiy",
-        "url": "https:\/\/thenounproject.com\/search\/?q=edit&i=5039",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/search/?q=edit&i=5039"
+    },
+    "pencil-fill.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "pencil-square.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "pencil.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "people-fill.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "person-x.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "person.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "phone-in.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "phone-out.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "phone-pencil.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "phone.svg": {
-        "author": "Michael Zenaty",
-        "url": "https:\/\/thenounproject.com\/search\/?q=phone&i=21797",
-        "license": "CC 3.0 Attribution"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "photos.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "pin-angle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "pin.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "play-circle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "plus-circle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "plus-small.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "plus-square-fill.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "plus-square.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "plus.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "printer.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "priority-high-micro-2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "priority-low-micro-2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "priority-normal-micro-2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "puzzle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "question-circle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "quote.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "radio-checked.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "radio-no.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "radio-yes.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "radio.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "rearange.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "received-calls.svg": {
         "author": "Michael Zenaty",
-        "url": "https:\/\/thenounproject.com\/search\/?q=phone&i=21797",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/search/?q=phone&i=21797"
     },
     "reload.svg": {
         "author": "Anand A Nair",
-        "url": "https:\/\/thenounproject.com\/anandgrafiti\/uploads\/?i=2149",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/anandgrafiti/uploads/?i=2149"
+    },
+    "remove-formatting.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "reopening.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "reply-all.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "reply-alt.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "reply.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "report.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "rss.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "saml-button.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "search-detail.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "search.svg": {
-        "author": "",
-        "url": "",
-        "license": ""
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "searchdetail.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "security-key.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "send.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "settings.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "shield-lock.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "show.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "signature.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "signed.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "signout.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "skip-forward.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "small-dot.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "smart-assist-elaborate.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "smart-assist.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "sms.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "snippet.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "speedometer2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "spinner-small.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "spinner.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "split-cells.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "split.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "square-fill.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "square.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "sso-button.svg": {
         "author": "Tanu Doank",
-        "url": "https:\/\/thenounproject.com\/term\/key\/1247931\/",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/term/key/1247931/"
     },
     "stack.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "star-fill.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "star.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "state-closed.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "state-escalated.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "state-open.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "state-waiting-for-closure.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "state-waiting-for-reminder.svg": {
         "author": "",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
     },
     "status-modified-outer-circle.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
-    },
-    "status.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "status-report.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "status.svg": {
+        "author": "Zammad",
+        "license": "MIT",
+        "url": ""
     },
     "stopwatch.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "strikethrough.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "subclause-small.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "summarize.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "sun.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "switchView.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "table.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "tag.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "task-state.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "task.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "team.svg": {
-        "author": "R\u00e9my M\u00e9dard",
-        "url": "https:\/\/thenounproject.com\/catalarem\/uploads\/?i=2554",
-        "license": "CC 3.0 Attribution"
+        "author": "Rémy Médard",
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/catalarem/uploads/?i=2554"
     },
     "telegram.svg": {
         "author": "Telegram",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "telephone-inbound.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "telephone-outbound.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "telephone.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "template.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "templates.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "text-indent-left.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "text-indent-right.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "text-modules.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "text-style-bold.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "text-style-color.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "text-style-h.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "text-style-h1.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "text-style-h2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "text-style-h3.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "text-style-italic.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "text-style-strikethrough.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "text-style-underline.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "three-dots-vertical.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "toggle-header-cell.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "toggle-header-column.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "toggle-header-row.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "tools.svg": {
         "author": "Michael Kussmaul",
-        "url": "https:\/\/thenounproject.com\/term\/tools\/41655\/",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/term/tools/41655/"
     },
     "total-tickets.svg": {
         "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "translate.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "trash.svg": {
         "author": "Filip Malinowski",
-        "url": "https:\/\/thenounproject.com\/term\/trash\/16505\/",
-        "license": "CC 3.0 Attribution"
+        "license": "CC 3.0 Attribution",
+        "url": "https://thenounproject.com/term/trash/16505/"
+    },
+    "trash3.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "twitter-button.svg": {
         "author": "Twitter",
-        "url": "twitter.com",
-        "license": ""
+        "license": "",
+        "url": "twitter.com"
     },
     "twitter.svg": {
         "author": "Twitter",
-        "url": "twitter.com",
-        "license": ""
+        "license": "",
+        "url": "twitter.com"
+    },
+    "type-bold.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "type-h.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "type-h1.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "type-h2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "type-h3.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "type-italic.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "type-strikethrough.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "type-underline.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "underline.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "unlock-fill.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "unlock.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "unmute.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
     },
     "unordered-list.svg": {
         "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "license": "MIT",
+        "url": ""
+    },
+    "update.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "upload.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "user-add.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "user-idle-2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "user-inactive.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "user-settings.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "user.svg": {
-        "author": "R\u00e9my M\u00e9dard",
-        "url": "https:\/\/thenounproject.com\/search\/?q=user&i=10314",
-        "license": "CC 3.0 Attribution"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
-    "whatsapp.svg": {
-        "author": "Meta",
-        "url": "https://about.meta.com/uk/brand/resources/whatsapp/whatsapp-brand/",
-        "license": ""
+    "vacation-mode.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "vacation2.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "video.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "warning-triangle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "warning.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "web.svg": {
-        "author": "Zammad",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "weibo-button.svg": {
         "author": "Weibo",
-        "url": "",
-        "license": ""
+        "license": "",
+        "url": ""
+    },
+    "whatsapp.svg": {
+        "author": "Meta",
+        "license": "",
+        "url": "https://about.meta.com/uk/brand/resources/whatsapp/whatsapp-brand/"
+    },
+    "wifi-off.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "wrench.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "x-circle.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    },
+    "x-lg.svg": {
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "zoom-in.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
     },
     "zoom-out.svg": {
-        "author": "Felix Niklas",
-        "url": "",
-        "license": "MIT"
-    },
-    "check2-square.svg": {
-      "author": "Zammad",
-      "url": "",
-      "license": "MIT"
-    },
+        "author": "Lucide Contributors",
+        "license": "ISC",
+        "url": "https://lucide.dev"
+    }
 }

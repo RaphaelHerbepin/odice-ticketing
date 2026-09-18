@@ -1,0 +1,28 @@
+/* Odice — formulaires (FormKit).
+ *
+ * Le thème FormKit de Zammad vit dans
+ * `app/frontend/apps/desktop/form/theme/global/getCoreDesktopClasses.ts` et ne
+ * contient que des noms de classes : il suit donc automatiquement le remappage
+ * des jetons. Ne restent ici que les points que la couleur ne règle pas.
+ */
+
+.formkit-inner {
+  border-radius: var(--od-r-md, 6px);
+}
+
+/* En thème sombre, le fond du champ et celui de la carte ne diffèrent que de
+ * 1,15:1 : le champ est pratiquement invisible. On lui ajoute un filet. */
+[data-theme='dark'] .formkit-inner {
+  box-shadow: inset 0 0 0 1px var(--color-gray-900);
+}
+
+/* Marque « champ modifié » : Zammad dessine des rayures diagonales via un
+ * dégradé répété, que la charte proscrit. Remplacé par une barre pleine cyan
+ * de 2px. */
+.form-group.form-group-mark-dirty > .formkit-outer[data-dirty] > .formkit-block
+  > .formkit-wrapper > .formkit-inner::before {
+  background: var(--od-bleu);
+  background-image: none;
+  mask-image: none;
+  width: 2px;
+}

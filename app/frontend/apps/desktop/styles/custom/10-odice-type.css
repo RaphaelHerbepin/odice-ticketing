@@ -1,0 +1,85 @@
+/* Odice — polices de marque.
+ *
+ * Inter (SIL OFL 1.1) — corps de texte et UI dense. Police VARIABLE : un seul
+ * fichier par sous-ensemble couvre les graisses 100 à 900.
+ * Fundamental Brigade (Peter Wiegel, OFL + GPL font-exception) — titres, display
+ * et wordmark. Couverture vérifiée : accents français, œ, guillemets, €.
+ *
+ * Gilroy et Brandon Grotesque, prescrites par la charte 2020, ne sont pas
+ * fournies et sont sous licence commerciale. Pour basculer dessus plus tard :
+ * déposer les woff2 ici, ajouter les @font-face et les placer en tête de
+ * --font-sans / --font-display.
+ */
+
+@font-face {
+  font-family: Inter;
+  src: url("/assets/fonts/odice/Inter-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: u+0000-00ff, u+0131, u+0152-0153, u+02bb-02bc, u+02c6, u+02da, u+02dc, u+0304, u+0308, u+0329, u+2000-206f, u+20ac, u+2122, u+2191, u+2193, u+2212, u+2215, u+feff, u+fffd;
+}
+
+@font-face {
+  font-family: Inter;
+  src: url("/assets/fonts/odice/Inter-latin-ext.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: u+0100-02ba, u+02bd-02c5, u+02c7-02cc, u+02ce-02d7, u+02dd-02ff, u+0304, u+0308, u+0329, u+1d00-1dbf, u+1e00-1e9f, u+1ef2-1eff, u+2020, u+20a0-20ab, u+20ad-20c0, u+2113, u+2c60-2c7f, u+a720-a7ff;
+}
+
+@font-face {
+  font-family: "Fundamental Brigade";
+  src: url("/assets/fonts/odice/Fundamental_Brigade_Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fundamental Brigade";
+  src: url("/assets/fonts/odice/Fundamental_Brigade_Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fundamental Brigade";
+  src: url("/assets/fonts/odice/Fundamental_Brigade_Heavy.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --font-sans est défini par le plugin Tailwind JS (build/zammadTailwindPlugin.js).
+ * Tailwind v4 émet la valeur comme custom property : la redéfinir ici suffit,
+ * ce fichier étant chargé non-layeré et après les styles de l'app. */
+:root {
+  --font-sans: "Inter", "Helvetica Neue", helvetica, arial, sans-serif;
+  --font-display: "Fundamental Brigade", "Inter", "Helvetica Neue", helvetica, arial, sans-serif;
+}
+
+/* Filet de sécurité : si l'utilitaire `font-sans` n'était pas régénéré à partir
+ * de la variable, le corps de page reste sur Inter. */
+html,
+body {
+  font-family: var(--font-sans);
+}
+
+/* Titres et wordmark : géométrique lourde, conforme au traitement de la charte. */
+.od-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* Eyebrow « GROUPE » : Regular très tracké au-dessus du wordmark. */
+.od-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}

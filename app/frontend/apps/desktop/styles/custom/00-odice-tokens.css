@@ -1,0 +1,157 @@
+/* Odice — palette de marque (charte graphique 2020).
+ *
+ * Ce fichier NE MODIFIE AUCUN FICHIER ZAMMAD. Il redéfinit les valeurs des
+ * design tokens déclarés dans `../tokens.css` (bloc `@theme` Tailwind v4).
+ * Tailwind émet ces tokens comme custom properties et génère des utilitaires
+ * qui les référencent (`.bg-blue-800 { background-color: var(--color-blue-800) }`),
+ * donc redéfinir la variable suffit à repeindre toute l'application.
+ *
+ * Ce fichier est chargé NON-LAYERÉ et APRÈS les styles de l'app (voir
+ * `../custom/README.md`), il l'emporte donc sur `@layer theme` sans `!important`.
+ *
+ * RÈGLE ABSOLUE : on redéfinit les VALEURS, jamais les NOMS.
+ * `initializer/initializeGlobalComponentStyles.ts` code en dur des chaînes de
+ * classes Tailwind (`bg-red-500`, `bg-neutral-500`…) ; renommer l'échelle
+ * casserait badges, alertes et avatars en silence.
+ *
+ * Palette source (charte 2020) :
+ *   Bleu 2020    #134c82  action primaire, CTA, liens
+ *   Bleu Odice   #27a9ce  info, accent froid, anneau de focus
+ *   Charcoal     #414042  texte
+ *   Gris moyen   #9ea4a6  texte secondaire
+ *   Gris souris  #ced4d7  bordures
+ *   Rouge        #c83433  urgence / danger UNIQUEMENT (pas une couleur de marque)
+ */
+
+/* stylelint-disable custom-property-empty-line-before */
+
+:root {
+  /* ---------- Neutres clairs (surfaces, bordures, textes en thème clair) ----------
+   * L'échelle Zammad n'est pas monotone : 500 et 700 sont des gris clairs utilisés
+   * en thème sombre. Remappée valeur par valeur, pas par transposition mécanique. */
+  --color-neutral-50: #fafafa;
+  --color-neutral-75: #f4f5f5;
+  --color-neutral-100: #eceef0;
+  --color-neutral-200: #e8eaeb;
+  --color-neutral-300: #dde2e4;
+  --color-neutral-400: #ced4d7;  /* Gris souris — bordures */
+  --color-neutral-500: #6e7274;  /* texte atténué — le Gris moyen charte (#9ea4a6) échoue AA sur blanc (2.53:1) */
+  --color-neutral-700: #b4b9bb;
+  --color-neutral-800: #6e7274;
+  --color-neutral-950: #0c3258;  /* SHELL sidebar + page de connexion : navy profond Odice */
+
+  /* ---------- Surfaces sombres ----------
+   * Dérivées du charcoal #414042, mais très légèrement tirées vers le bleu.
+   * La charte ne définit pas de palette sombre ; un charbon strictement neutre
+   * jurait avec le navy de la barre latérale (rupture de température). Ces
+   * valeurs restent des gris — la dominante bleue est de l'ordre de 4 % — mais
+   * l'ensemble se tient. */
+  --color-gray-100: #414042;  /* Charcoal — texte corps en thème clair (10.3:1) */
+  --color-gray-200: #4c4d52;
+  --color-gray-300: #414042;  /* Charcoal exact */
+  --color-gray-400: #3a3b40;
+  --color-gray-500: #313339;  /* surface des cartes */
+  --color-gray-600: #2b2d33;
+  --color-gray-700: #25272d;  /* fond des champs */
+  --color-gray-800: #1f2127;  /* canvas */
+  --color-gray-900: #1a1c21;
+
+  /* ---------- Gris intermédiaires ---------- */
+  --color-stone-200: #6e7274;  /* placeholders, aides, lecture seule — 4.86:1 (Zammad échouait à 2.53:1) */
+  --color-stone-400: #6e7274;
+  --color-stone-500: #4c5257;
+  --color-stone-700: #383b41;
+
+  /* ---------- Accent : bleus ----------
+   * 800 = action primaire (Bleu 2020), 700 = accent froid / info (Bleu Odice).
+   * La charte réserve le cyan à l'information et au focus, le navy à l'action. */
+  --color-blue-50: #f7f9fb;
+  --color-blue-75: #f1f5f9;
+  --color-blue-100: #e5ecf3;
+  --color-blue-200: #eaf0f5;
+  --color-blue-300: #d3e0ec;
+  --color-blue-350: #dcf1fb;
+  --color-blue-400: #c6dcea;
+  --color-blue-500: #b6e0ee;
+  --color-blue-550: #a8d9ee;
+  --color-blue-600: #7fcfe8;
+  --color-blue-700: #27a9ce;  /* Bleu Odice */
+  --color-blue-800: #134c82;  /* Bleu 2020 — action primaire */
+  --color-blue-850: #0c3258;
+  --color-blue-875: #0a2a4a;
+  --color-blue-900: #0a2b49;
+  --color-blue-950: #071d31;
+
+  /* ---------- Succès ---------- */
+  --color-green-100: #eff1f0;
+
+  /* Malgré son nom, ce jeton n'a pas de sémantique verte : il sert de fond aux
+   * boutons « tertiaire » (par ex. « Ajouter une note interne »). On le rend
+   * donc neutre, sinon ces boutons virent au vert sans raison. */
+  --color-green-200: #e2e6e8;
+  --color-green-250: #e5f3eb;
+  --color-green-300: #d8ede2;  /* fond badge succès */
+  --color-green-350: #b6dfc2;
+  --color-green-400: #2e8a5a;
+  --color-green-500: #26714a;  /* TEXTE succès sur fond vert pâle — 4.83:1 */
+  --color-green-700: #1d5c3c;
+  --color-green-900: #0e2e1f;
+
+  /* ---------- Avertissement ---------- */
+  --color-yellow-50: #fbf1df;
+  --color-yellow-100: #fdf7e4;
+  --color-yellow-150: #d9c63f;
+  --color-yellow-200: #f5e39a;
+  --color-yellow-300: #e9b44c;
+  --color-yellow-500: #d98f1e;
+  --color-yellow-600: #8a5a12;  /* TEXTE avertissement — 5.91:1 (Zammad échouait à 2.26:1) */
+  --color-yellow-700: #b87214;
+  --color-yellow-750: #7a6413;
+  --color-yellow-800: #4a3810;
+  --color-yellow-900: #3e2f12;
+
+  /* ---------- Danger / urgence ----------
+   * L'échelle Zammad tirait vers l'orange (#e54011) ; ramenée sur le rouge charte. */
+  --color-red-50: #fbecec;
+  --color-red-300: #d9524f;
+  --color-red-400: #d4433f;
+  --color-red-500: #c83433;
+  --color-red-600: #9a2625;
+  --color-red-900: #3a1211;
+
+  /* Les familles pink et purple ne sont PAS remappées : elles servent au
+   * surlignage d'articles (fonctionnalité utilisateur, cf. --article-highlight-*),
+   * pas au branding. */
+
+  /* ---------- Formes (charte : 4px boutons/chips, 8px cartes/inputs, pill badges) ---------- */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+
+  /* ---------- Mouvement (charte : discret, jamais de scale ni de rotation) ---------- */
+  --ease-odice: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+}
+
+/* ---------- Thème sombre ----------
+ * Dérivé du charcoal, pas inventé. Le Bleu 2020 brut (#134c82) ne tient pas le
+ * contraste AA sur fond charbon : l'action passe à une variante éclaircie.
+ * Le variant Tailwind dark est `[data-theme=dark]` (posé par stores/theme.ts),
+ * pas la classe `.dark`. */
+:root[data-theme='dark'] {
+  --color-blue-800: #4a90d9;  /* action — éclairci pour AA sur fond sombre */
+  --color-blue-850: #6aa9e4;
+  --color-blue-700: #3fb3d6;  /* accent froid éclairci */
+
+  --color-red-500: #e2615f;   /* danger lisible sur charbon */
+  --color-red-400: #eb7c79;
+  --color-green-400: #4fb383;
+  --color-green-500: #4fb383;
+  --color-yellow-500: #e5a63c;
+}

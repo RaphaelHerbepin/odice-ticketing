@@ -33,6 +33,7 @@
 </style>
 <% if @objects[:standalone] != true %>
 <div class="header">
+  <img src="<%= c 'http_type' %>://<%= c 'fqdn' %>/assets/images/odice-email-logo.png" width="160" alt="<%= c 'product_name' %>" style="display:block;border:0;margin-bottom:6px">
   <%= c 'product_name' %> <%= t 'Notification' %>
 </div>
 <% end %>

@@ -1,0 +1,55 @@
+/* Odice — navigation : barre latérale et en-tête.
+ *
+ * À savoir : la barre latérale gauche est TOUJOURS sombre, même en thème clair
+ * (LayoutPage.vue force `data-theme="dark"` sur son contenu), et son fond est
+ * `bg-neutral-950`. Comme 00-odice-tokens.css fait pointer ce jeton sur le
+ * navy #0c3258, elle devient navy Odice sans une seule règle ici.
+ *
+ * Ce fichier ne traite donc que ce que la couleur seule ne fait pas : re-teinter
+ * les surfaces internes du sous-arbre, qui héritent du thème sombre et
+ * seraient sinon charbon sur navy.
+ */
+
+/* ATTENTION : ne PAS re-teinter les jetons sur `LayoutSidebar` en entier.
+ * Les popovers de la barre (menu utilisateur, notifications) y sont ancrés et
+ * hériteraient de ces valeurs : leur surface deviendrait bleue et leur texte
+ * illisible. La re-teinte est donc limitée aux conteneurs de navigation. */
+[data-zammad-target='LayoutSidebar'].bg-neutral-950 {
+  border-inline-end: 1px solid #1c4e7d;
+}
+
+[data-zammad-target='PageNavigation'],
+[data-zammad-target='PageNavigationGroup'],
+[data-zammad-target='NavigationMenuList'],
+[data-zammad-target='UserTaskbarTabs'],
+[data-zammad-target='LeftSidebarHeader'] {
+  --color-gray-500: #10406b;
+  --color-gray-700: #0e3a60;
+  --color-gray-900: #1c4e7d;
+  --color-neutral-400: #d6e2ec;
+  --color-neutral-500: #a8bdd1;
+}
+
+[data-zammad-target='LeftSidebarHeader'] {
+  border-block-end: 1px solid #1c4e7d;
+}
+
+/* Élément de navigation actif : fond Bleu 2020 et liseré cyan de 2px
+ * (la charte proscrit les bordures de plus de 2px). */
+[data-zammad-target='PageNavigation'] a[aria-current='page'],
+[data-zammad-target='NavigationMenuList'] a[aria-current='page'] {
+  background-color: var(--od-bleu-2020);
+  border-radius: var(--od-r-md, 6px);
+  box-shadow: inset 2px 0 0 0 var(--od-bleu);
+}
+
+[data-zammad-target='UserTaskbarTabs'] > * {
+  border-radius: var(--od-r-md, 6px);
+}
+
+/* Actions secondaires de l'en-tête des vues d'ensemble (« réordonner ») :
+ * le gris d'origine tombe sous le seuil AA sur la surface claire. */
+[data-zammad-target='TicketOverviewsSidebar'] button,
+[data-zammad-target='TicketOverviewsSidebar'] [role='button'] {
+  color: var(--color-stone-200);
+}

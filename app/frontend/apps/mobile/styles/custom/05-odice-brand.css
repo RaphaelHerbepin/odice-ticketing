@@ -1,0 +1,41 @@
+/* Odice — tokens de marque et anneau de focus.
+ *
+ * Ces tokens ne servent pas à générer des utilitaires Tailwind : ils sont
+ * consommés directement en `var(--od-*)` par les feuilles de refonte (30-…, 40-…).
+ */
+
+/* stylelint-disable custom-property-empty-line-before */
+
+:root {
+  --od-bleu-2020: #134c82;
+  --od-bleu: #27a9ce;
+  --od-charcoal: #414042;
+
+  /* Anneau de focus.
+   * La charte impose un anneau CYAN de 2px à 2px d'offset. Mesuré : le cyan pur
+   * #27a9ce sur fond blanc donne 2.74:1, sous le seuil de 3:1 exigé par le
+   * critère WCAG 1.4.11 (non-text contrast) pour un indicateur d'interface.
+   * On retient donc le cyan profond du design system (--odice-bleu-deep,
+   * #1a82a0, 4.43:1), visuellement très proche, et le cyan pur en thème sombre
+   * où il contraste largement. Écart assumé et à faire valider par la charte. */
+  --od-focus: #1a82a0;
+  --od-focus-width: 2px;
+  --od-focus-offset: 2px;
+
+  /* Ombres : basses, courtes, JAMAIS colorées (charte). */
+  --od-shadow-1: 0 1px 2px rgba(24, 23, 26, 0.06), 0 1px 1px rgba(24, 23, 26, 0.04);
+  --od-shadow-2: 0 4px 12px rgba(24, 23, 26, 0.08), 0 1px 2px rgba(24, 23, 26, 0.05);
+  --od-shadow-3: 0 12px 32px rgba(24, 23, 26, 0.12), 0 2px 6px rgba(24, 23, 26, 0.06);
+}
+
+[data-theme='dark'] {
+  --od-focus: #27a9ce;
+}
+
+/* Un seul point d'application, non-layeré : l'emporte sur les nombreux
+ * `outline-blue-800` de @layer utilities sans recourir à !important. */
+:focus-visible {
+  outline-color: var(--od-focus);
+  outline-width: var(--od-focus-width);
+  outline-offset: var(--od-focus-offset);
+}

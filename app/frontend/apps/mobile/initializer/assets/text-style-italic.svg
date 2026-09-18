@@ -1,3 +1,7 @@
-<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M13.6278 6H15.75V7H13.4618L11.8017 17H14V18H8V17H10.3486L12.0087 7H9.75V6H12.1747H13.6278Z" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+<line x1="19" x2="10" y1="4" y2="4" />
+  <line x1="14" x2="5" y1="20" y2="20" />
+  <line x1="15" x2="9" y1="4" y2="20" />
+</g>
 </svg>

@@ -1,0 +1,37 @@
+/* Odice — formes : rayons, ombres, bordures.
+ *
+ * Charte : 4px boutons et chips, 8px cartes et champs, 999px badges.
+ * Bordures fines (1px, jamais plus de 2px), ombres basses et JAMAIS colorées,
+ * pas de dégradé, pas de glassmorphism, pas de bordure gauche colorée.
+ *
+ * Les sélecteurs visent le marqueur `data-zammad-target`, apposé
+ * automatiquement par le plugin Vite `skinMarker` sur la racine native de
+ * chaque composant. Un sélecteur qui ne correspond à rien est simplement sans
+ * effet (contrairement au tissage, il ne casse pas le build).
+ */
+
+[data-zammad-target='CommonContentPanel'],
+[data-zammad-target='CommonSectionContainer'] {
+  border: 1px solid var(--color-neutral-100);
+  border-radius: var(--od-r-lg, 8px);
+  box-shadow: var(--od-shadow-1);
+}
+
+[data-zammad-target='CommonPopover'] {
+  border-radius: var(--od-r-lg, 8px);
+  box-shadow: var(--od-shadow-2);
+}
+
+[data-zammad-target='ArticleBubbleBody'] {
+  border-radius: var(--od-r-lg, 8px);
+}
+
+/* Interdits de la charte, appliqués globalement. */
+[data-zammad-target] {
+  background-image: none;
+}
+
+.bg-stripes::before {
+  background-image: none;
+  background-color: var(--color-blue-300);
+}

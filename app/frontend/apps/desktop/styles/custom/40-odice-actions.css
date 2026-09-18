@@ -1,0 +1,43 @@
+/* Odice — actions : boutons, liens, transitions.
+ *
+ * Point important : Zammad rend le bouton de soumission (`variant="submit"`)
+ * en JAUNE. La charte Odice réserve le jaune à l'avertissement et impose le
+ * Bleu 2020 pour l'action. Les variantes de CommonButton sont calculées dans
+ * le <script> : elles ne sont pas distinguables par un sélecteur d'attribut,
+ * on passe donc par la classe de fond qu'elles produisent.
+ */
+
+[data-zammad-target='CommonButton'] {
+  border-radius: var(--od-r-sm, 4px);
+  box-shadow: none;
+  transition:
+    background-color var(--dur-fast, 120ms) var(--ease-odice),
+    color var(--dur-fast, 120ms) var(--ease-odice);
+}
+
+/* variant="submit" : jaune Zammad -> Bleu 2020 Odice. */
+[data-zammad-target='CommonButton'].bg-yellow-300 {
+  background-color: var(--od-bleu-2020);
+  color: var(--color-white);
+}
+
+[data-zammad-target='CommonButton'].bg-yellow-300:hover {
+  background-color: #0c3258;
+}
+
+/* Enfoncement : translation de 1px, jamais de mise à l'échelle (charte). */
+[data-zammad-target='CommonButton']:active {
+  transform: translateY(1px);
+}
+
+a,
+[data-zammad-target='CommonLink'] {
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+/* Le spinner de formulaire est déclaré `fill-yellow-300` dans
+ * initializer/initializeFormClasses : on le ramène sur l'action. */
+.fill-yellow-300 {
+  fill: var(--od-bleu-2020);
+}
