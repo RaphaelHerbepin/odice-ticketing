@@ -15,11 +15,6 @@ on:
   push:
     branches: [odice/main]
   workflow_dispatch:
-    inputs:
-      latest:
-        description: 'Publier aussi sous le tag « latest »'
-        type: boolean
-        default: false
 
 concurrency:
   group: odice-image-${{ github.ref }}
@@ -67,7 +62,6 @@ jobs:
           tags: |
             ${{ steps.meta.outputs.repo }}:${{ steps.meta.outputs.version }}-${{ steps.meta.outputs.sha8 }}
             ${{ steps.meta.outputs.repo }}:odice-main
-            ${{ inputs.latest && format('{0}:latest', steps.meta.outputs.repo) || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
