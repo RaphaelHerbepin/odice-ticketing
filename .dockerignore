@@ -5,3 +5,15 @@ config/database.yml
 node_modules
 log/*.log
 tmp/
+
+# --- Odice ---
+# Secrets : le Dockerfile fait `COPY . .`, un .env ici partirait dans l'image poussée au registry.
+.env
+.env.*
+# Fichiers d'orchestration : inutiles dans l'image.
+docker-compose*.yml
+docker/
+Makefile
+# Source brute du design system (21 Mo, contient des polices non redistribuables).
+odice-design-system/
+**/.DS_Store

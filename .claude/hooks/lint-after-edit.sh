@@ -11,6 +11,31 @@ if command -v rv >/dev/null 2>&1; then
   eval "$RV_ENV"
 fi
 
+# --- Garde-fous ajoutés pour Odice ---------------------------------------
+# 1. Anti-boucle. Quand un hook Stop échoue, Claude Code relance le modèle pour
+#    qu'il corrige ; si la cause n'est pas corrigeable (un outil absent), la
+#    boucle ne s'arrête jamais. Le champ `stop_hook_active` du JSON reçu sur
+#    stdin vaut true dans ces relances : on sort alors en succès.
+if [ ! -t 0 ]; then
+  HOOK_INPUT=$(cat 2>/dev/null)
+  if printf '%s' "$HOOK_INPUT" | grep -qE '"stop_hook_active"[[:space:]]*:[[:space:]]*true'; then
+    exit 0
+  fi
+fi
+
+# 2. Les gems du Gemfile sont-elles installées ? `bundle check` est le bon test
+#    ici : `bundle --version` répond même quand rien n'est installé, alors que
+#    c'est précisément ce dont rubocop et `rails generate` ont besoin. Sur ce
+#    poste, Ruby est en 3.4.2 quand le projet exige 3.4.9, donc `bundle install`
+#    n'a jamais abouti. Les étapes Ruby sont ignorées avec un avertissement, au
+#    lieu de faire échouer tout le hook — les étapes frontend fonctionnent.
+if bundle check >/dev/null 2>&1; then
+  BUNDLER_OK=true
+else
+  BUNDLER_OK=false
+fi
+# -------------------------------------------------------------------------
+
 RUBY_FILES=()
 FRONTEND_TS_FILES=()
 FRONTEND_JS_FILES=()
@@ -36,7 +61,11 @@ done < <(git diff --name-only --diff-filter=ACMR HEAD 2>/dev/null; git ls-files 
 FRONTEND_ALL_FILES=("${FRONTEND_TS_FILES[@]}" "${FRONTEND_JS_FILES[@]}")
 
 if [[ ${#RUBY_FILES[@]} -gt 0 ]]; then
-  bundle exec rubocop --autocorrect "${RUBY_FILES[@]}" >&2 || EXIT_CODE=2
+  if $BUNDLER_OK; then
+    bundle exec rubocop --autocorrect "${RUBY_FILES[@]}" >&2 || EXIT_CODE=2
+  else
+    echo "[hook] bundler indisponible — rubocop ignoré (Ruby 3.4.9 requis)." >&2
+  fi
 fi
 
 if [[ ${#FRONTEND_ALL_FILES[@]} -gt 0 ]]; then

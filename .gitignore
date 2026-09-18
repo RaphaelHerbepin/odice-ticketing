@@ -142,3 +142,12 @@ schema.graphql
 # Codegraph
 /.codegraph/
 /.mcp.json
+
+# Odice — source brute du design system (le sous-ensemble redistribuable est dans contrib/odice/brand/)
+/odice-design-system/
+# Odice — horodatage du point de non-retour de la bascule, propre au serveur
+.odice-cutover-state*
+# Odice — environnement de la pile de validation (secrets)
+/.env.staging
+# Odice — historique de shell rapatrié pour analyse, jamais à publier
+/history.txt
