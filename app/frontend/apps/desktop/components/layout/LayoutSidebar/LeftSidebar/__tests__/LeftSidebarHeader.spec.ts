@@ -69,6 +69,9 @@ describe('LeftSidebarHeader', () => {
     const { wrapper } = renderLeftSidebarHeader(true, true)
 
     expect(wrapper.queryByRole('button', { name: 'Show notifications' })).not.toBeInTheDocument()
-    expect(wrapper.getByIconName('logo')).toBeInTheDocument()
+    // Odice : `app/frontend/addons/odice/odice.weave.mjs` substitue la marque
+    // Odice au logo Zammad dans cet en-tête. Le tissage s'applique aussi au
+    // build de test, l'assertion suit donc le nom d'icône substitué.
+    expect(wrapper.getByIconName('odice-mark')).toBeInTheDocument()
   })
 })

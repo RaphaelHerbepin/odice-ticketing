@@ -1,0 +1,47 @@
+# Odice — pile de validation, à faire tourner AUX CÔTÉS de la pile historique
+# sur le même VPS, le temps de valider le nouveau frontend.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.staging.yml \
+#     --env-file .env.staging up -d
+#   (ou simplement : make staging-up)
+#
+# Trois divergences par rapport à la pile de production, chacune obligatoire :
+#
+#   1. Nom de projet distinct — sans quoi Compose réutiliserait les volumes de
+#      la production et écraserait sa base.
+#   2. Sous-réseau distinct — le 172.28.0.0/16 du compose principal est figé
+#      (RAILS_TRUSTED_PROXIES en dépend) et Docker refuse deux réseaux qui se
+#      chevauchent.
+#   3. Pas de terminaison TLS — le profil `front` n'est pas activé, donc pas de
+#      conteneur Caddy : les ports 80/443 appartiennent à une seule pile. Le
+#      nginx est publié sur la boucle locale, où le Caddy de l'autre pile vient
+#      le chercher.
+#
+# Cette pile a sa PROPRE base de données. C'est délibéré : la base historique
+# reste intacte et c'est elle, le filet de sécurité. Voir contrib/odice/BASCULE.md.
+
+name: odice-staging
+
+services:
+  zammad-nginx:
+    # Publié sur la boucle locale uniquement : c'est le Caddy de la pile de
+    # production qui l'expose au monde, sous le domaine de validation.
+    ports: ['127.0.0.1:${ODICE_STAGING_PORT:-8081}:${NGINX_PORT:-8080}']
+
+  zammad-elasticsearch:
+    environment:
+      # Deux Elasticsearch sur un même VPS, c'est 4 Go de tas avec les réglages
+      # de production. Ici la volumétrie est dérisoire : 512 Mo suffisent.
+      ES_JAVA_OPTS: '-Xms${ODICE_STAGING_ES_HEAP:-512m} -Xmx${ODICE_STAGING_ES_HEAP:-512m}'
+      discovery.type: single-node
+      xpack.security.enabled: 'false'
+      bootstrap.memory_lock: 'true'
+
+  zammad-memcached:
+    command: memcached -m 128M
+
+networks:
+  odice:
+    ipam:
+      config:
+        - subnet: ${ODICE_STAGING_SUBNET:-172.29.0.0/16}

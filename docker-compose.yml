@@ -1,0 +1,172 @@
+# Odice — déploiement de production.
+#
+# Zammad ne publie pas de compose de production dans ce dépôt (il vit dans le
+# dépôt séparé zammad-docker-compose). Celui-ci en est l'équivalent, adapté à
+# une image construite depuis ce fork.
+#
+# Les noms de services reprennent ceux de l'amont (zammad-postgresql,
+# zammad-elasticsearch…) : ce sont les valeurs par défaut compilées dans le
+# Dockerfile et bin/docker-entrypoint, ce qui réduit la configuration et garde
+# la documentation Zammad applicable.
+#
+#   cp .env.example .env && $EDITOR .env
+#   make build && make up
+
+name: odice-ticketing
+
+x-zammad: &zammad
+  image: ${ODICE_IMAGE_REPO:-odice-ticketing}:${ODICE_IMAGE_TAG:-develop}
+  restart: unless-stopped
+  env_file: [.env]
+  volumes:
+    - zammad-storage:/opt/zammad/storage
+  networks: [odice]
+  depends_on:
+    zammad-postgresql: { condition: service_healthy }
+    zammad-redis: { condition: service_healthy }
+    zammad-memcached: { condition: service_started }
+
+services:
+  # ---------- Conteneurs à exécution unique ----------
+  # `restart: "no"` est INDISPENSABLE : l'ancre porte `unless-stopped`, or ces
+  # conteneurs se terminent avec le code 0 — ils redémarreraient en boucle.
+  zammad-init:
+    <<: *zammad
+    command: ['zammad-init']
+    restart: 'no'
+    depends_on:
+      zammad-postgresql: { condition: service_healthy }
+      zammad-elasticsearch: { condition: service_healthy }
+
+  odice-provision:
+    <<: *zammad
+    command: ['bundle', 'exec', 'rake', 'odice:provision']
+    restart: 'no'
+    depends_on:
+      zammad-init: { condition: service_completed_successfully }
+
+  # ---------- Services applicatifs ----------
+  zammad-railsserver:
+    <<: *zammad
+    command: ['zammad-railsserver']
+
+  zammad-scheduler:
+    <<: *zammad
+    command: ['zammad-scheduler']
+
+  zammad-websocket:
+    <<: *zammad
+    command: ['zammad-websocket']
+
+  zammad-nginx:
+    <<: *zammad
+    command: ['zammad-nginx']
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:${NGINX_PORT:-8080}/api/v1/getting_started || exit 1']
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      # Au premier démarrage, zammad-init enchaîne db:create, db:migrate,
+      # db:seed, Locale.sync, Translation.sync puis la reconstruction de
+      # l'index : largement plus de deux minutes.
+      start_period: 180s
+
+  zammad-backup:
+    <<: *zammad
+    command: ['zammad-backup']
+    volumes:
+      - zammad-storage:/opt/zammad/storage
+      - zammad-backup:/var/tmp/zammad
+
+  # ---------- Infrastructure ----------
+  zammad-postgresql:
+    image: postgres:17.5-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: ['postgresql-data:/var/lib/postgresql/data']
+    networks: [odice]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 10s
+      retries: 20
+
+  zammad-elasticsearch:
+    image: elasticsearch:9.3.2
+    restart: unless-stopped
+    environment:
+      ES_JAVA_OPTS: '-Xms2g -Xmx2g'
+      discovery.type: single-node
+      xpack.security.enabled: 'false'
+      bootstrap.memory_lock: 'true'
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    volumes: ['elasticsearch-data:/usr/share/elasticsearch/data']
+    networks: [odice]
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf http://localhost:9200/_cluster/health || exit 1']
+      interval: 15s
+      retries: 40
+      start_period: 90s
+
+  zammad-memcached:
+    image: memcached:1.6.38-alpine
+    command: memcached -m 512M
+    restart: unless-stopped
+    networks: [odice]
+
+  zammad-redis:
+    image: redis:7.0
+    restart: unless-stopped
+    command: ['redis-server', '--save', '', '--appendonly', 'no']
+    networks: [odice]
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      retries: 10
+
+  # ---------- Terminaison TLS ----------
+  # Derrière le profil `front` : une seule pile peut détenir les ports 80/443.
+  # La pile de production l'active par COMPOSE_PROFILES=front dans son .env ;
+  # la pile de validation ne l'active pas et publie son nginx sur la boucle
+  # locale, où ce Caddy vient la chercher.
+  odice-caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    profiles: [front]
+    ports: ['80:80', '443:443', '443:443/udp']
+    environment:
+      ODICE_SITE_ADDRESS: ${ODICE_SITE_ADDRESS}
+      ODICE_ACME_EMAIL: ${ODICE_ACME_EMAIL}
+      NGINX_PORT: ${NGINX_PORT:-8080}
+      # Amont du domaine canonique. C'est LA variable de bascule :
+      #   zammad-nginx:8080            → sert la pile Odice
+      #   host.docker.internal:<port>  → sert la pile historique
+      ODICE_PROD_UPSTREAM: ${ODICE_PROD_UPSTREAM:-zammad-nginx:8080}
+      ODICE_STAGING_SITE_ADDRESS: ${ODICE_STAGING_SITE_ADDRESS:-}
+      ODICE_STAGING_UPSTREAM: ${ODICE_STAGING_UPSTREAM:-}
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./docker/caddy/conf.d:/etc/caddy/conf.d:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks: [odice]
+    # Permet d'atteindre un service publié sur l'hôte — la pile historique,
+    # pendant la phase de validation et après un retour arrière.
+    extra_hosts: ['host.docker.internal:host-gateway']
+
+networks:
+  odice:
+    ipam:
+      # Sous-réseau figé pour que RAILS_TRUSTED_PROXIES reste exact.
+      config: [{ subnet: 172.28.0.0/16 }]
+
+volumes:
+  zammad-storage:
+  zammad-backup:
+  postgresql-data:
+  elasticsearch-data:
+  caddy-data:
+  caddy-config:

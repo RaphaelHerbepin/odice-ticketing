@@ -1,0 +1,41 @@
+# Odice — terminaison TLS.
+#
+# Caddy plutôt que Traefik : il n'y a qu'un seul service HTTP à exposer, la
+# configuration tient en quelques lignes, les certificats Let's Encrypt sont
+# automatiques, et surtout il n'a PAS besoin d'accéder à /var/run/docker.sock —
+# ce qu'on évite pour un conteneur exposé sur Internet.
+#
+# L'amont du domaine canonique est une VARIABLE, pas une valeur en dur : c'est
+# ce qui rend la bascule et le retour arrière instantanés. Basculer revient à
+# changer ODICE_PROD_UPSTREAM dans .env puis à recréer ce conteneur — environ
+# cinq secondes, réversible à l'identique. Voir contrib/odice/BASCULE.md.
+
+{
+	email {$ODICE_ACME_EMAIL}
+}
+
+# Bloc réutilisable : l'argument est l'amont (hôte:port).
+(zammad_proxy) {
+	encode zstd gzip
+
+	reverse_proxy {args[0]} {
+		# Désactive la mise en tampon : nécessaire au long-polling de /ws
+		# (nginx est configuré avec proxy_read_timeout 86400).
+		flush_interval -1
+
+		# Zammad fabrique ses URL à partir du réglage `fqdn`, mais ActionCable
+		# autorise l'origine égale au Host de la requête : il faut donc que le
+		# Host traverse le proxy intact.
+		header_up Host {host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+}
+
+{$ODICE_SITE_ADDRESS} {
+	import zammad_proxy {$ODICE_PROD_UPSTREAM:zammad-nginx:8080}
+}
+
+# Sites supplémentaires — le domaine de validation pendant la phase de bascule.
+# Le répertoire contient toujours au moins un fichier, sinon Caddy refuserait un
+# motif d'import sans correspondance.
+import /etc/caddy/conf.d/*.caddy

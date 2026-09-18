@@ -1,0 +1,19 @@
+{
+  "Token": "REMPLACER",
+  "Users": [
+    {
+      "login": "admin@odice.fr",
+      "firstname": "Admin",
+      "lastname": "Odice",
+      "email": "admin@odice.fr",
+      "password": "REMPLACER"
+    }
+  ],
+  "Settings": [
+    { "name": "product_name", "value": "Odice Helpdesk" },
+    { "name": "organization", "value": "Groupe Odice" },
+    { "name": "locale_default", "value": "fr-fr" },
+    { "name": "timezone_default", "value": "Europe/Paris" },
+    { "name": "image_backend", "value": "" }
+  ]
+}

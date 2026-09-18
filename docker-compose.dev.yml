@@ -1,0 +1,68 @@
+# Odice — services de développement.
+#
+# Principe : les services d'infrastructure tournent en conteneur, l'application
+# tourne en natif sur la machine (`bin/dev`). Sur macOS, monter les ~40 000
+# fichiers du dépôt à travers VirtioFS rend Rails et le watcher Vite 3 à 10 fois
+# plus lents, et empêcherait `pnpm dev` de fonctionner hors Docker.
+#
+# Le devcontainer de `.devcontainer/default/` n'est volontairement pas réutilisé
+# en surcharge : il porte `name: zammad-devcontainer` (collision de volumes),
+# ne publie aucun port, et embarque un service qu'une surcharge ne peut pas
+# supprimer avec Compose < 2.24. Les tags d'images sont en revanche repris à
+# l'identique pour garder la parité de version avec l'amont.
+#
+#   make dev-up && source docker/dev/env.sh && bin/setup --skip-server && bin/dev
+
+name: odice-dev
+
+services:
+  postgresql:
+    image: postgres:17.5-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: zammad_development
+      POSTGRES_USER: zammad
+      POSTGRES_PASSWORD: zammad
+    ports: ['127.0.0.1:${ODICE_DEV_PG_PORT:-5432}:5432']
+    volumes: ['postgresql-data:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U zammad']
+      interval: 5s
+      retries: 20
+
+  redis:
+    image: redis:7.0
+    restart: unless-stopped
+    command: ['redis-server', '--save', '', '--appendonly', 'no']
+    ports: ['127.0.0.1:${ODICE_DEV_REDIS_PORT:-6379}:6379']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      retries: 10
+
+  memcached:
+    image: memcached:1.6.38-alpine
+    # Pas de healthcheck : l'image alpine n'embarque ni nc, ni bash, ni
+    # memcached-tool. Rails dégrade proprement si le cache est injoignable.
+    command: memcached -m 256M
+    restart: unless-stopped
+    ports: ['127.0.0.1:${ODICE_DEV_MEMCACHED_PORT:-11211}:11211']
+
+  elasticsearch:
+    image: elasticsearch:9.3.2
+    restart: unless-stopped
+    environment:
+      ES_JAVA_OPTS: '-Xms1024m -Xmx1024m'
+      discovery.type: single-node
+      xpack.security.enabled: 'false'
+    ports: ['127.0.0.1:${ODICE_DEV_ES_PORT:-9200}:9200']
+    volumes: ['elasticsearch-data:/usr/share/elasticsearch/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf http://localhost:9200/_cluster/health || exit 1']
+      interval: 15s
+      retries: 40
+      start_period: 60s
+
+volumes:
+  postgresql-data:
+  elasticsearch-data:
