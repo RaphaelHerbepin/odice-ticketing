@@ -85,9 +85,12 @@ echo
 echo '== 3/4 — Démarrage de la version Odice'
 env_set ODICE_IMAGE_REPO "${ODICE_REPO}"
 env_set ODICE_IMAGE_TAG "${ODICE_TAG}"
-# Le profil `odice` ajoute odice-provision, dont la tâche rake n'existe que
-# dans cette image.
-COMPOSE_PROFILES=odice dc up -d
+# Le profil `odice` ajoute odice-provision, dont la tâche rake n'existe que dans
+# cette image. On l'inscrit dans .env plutôt que de le passer à la volée : ainsi
+# `make up`, `make restart` et tout appel direct à docker compose restent
+# corrects après la bascule, sans avoir à y penser.
+env_set COMPOSE_PROFILES odice
+dc up -d
 
 echo
 echo '== 4/4 — Contrôles'

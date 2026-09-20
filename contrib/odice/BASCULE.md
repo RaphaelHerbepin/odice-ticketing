@@ -183,6 +183,12 @@ une sauvegarde d'abord : `make backup`.
 
 ## Dépannage
 
+**`COMPOSE_PROFILES` dans `.env`** est renseigné par les scripts de bascule :
+`odice` quand la version Odice est en service, vide sinon. C'est ce qui permet
+à `make up` et `make restart` de rester corrects sans y penser. Si vous le videz
+à la main alors qu'Odice tourne, `odice-provision` ne sera plus joué — sans
+conséquence immédiate, la tâche étant idempotente et déjà appliquée.
+
 **Savoir ce qui tourne :**
 
 ```bash

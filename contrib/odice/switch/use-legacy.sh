@@ -117,7 +117,9 @@ echo '== 4/4 — Démarrage de la version historique'
 dc down
 env_set ODICE_IMAGE_REPO "${LEGACY_REPO}"
 env_set ODICE_IMAGE_TAG "${LEGACY_TAG}"
-# Sans le profil `odice` : la tâche odice:provision n'existe pas dans cette image.
+# Profil vidé : la tâche odice:provision n'existe pas dans l'image historique,
+# son conteneur échouerait.
+env_set COMPOSE_PROFILES ''
 dc up -d
 
 wait_for_http "http://127.0.0.1:$(env_get NGINX_PORT 8080)/api/v1/getting_started" 600 || {
