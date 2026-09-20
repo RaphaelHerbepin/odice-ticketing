@@ -7,7 +7,7 @@ SHELL       := /bin/bash
 COMPOSE     := docker compose
 COMPOSE_DEV := docker compose -f docker-compose.dev.yml
 
-.PHONY: rollback-dry-run help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local staging-up staging-down staging-logs staging-restore front-reload front-switch cutover rollback
+.PHONY: help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local use-odice use-legacy use-legacy-dry-run which-version
 
 help: ## Affiche cette aide
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -68,39 +68,22 @@ remote-pull: ## Extrait base et fichiers du serveur distant vers tmp/import
 restore-local: ## Charge l'export dans la pile locale pour vérification (DÉTRUIT la base locale)
 	contrib/odice/restore-local.sh --from tmp/import
 
-# ---------- Pile de validation (sur le VPS, à côté de la pile historique) ----------
-STAGING := docker compose -f docker-compose.yml -f docker-compose.staging.yml --env-file .env.staging
+# ---------- Version en service ----------
+# Une seule pile tourne à la fois, sur le même domaine et la même base.
+# Ces deux cibles gèrent la sauvegarde qui rend le retour arrière possible :
+# ne changez pas ODICE_IMAGE_TAG à la main.
+use-odice: ## Met la version Odice en service (sauvegarde la base d'abord)
+	contrib/odice/switch/use-odice.sh
 
-staging-up: ## Démarre la pile de validation (base séparée, domaine secondaire)
-	$(STAGING) up -d
-	@echo "Publiée sur 127.0.0.1:$$(grep -E '^ODICE_STAGING_PORT=' .env.staging | cut -d= -f2)"
+use-legacy: ## Revient à la version historique (restaure la base d'avant bascule)
+	contrib/odice/switch/use-legacy.sh
 
-staging-down: ## Arrête la pile de validation
-	$(STAGING) down
+use-legacy-dry-run: ## Montre ce que coûterait le retour arrière, sans rien changer
+	contrib/odice/switch/use-legacy.sh --dry-run
 
-staging-logs: ## Suit les journaux de la pile de validation (make staging-logs S=zammad-railsserver)
-	$(STAGING) logs -f $(S)
-
-staging-restore: ## Charge une copie de la production dans la pile de validation
-	contrib/odice/restore-local.sh --from tmp/import --staging
-
-# ---------- Bascule ----------
-front-reload: ## Recharge Caddy après modification du Caddyfile ou de conf.d/
-	COMPOSE_PROFILES=front $(COMPOSE) up -d --force-recreate odice-caddy
-
-front-switch: ## Change l'amont du domaine canonique (make front-switch UPSTREAM=zammad-nginx:8080)
-	@test -n "$(UPSTREAM)" || { echo "UPSTREAM= est obligatoire"; exit 1; }
-	sed -i.bak -E 's|^ODICE_PROD_UPSTREAM=.*|ODICE_PROD_UPSTREAM=$(UPSTREAM)|' .env && rm -f .env.bak
-	COMPOSE_PROFILES=front $(COMPOSE) up -d --force-recreate odice-caddy
-
-cutover: ## Bascule vers la pile Odice — POINT DE NON-RETOUR
-	contrib/odice/switch/cutover.sh
-
-rollback: ## Revient à la pile historique (2 à 3 min)
-	contrib/odice/switch/rollback.sh
-
-rollback-dry-run: ## Répétition à blanc du retour arrière, sans rien modifier
-	contrib/odice/switch/rollback.sh --dry-run
+which-version: ## Affiche la version actuellement en service
+	@echo "image   : $$($(COMPOSE) ps --format '{{.Image}}' zammad-railsserver 2>/dev/null | head -n1)"
+	@echo "version : $$($(COMPOSE) exec -T zammad-railsserver cat /opt/zammad/VERSION 2>/dev/null || echo '(hors ligne)')"
 
 # ---------- Qualité ----------
 lint-odice: ## Lint des fichiers de thème Odice

@@ -4,9 +4,8 @@
 # Odice — charge un export d'instance Zammad dans une pile Docker de ce dépôt
 # pour vérifier que les données remontent correctement dans le frontend Odice.
 #
-# Par défaut la pile locale (docker-compose.yml + .env). Avec --staging, la pile
-# de validation (docker-compose.staging.yml + .env.staging), qui peut tourner
-# sur le VPS aux côtés de la pile historique.
+# La pile visée est celle de docker-compose.yml et du fichier d'environnement
+# passé par --env-file (.env par défaut).
 #
 # Le conteneur `zammad-backup` sait déjà restaurer : il suffit de déposer les
 # archives dans /var/tmp/zammad/restore. L'orchestration suit alors d'elle-même,
@@ -17,7 +16,6 @@
 # Usage :
 #   contrib/odice/restore-local.sh --from tmp/import
 #   contrib/odice/restore-local.sh --from tmp/import --keep-channels
-#   contrib/odice/restore-local.sh --from tmp/import --staging
 
 set -o errexit
 set -o nounset
@@ -32,9 +30,6 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --from)           FROM_DIR="$2"; shift 2 ;;
     --keep-channels)  SANDBOX=false; shift ;;
-    --staging)        ENV_FILE='.env.staging'
-                      COMPOSE_ARGS=(-f docker-compose.yml -f docker-compose.staging.yml)
-                      shift ;;
     --env-file)       ENV_FILE="$2"; shift 2 ;;
     -h|--help)        sed -n '3,22p' "$0"; exit 0 ;;
     *)                echo "Option inconnue : $1" >&2; exit 1 ;;

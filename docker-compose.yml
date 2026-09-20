@@ -38,10 +38,14 @@ services:
       zammad-postgresql: { condition: service_healthy }
       zammad-elasticsearch: { condition: service_healthy }
 
+  # Derrière le profil `odice` : la tâche `odice:provision` n'existe que dans
+  # l'image Odice. Avec l'image Zammad officielle, ce conteneur échouerait —
+  # d'où un profil que seule la pile Odice active.
   odice-provision:
     <<: *zammad
     command: ['bundle', 'exec', 'rake', 'odice:provision']
     restart: 'no'
+    profiles: [odice]
     depends_on:
       zammad-init: { condition: service_completed_successfully }
 
@@ -128,34 +132,20 @@ services:
       retries: 10
 
   # ---------- Terminaison TLS ----------
-  # Derrière le profil `front` : une seule pile peut détenir les ports 80/443.
-  # La pile de production l'active par COMPOSE_PROFILES=front dans son .env ;
-  # la pile de validation ne l'active pas et publie son nginx sur la boucle
-  # locale, où ce Caddy vient la chercher.
   odice-caddy:
     image: caddy:2-alpine
     restart: unless-stopped
-    profiles: [front]
     ports: ['80:80', '443:443', '443:443/udp']
     environment:
       ODICE_SITE_ADDRESS: ${ODICE_SITE_ADDRESS}
       ODICE_ACME_EMAIL: ${ODICE_ACME_EMAIL}
       NGINX_PORT: ${NGINX_PORT:-8080}
-      # Amont du domaine canonique. C'est LA variable de bascule :
-      #   zammad-nginx:8080            → sert la pile Odice
-      #   host.docker.internal:<port>  → sert la pile historique
-      ODICE_PROD_UPSTREAM: ${ODICE_PROD_UPSTREAM:-zammad-nginx:8080}
-      ODICE_STAGING_SITE_ADDRESS: ${ODICE_STAGING_SITE_ADDRESS:-}
-      ODICE_STAGING_UPSTREAM: ${ODICE_STAGING_UPSTREAM:-}
     volumes:
       - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./docker/caddy/conf.d:/etc/caddy/conf.d:ro
       - caddy-data:/data
       - caddy-config:/config
     networks: [odice]
-    # Permet d'atteindre un service publié sur l'hôte — la pile historique,
-    # pendant la phase de validation et après un retour arrière.
-    extra_hosts: ['host.docker.internal:host-gateway']
+    depends_on: [zammad-nginx]
 
 networks:
   odice:

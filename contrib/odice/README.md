@@ -112,6 +112,24 @@ Voir [MIGRATION.md](MIGRATION.md) : sauvegarde / restauration complète, avec
 le point à ne pas oublier — la restauration écrase la base, donc le branding
 Odice, et impose de rejouer `make provision`.
 
+### Exploitation : basculer entre les deux versions
+
+Une seule pile, un seul domaine, une seule base. Voir [BASCULE.md](BASCULE.md).
+
+```bash
+make which-version        # ce qui tourne actuellement
+make use-odice            # met la version Odice en service
+make use-legacy-dry-run   # ce que coûterait le retour, sans rien changer
+make use-legacy           # revient à la version historique
+```
+
+`use-odice.sh` sauvegarde la base avant de laisser les migrations s'appliquer,
+et `use-legacy.sh` restaure cette sauvegarde. Ce n'est pas une précaution de
+confort : deux migrations Odice ajoutent des contraintes que le code historique
+ne respecte pas — un index unique sur `recent_views` et `edited_at` en NOT NULL.
+Sur une base migrée, l'ancienne image rend une erreur 500 à la deuxième
+ouverture d'un même ticket.
+
 ### Source : instance Docker sur un serveur distant
 
 ```bash
