@@ -166,6 +166,67 @@ make up            # démarre avec l'image indiquée
 make use-odice     # bascule
 ```
 
+## Déploiement continu
+
+Une fois configuré, chaque push sur la branche suivie construit l'image **et la
+déploie**. Le déclenchement vient de la CI, pas d'une interrogation périodique
+du serveur : la mise en production suit immédiatement la construction, et il n'y
+a qu'un seul journal à lire.
+
+### Ce que la clé peut faire, et rien d'autre
+
+Déposer une clé SSH du serveur de production dans les secrets GitHub donnerait,
+tel quel, un shell complet à qui obtiendrait ces secrets. La clé porte donc côté
+serveur une **commande forcée** : elle ne peut lancer que le script de
+déploiement, qui valide le tag reçu avant tout usage.
+
+### Mise en place
+
+**1. Une clé dédiée, sur le serveur :**
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/odice-ci -N '' -C 'odice-ci-deploy'
+```
+
+**2. L'autoriser, avec la commande forcée :**
+
+```bash
+printf 'command="/opt/odice-ticketing/contrib/odice/switch/ci-deploy-entry.sh",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty %s\n' \
+  "$(cat ~/.ssh/odice-ci.pub)" >> ~/.ssh/authorized_keys
+```
+
+**3. Relever l'empreinte du serveur** — sans elle, la CI accepterait n'importe
+quel serveur répondant à cette adresse :
+
+```bash
+ssh-keyscan -t ed25519 <votre-serveur>
+```
+
+**4. Renseigner quatre secrets** dans Paramètres → Secrets and variables →
+Actions du dépôt GitHub :
+
+| Secret | Valeur |
+|---|---|
+| `ODICE_DEPLOY_HOST` | le nom ou l'IP du serveur |
+| `ODICE_DEPLOY_USER` | l'utilisateur propriétaire du dépôt |
+| `ODICE_DEPLOY_KEY` | le contenu de `~/.ssh/odice-ci` (clé **privée**) |
+| `ODICE_DEPLOY_KNOWN_HOSTS` | la sortie de `ssh-keyscan` |
+
+Tant que ces secrets sont absents, le job de déploiement s'exécute sans rien
+faire et le dit : le build reste vert.
+
+**5. Vérifier**, en poussant un commit :
+
+```bash
+gh run list --repo <compte>/odice-ticketing --limit 1
+tail -f /opt/odice-ticketing/tmp/ci-deploy.log
+```
+
+### Pour suspendre
+
+Retirez `ODICE_DEPLOY_HOST` des secrets : le job redevient inerte. Ou, côté
+serveur, commentez la ligne correspondante d'`~/.ssh/authorized_keys`.
+
 ## Revenir en arrière
 
 ```bash

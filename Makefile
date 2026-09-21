@@ -19,7 +19,7 @@ COMPOSE_AT   = $(if $(ZDC),cd $(ZDC) && docker compose,$(COMPOSE))
 SWITCH_DIR   = $(if $(ZDC),--dir $(ZDC),)
 COMPOSE_DEV := docker compose -f docker-compose.dev.yml
 
-.PHONY: .check-stack help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local image-tag deploy auto-deploy install-autodeploy uninstall-autodeploy use-odice use-legacy use-legacy-dry-run which-version install-zdc
+.PHONY: .check-stack help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local image-tag deploy use-odice use-legacy use-legacy-dry-run which-version install-zdc
 
 help: ## Affiche cette aide
 	@echo "Pile visée : $(if $(ZDC),$(ZDC),ce dépôt — export ZDC=/opt/zammad-docker-compose pour en viser une autre)"
@@ -113,16 +113,6 @@ image-tag: ## Affiche le tag d'image correspondant au commit courant
 
 deploy: .check-stack ## Déploie l'image du commit courant (faire `git pull` avant)
 	contrib/odice/switch/deploy.sh $(SWITCH_DIR)
-
-auto-deploy: .check-stack ## Déploie si la branche suivie a avancé (appelé par le minuteur)
-	contrib/odice/switch/auto-deploy.sh --verbose $(SWITCH_DIR)
-
-install-autodeploy: ## Active le déploiement automatique toutes les 5 min (sudo, ZDC requis)
-	@test -n "$(ZDC)" || { echo "ZDC est obligatoire : export ZDC=/opt/zammad-docker-compose"; exit 1; }
-	sudo contrib/odice/switch/install-autodeploy.sh $(ZDC)
-
-uninstall-autodeploy: ## Désactive le déploiement automatique
-	sudo contrib/odice/switch/install-autodeploy.sh --remove
 
 use-odice: .check-stack ## Met la version Odice en service (sauvegarde la base d'abord)
 	contrib/odice/switch/use-odice.sh $(SWITCH_DIR)
