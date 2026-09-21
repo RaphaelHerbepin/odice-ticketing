@@ -155,6 +155,22 @@ Setting.set('user_show_password_login', true)
 User.find_by(login: 'r.herbepin@odice.cc').update!(password: '…', login_failed: 0)
 ```
 
+**Le site répond `ERR_SSL_UNRECOGNIZED_NAME_ALERT`** — nginx-proxy ne génère
+plus de vhost pour le domaine. Il découvre les sites par la variable
+`VIRTUAL_HOST` des conteneurs qui partagent un réseau avec lui :
+
+```bash
+docker inspect zammad-docker-compose-zammad-nginx-1 \
+  --format '{{range .Config.Env}}{{println .}}{{end}}' | grep -E 'VIRTUAL|LETSENCRYPT'
+docker inspect nginx-proxy \
+  --format '{{range $k,$v := .NetworkSettings.Networks}}{{println $k}}{{end}}'
+```
+
+Si `VIRTUAL_HOST` a disparu, reconstituez-le à partir de
+[zdc/docker-compose.nginx-proxy.yml.example](zdc/docker-compose.nginx-proxy.yml.example),
+puis `make up`. L'application, elle, n'est pas en cause : seule l'exposition
+publique l'est, et aucun retour arrière n'est nécessaire.
+
 **Voir ce qui bloque au démarrage** — `zammad-init` joue les migrations, tous
 les autres l'attendent :
 

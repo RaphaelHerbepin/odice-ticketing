@@ -1,0 +1,31 @@
+# Modèle — exposition via nginx-proxy + acme-companion.
+#
+# À copier en `docker-compose.override.yml` dans votre répertoire
+# zammad-docker-compose SI vous n'en avez plus, et à ajuster.
+#
+# nginx-proxy ne route que ce qu'il découvre : il lit VIRTUAL_HOST sur les
+# conteneurs qui partagent un réseau avec lui. Sans ces variables, aucun vhost
+# n'est généré et le navigateur reçoit ERR_SSL_UNRECOGNIZED_NAME_ALERT — le
+# certificat existe peut-être encore, mais plus rien ne répond pour ce nom.
+#
+# Pour retrouver vos valeurs :
+#   docker inspect nginx-proxy --format '{{range $k,$v := .NetworkSettings.Networks}}{{println $k}}{{end}}'
+#   docker exec nginx-proxy ls /etc/nginx/certs/
+
+services:
+  zammad-nginx:
+    environment:
+      VIRTUAL_HOST: support.odice.info
+      # Port INTERNE du conteneur, pas celui publié sur l'hôte.
+      VIRTUAL_PORT: 8080
+      LETSENCRYPT_HOST: support.odice.info
+      LETSENCRYPT_EMAIL: it@odice.info
+    networks:
+      - default
+      - nginx-proxy
+
+networks:
+  # Le réseau sur lequel tourne nginx-proxy, déjà créé : d'où `external`.
+  # Remplacez par le nom exact relevé ci-dessus.
+  nginx-proxy:
+    external: true

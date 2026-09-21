@@ -12,7 +12,10 @@ COMPOSE     := docker compose
 # commande. `make ps ZDC=…` reste possible pour viser ponctuellement une autre
 # pile. Sans elle, les cibles visent la pile de ce dépôt.
 ZDC         ?=
-COMPOSE_AT   = $(if $(ZDC),docker compose --project-directory $(ZDC),$(COMPOSE))
+# `cd` plutôt que `--project-directory` : COMPOSE_FILE peut chaîner plusieurs
+# fichiers par des chemins relatifs, que Compose résout depuis le répertoire
+# courant. Avec --project-directory, il les chercherait ici et échouerait.
+COMPOSE_AT   = $(if $(ZDC),cd $(ZDC) && docker compose,$(COMPOSE))
 SWITCH_DIR   = $(if $(ZDC),--dir $(ZDC),)
 COMPOSE_DEV := docker compose -f docker-compose.dev.yml
 
@@ -101,12 +104,9 @@ which-version: ## Affiche la version actuellement en service (make which-version
 	@echo "image   : $$($(COMPOSE_AT) ps --format '{{.Image}}' zammad-railsserver 2>/dev/null | head -n1)"
 	@echo "version : $$($(COMPOSE_AT) exec -T zammad-railsserver cat /opt/zammad/VERSION 2>/dev/null || echo '(hors ligne)')"
 
-install-zdc: ## Installe le complément Odice dans un zammad-docker-compose (ZDC= requis)
+install-zdc: ## Installe le complément Odice dans un zammad-docker-compose
 	@test -n "$(ZDC)" || { echo "ZDC est obligatoire : export ZDC=/opt/zammad-docker-compose"; exit 1; }
-	cp contrib/odice/zdc/docker-compose.override.yml $(ZDC)/
-	@grep -q ODICE_IMAGE_REPO $(ZDC)/.env 2>/dev/null \
-	  || cat contrib/odice/zdc/env.odice.example >> $(ZDC)/.env
-	@echo "Complément installé. Relisez $(ZDC)/.env, puis : make use-odice ZDC=$(ZDC)"
+	@contrib/odice/zdc/install.sh "$(ZDC)"
 
 # ---------- Qualité ----------
 lint-odice: ## Lint des fichiers de thème Odice
