@@ -92,6 +92,33 @@ il le dit et n'a rien modifié.
 
 Pour connaître le tag sans déployer : `make image-tag`.
 
+### Déploiement automatique
+
+Pour que tout push parte en production sans intervention :
+
+```bash
+make install-autodeploy    # minuteur systemd, vérification toutes les 5 min
+```
+
+Un minuteur récupère la branche suivie et, si elle a avancé, déploie — mais
+seulement une fois l'image publiée par la CI. Tant que le build tourne, il
+repart sans rien toucher et réessaie au passage suivant.
+
+```bash
+systemctl status odice-auto-deploy.timer     # actif ?
+systemctl list-timers odice-auto-deploy      # prochain passage
+tail -f tmp/auto-deploy.log                  # ce qu'il a fait
+make uninstall-autodeploy                    # désactiver
+```
+
+**Ce que cela implique :** chaque commit poussé devient une mise en production,
+y compris la nuit et le week-end. Trois garde-fous existent — le script refuse
+d'agir si le dépôt a des modifications non commitées, il ignore les commits dont
+le message porte `[no-deploy]`, et il ne déploie jamais une image absente du
+registry. Ils ne remplacent pas une relecture avant de pousser.
+
+Chaque déploiement prend une sauvegarde dans `ODICE_ROLLBACK_DIR` avant d'agir.
+
 Le tag horodaté (`7.2.x-<sha8>`) est toujours préférable à `odice-main`, qui
 change à chaque push : il correspond exactement à ce qu'affiche
 Administration → Version.
