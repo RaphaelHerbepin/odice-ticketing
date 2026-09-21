@@ -19,7 +19,7 @@ COMPOSE_AT   = $(if $(ZDC),cd $(ZDC) && docker compose,$(COMPOSE))
 SWITCH_DIR   = $(if $(ZDC),--dir $(ZDC),)
 COMPOSE_DEV := docker compose -f docker-compose.dev.yml
 
-.PHONY: .check-stack help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local use-odice use-legacy use-legacy-dry-run which-version install-zdc
+.PHONY: .check-stack help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local image-tag deploy use-odice use-legacy use-legacy-dry-run which-version install-zdc
 
 help: ## Affiche cette aide
 	@echo "Pile visée : $(if $(ZDC),$(ZDC),ce dépôt — export ZDC=/opt/zammad-docker-compose pour en viser une autre)"
@@ -108,6 +108,12 @@ restore-local: ## Charge l'export dans la pile locale pour vérification (DÉTRU
 # ZDC= désigne une installation zammad-docker-compose existante à piloter :
 #   make use-odice ZDC=/opt/zammad-docker-compose
 # Sans ZDC, c'est la pile de ce dépôt qui est visée.
+image-tag: ## Affiche le tag d'image correspondant au commit courant
+	@echo "$$(tr -d '\n' < VERSION)-$$(git rev-parse --short=8 HEAD)"
+
+deploy: .check-stack ## Déploie l'image du commit courant (faire `git pull` avant)
+	contrib/odice/switch/deploy.sh $(SWITCH_DIR)
+
 use-odice: .check-stack ## Met la version Odice en service (sauvegarde la base d'abord)
 	contrib/odice/switch/use-odice.sh $(SWITCH_DIR)
 

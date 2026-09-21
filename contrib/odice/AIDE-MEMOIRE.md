@@ -78,18 +78,23 @@ gh run list --repo RaphaelHerbepin/odice-ticketing     # attendre le ✓ (6-7 mi
 git rev-parse --short=8 origin/odice/main             # donne le <sha8>
 ```
 
-Le tag publié est `7.2.x-<sha8>`. Puis sur le VPS :
+Puis sur le VPS, **une seule commande** — le tag n'est pas à recopier, il est
+calculé à partir du commit :
 
 ```bash
 cd /opt/odice-ticketing && git pull
-sed -i 's|^ODICE_IMAGE_TAG=.*|ODICE_IMAGE_TAG=7.2.x-<sha8>|' $ZDC/.env
-sed -i 's|^VERSION=.*|VERSION=7.2.x-<sha8>|' $ZDC/.env
-make backup
-make up
+make deploy
 ```
 
-Préférez toujours le tag horodaté à `odice-main`, qui change à chaque push. Il
-correspond exactement à ce qu'affiche Administration → Version.
+`deploy` vérifie que l'image existe au registry avant de toucher à quoi que ce
+soit, prend une sauvegarde, bascule le tag et redémarre. Si la CI n'a pas fini,
+il le dit et n'a rien modifié.
+
+Pour connaître le tag sans déployer : `make image-tag`.
+
+Le tag horodaté (`7.2.x-<sha8>`) est toujours préférable à `odice-main`, qui
+change à chaque push : il correspond exactement à ce qu'affiche
+Administration → Version.
 
 ---
 
