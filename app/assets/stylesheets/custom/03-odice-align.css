@@ -92,3 +92,30 @@ a:focus-visible,
 .sidebar-header {
   background-image: none;
 }
+
+/* ---------- Barre d'outils basse ----------
+ * Le nouveau frontend groupe l'avatar et les actions dans un bloc arrondi
+ * légèrement plus clair que le bandeau. L'interface historique alignait ses
+ * icônes à plat sur le fond : même contenu, lecture différente. On reprend le
+ * groupement, sans toucher à l'ordre ni au nombre d'entrées. */
+.user-menu {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: var(--od-r-xl);
+  padding: 2px;
+}
+
+.user-menu .list-button {
+  border-radius: var(--od-r-lg);
+  transition: background-color 120ms ease;
+}
+
+.user-menu > li:hover .list-button {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* L'élément actif de la navigation reprend le Bleu 2020, comme le
+ * `aria-current` du desktop. */
+.navigation .is-active,
+.navigation .active > a {
+  background-color: var(--od-bleu-2020);
+}

@@ -71,8 +71,15 @@
    * Navy, et non charbon : c'est la même surface que la barre latérale du
    * nouveau frontend (jeton --color-neutral-950), les deux interfaces doivent
    * se ressembler. */
-  --background-tertiary: #0c3258;
-  --background-quaternary: #0a2a4a;
+
+  /* `--menu-background-primary` (colonne de navigation) dérive de
+   * `--background-quaternary`, et `--menu-background-secondary` (colonne de
+   * menu) de `--background-tertiary` — zammad.scss:108-110. On leur donne
+   * exactement les deux tons du bandeau desktop : #0c3258 pour la surface
+   * principale, #10406b pour le second niveau. L'inverse produisait une colonne
+   * plus sombre que le desktop, perçue comme noire. */
+  --background-quaternary: #0c3258;
+  --background-tertiary: #10406b;
   --background-quaternary-alt: #e8eaeb;
   --background-active: #134c82;
 
@@ -142,8 +149,8 @@
   /* La barre de navigation reste NAVY en thème sombre, comme celle du nouveau
    * frontend : sinon l'administration réapparaît en charbon et donne
    * l'impression d'un Zammad non rebrandé. */
-  --background-tertiary: #0c3258;
-  --background-quaternary: #0a2a4a;
+  --background-quaternary: #0c3258;
+  --background-tertiary: #10406b;
   --background-popover: #2b2a2e;
   --background-active: #134c82;
 
