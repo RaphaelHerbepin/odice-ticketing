@@ -224,7 +224,21 @@ Actions du dépôt GitHub :
 Tant que ces secrets sont absents, le job de déploiement s'exécute sans rien
 faire et le dit : le build reste vert.
 
-**5. Vérifier**, en poussant un commit :
+**5. Amorçage — le dépôt du serveur doit déjà contenir le script.** La commande
+forcée pointe vers un fichier versionné : tant que le serveur ne l'a pas, la
+connexion réussit mais échoue sur `No such file or directory`. Mettez-le à jour
+une fois à la main :
+
+```bash
+cd /opt/odice-ticketing && git fetch origin && git reset --hard origin/odice/main
+ls contrib/odice/switch/ci-deploy-entry.sh    # doit exister
+```
+
+`reset --hard` plutôt que `pull` : si l'historique a été réécrit, `pull` refuse
+de réconcilier deux branches divergentes. Rien n'est perdu — la configuration du
+serveur vit dans le répertoire de la pile, pas dans ce dépôt.
+
+**6. Vérifier**, en poussant un commit :
 
 ```bash
 gh run list --repo <compte>/odice-ticketing --limit 1
