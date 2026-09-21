@@ -92,6 +92,11 @@ il le dit et n'a rien modifié.
 
 Pour connaître le tag sans déployer : `make image-tag`.
 
+**La version en service est affichée dans l'interface**, en bas à droite de
+chaque écran — discrète au repos, lisible au survol. C'est la valeur du fichier
+`VERSION`, que le Dockerfile réécrit en `7.2.x-<sha8>.docker` : elle identifie
+donc exactement le commit déployé, sans ouvrir de terminal.
+
 ### Déploiement continu
 
 Une fois configuré (voir [BASCULE.md](BASCULE.md)), **chaque push déploie
