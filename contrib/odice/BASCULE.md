@@ -111,6 +111,20 @@ Cela dépose deux choses, sans toucher à votre `docker-compose.yml` :
 Relisez ensuite `/opt/zammad-docker-compose/.env` et ajustez `ODICE_IMAGE_TAG`,
 `ODICE_ROLLBACK_DIR` et les valeurs de marque.
 
+Créez le répertoire de sauvegarde **au bon propriétaire** — c'est là que sera
+écrit le dump d'avant migration, celui qui rend le retour arrière possible :
+
+```bash
+sudo mkdir -p /opt/odice-rollback && sudo chown "$USER" /opt/odice-rollback
+```
+
+> **Si votre serveur fait tourner nginx-proxy, Traefik ou un autre reverse
+> proxy partagé**, `docker compose` les signale comme « orphan containers » de
+> ce projet. C'est sans gravité — mais ne lancez **jamais**
+> `docker compose down --remove-orphans` dans ce répertoire : vous supprimeriez
+> le reverse proxy et le renouvellement des certificats de tout le serveur. Les
+> scripts de bascule ne passent pas cette option.
+
 ### 3. Sauvegarder, puis basculer
 
 ```bash

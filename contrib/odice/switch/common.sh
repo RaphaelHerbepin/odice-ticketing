@@ -60,6 +60,33 @@ PG_USER="$(env_get POSTGRESQL_USER "$(env_get POSTGRES_USER zammad)")"
 PG_DB="$(env_get POSTGRESQL_DB "$(env_get POSTGRES_DB zammad_production)")"
 ROLLBACK_DIR="$(env_get ODICE_ROLLBACK_DIR "${REPO_ROOT}/tmp/rollback")"
 
+# Vérifie que le répertoire de sauvegarde est utilisable AVANT d'engager quoi
+# que ce soit. Sans ce contrôle, l'échec survient après la confirmation, une
+# fois PostgreSQL démarré — au moment précis où l'on croit l'opération lancée.
+function ensure_rollback_dir {
+  if ! mkdir -p "${ROLLBACK_DIR}" 2>/dev/null; then
+    cat >&2 <<FAIL
+Erreur : impossible de créer ${ROLLBACK_DIR}.
+
+  sudo mkdir -p ${ROLLBACK_DIR} && sudo chown "\$USER" ${ROLLBACK_DIR}
+FAIL
+    return 1
+  fi
+  if ! touch "${ROLLBACK_DIR}/.odice-write-test" 2>/dev/null; then
+    cat >&2 <<FAIL
+Erreur : ${ROLLBACK_DIR} n'est pas accessible en écriture pour $(id -un).
+
+  sudo chown "\$USER" ${ROLLBACK_DIR}
+
+C'est là que sera écrite la sauvegarde d'avant migration — celle qui rend le
+retour arrière possible. On ne va pas plus loin sans elle.
+FAIL
+    return 1
+  fi
+  rm -f "${ROLLBACK_DIR}/.odice-write-test"
+  echo "  sauvegardes  : ${ROLLBACK_DIR} (accessible en écriture)"
+}
+
 # Dump de la base en cours, conservé hors des volumes Docker. C'est lui, et lui
 # seul, qui rend le retour arrière possible : les migrations Odice ajoutent des
 # contraintes que le code historique ne respecte pas, elles ne se défont pas.

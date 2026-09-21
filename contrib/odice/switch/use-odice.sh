@@ -69,6 +69,8 @@ if [ -n "${CURRENT_IMAGE#:}" ] && [ "${CURRENT_IMAGE%:*}" != "${ODICE_REPO}" ]; 
   echo "  version historique épinglée : ${CURRENT_IMAGE}"
 fi
 
+ensure_rollback_dir || exit 1
+
 cat <<WARN
 
   ┌────────────────────────────────────────────────────────────────────────┐
