@@ -196,11 +196,20 @@ printf 'command="/opt/odice-ticketing/contrib/odice/switch/ci-deploy-entry.sh",n
 ```
 
 **3. Relever l'empreinte du serveur** — sans elle, la CI accepterait n'importe
-quel serveur répondant à cette adresse :
+quel serveur répondant à cette adresse.
+
+**Le nom employé ici doit être identique, caractère pour caractère, à celui que
+vous mettrez dans `ODICE_DEPLOY_HOST`.** OpenSSH compare des chaînes : il ne
+résout pas un nom vers une IP pour retrouver l'entrée. Un relevé fait sur
+`srv1943441` ne vaut pas pour `91.x.x.x`, ni l'inverse, et l'échec ne dit alors
+que « Host key verification failed ».
 
 ```bash
-ssh-keyscan -t ed25519 <votre-serveur>
+ssh-keyscan <la valeur exacte de ODICE_DEPLOY_HOST>
 ```
+
+Sans `-t ed25519` : le serveur peut ne publier que des clés RSA ou ECDSA, et
+restreindre le type produirait un relevé vide.
 
 **4. Renseigner quatre secrets** dans Paramètres → Secrets and variables →
 Actions du dépôt GitHub :

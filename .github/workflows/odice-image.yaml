@@ -105,12 +105,29 @@ jobs:
 
           # Empreinte épinglée : sans elle, la première connexion accepterait
           # n'importe quel serveur se présentant à cette adresse.
-          if [ -n "${DEPLOY_KNOWN_HOSTS}" ]; then
-            printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" > ~/.ssh/known_hosts
-            chmod 600 ~/.ssh/known_hosts
-          else
+          if [ -z "${DEPLOY_KNOWN_HOSTS}" ]; then
             echo "::error::ODICE_DEPLOY_KNOWN_HOSTS est vide — connexion refusée."
-            echo "  Sur le serveur : ssh-keyscan -t ed25519 <hôte>"
+            echo "  Sur le serveur : ssh-keyscan \"\$ODICE_DEPLOY_HOST\""
+            exit 1
+          fi
+          printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+          # L'entrée doit porter EXACTEMENT le nom utilisé pour se connecter.
+          # Un relevé fait sur « srv1943441 » ne vaut pas pour une IP, ni
+          # l'inverse : OpenSSH compare la chaîne, il ne résout rien. Sans ce
+          # contrôle, l'échec ne dit que « Host key verification failed », ce
+          # qui n'oriente vers rien.
+          if ! ssh-keygen -F "${DEPLOY_HOST}" -f ~/.ssh/known_hosts >/dev/null 2>&1; then
+            echo "::error::Aucune entrée known_hosts pour l'hôte configuré."
+            echo "  ODICE_DEPLOY_KNOWN_HOSTS doit être relevé avec la valeur"
+            echo "  EXACTE de ODICE_DEPLOY_HOST :"
+            echo ""
+            echo "      ssh-keyscan <valeur exacte de ODICE_DEPLOY_HOST>"
+            echo ""
+            echo "  Noms présents dans le secret actuel :"
+            cut -d' ' -f1 ~/.ssh/known_hosts | sed 's/^/    /'
+            echo "  Types de clés présents : $(cut -d' ' -f2 ~/.ssh/known_hosts | sort -u | tr '\n' ' ')"
             exit 1
           fi
 
