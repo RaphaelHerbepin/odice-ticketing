@@ -112,7 +112,12 @@ Voir [MIGRATION.md](MIGRATION.md) : sauvegarde / restauration complète, avec
 le point à ne pas oublier — la restauration écrase la base, donc le branding
 Odice, et impose de rejouer `make provision`.
 
-### Exploitation : basculer entre les deux versions
+### Exploitation
+
+**[AIDE-MEMOIRE.md](AIDE-MEMOIRE.md) — toutes les commandes sur une page.**
+C'est le document à ouvrir en premier au quotidien.
+
+### Basculer entre les deux versions
 
 Une seule pile, un seul domaine, une seule base. Voir [BASCULE.md](BASCULE.md).
 

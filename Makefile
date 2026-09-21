@@ -5,6 +5,13 @@
 
 SHELL       := /bin/bash
 COMPOSE     := docker compose
+
+# ZDC= désigne une installation zammad-docker-compose existante à piloter :
+#   make logs ZDC=/opt/zammad-docker-compose S=zammad-railsserver
+# Sans ZDC, les cibles visent la pile de ce dépôt.
+ZDC         ?=
+COMPOSE_AT   = $(if $(ZDC),docker compose --project-directory $(ZDC),$(COMPOSE))
+SWITCH_DIR   = $(if $(ZDC),--dir $(ZDC),)
 COMPOSE_DEV := docker compose -f docker-compose.dev.yml
 
 .PHONY: help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local use-odice use-legacy use-legacy-dry-run which-version install-zdc
@@ -31,29 +38,30 @@ push: ## Construit et publie l'image
 	@contrib/odice/build.sh --push
 
 # ---------- Production ----------
-up: ## Démarre la production
-	$(COMPOSE) up -d
+up: ## Démarre la pile (make up ZDC=…)
+	$(COMPOSE_AT) up -d
 
-down: ## Arrête la production
-	$(COMPOSE) down
+down: ## Arrête la pile — SANS --remove-orphans, jamais
+	$(COMPOSE_AT) down
 
 restart: ## Redémarre les services applicatifs
-	$(COMPOSE) restart zammad-railsserver zammad-scheduler zammad-websocket zammad-nginx
+	$(COMPOSE_AT) restart zammad-railsserver zammad-scheduler zammad-websocket zammad-nginx
 
 ps: ## État des conteneurs
-	$(COMPOSE) ps
+	$(COMPOSE_AT) ps
 
 logs: ## Suit les journaux (make logs S=zammad-railsserver)
-	$(COMPOSE) logs -f --tail=200 $(S)
+	$(COMPOSE_AT) logs -f --tail=200 $(S)
 
 console: ## Ouvre une console Rails
-	$(COMPOSE) exec zammad-railsserver bundle exec rails console
+	$(COMPOSE_AT) exec zammad-railsserver bundle exec rails console
 
 provision: ## Réapplique la configuration Odice (forcé)
-	$(COMPOSE) run --rm -e ODICE_PROVISION_FORCE=true odice-provision
+	$(COMPOSE_AT) exec -T -e ODICE_PROVISION_FORCE=true zammad-railsserver \
+	  bundle exec rake odice:provision
 
 backup: ## Déclenche une sauvegarde immédiate
-	$(COMPOSE) run --rm -e BACKUP_ONCE=true zammad-backup
+	$(COMPOSE_AT) run --rm -e BACKUP_ONCE=true zammad-backup
 
 # ---------- Migration depuis une instance existante ----------
 # HOST = utilisateur@serveur pour SSH ; REMOTE = répertoire du docker-compose.yml distant.
@@ -76,10 +84,6 @@ restore-local: ## Charge l'export dans la pile locale pour vérification (DÉTRU
 # ZDC= désigne une installation zammad-docker-compose existante à piloter :
 #   make use-odice ZDC=/opt/zammad-docker-compose
 # Sans ZDC, c'est la pile de ce dépôt qui est visée.
-ZDC ?=
-SWITCH_DIR := $(if $(ZDC),--dir $(ZDC),)
-COMPOSE_AT  = $(if $(ZDC),docker compose --project-directory $(ZDC),$(COMPOSE))
-
 use-odice: ## Met la version Odice en service (sauvegarde la base d'abord)
 	contrib/odice/switch/use-odice.sh $(SWITCH_DIR)
 
