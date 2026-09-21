@@ -10,9 +10,15 @@ cd /opt/odice-ticketing
 export ZDC=/opt/zammad-docker-compose
 ```
 
-Pour ne plus jamais y penser, ajoutez cette ligne à `~/.bashrc`. En cas de
-doute, `make help` affiche en tête la pile réellement visée — sans `ZDC`, ce
-serait la pile de ce dépôt, qui n'est pas celle en service.
+Pour ne plus jamais y penser, ajoutez cette ligne à `~/.bashrc` :
+
+```bash
+echo 'export ZDC=/opt/zammad-docker-compose' >> ~/.bashrc
+```
+
+En cas de doute, `make help` affiche en tête la pile réellement visée. Et si
+vous oubliez l'export, les commandes refusent de s'exécuter en le rappelant —
+elles ne partiront pas sur la mauvaise pile.
 
 | | |
 |---|---|

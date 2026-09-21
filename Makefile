@@ -19,7 +19,7 @@ COMPOSE_AT   = $(if $(ZDC),cd $(ZDC) && docker compose,$(COMPOSE))
 SWITCH_DIR   = $(if $(ZDC),--dir $(ZDC),)
 COMPOSE_DEV := docker compose -f docker-compose.dev.yml
 
-.PHONY: help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local use-odice use-legacy use-legacy-dry-run which-version install-zdc
+.PHONY: .check-stack help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local use-odice use-legacy use-legacy-dry-run which-version install-zdc
 
 help: ## Affiche cette aide
 	@echo "Pile visée : $(if $(ZDC),$(ZDC),ce dépôt — export ZDC=/opt/zammad-docker-compose pour en viser une autre)"
@@ -45,29 +45,46 @@ push: ## Construit et publie l'image
 	@contrib/odice/build.sh --push
 
 # ---------- Production ----------
-up: ## Démarre la pile (make up ZDC=…)
+# Garde-fou : sans ZDC exporté, ces cibles visent la pile de CE dépôt. Si elle
+# n'est pas configurée (pas de .env), c'est presque toujours qu'on a oublié
+# `export ZDC=…` — mieux vaut le dire que de laisser Compose échouer sur une
+# erreur de variable manquante, qui n'oriente vers rien.
+.check-stack:
+	@if [ -z "$(ZDC)" ] && [ ! -f .env ]; then \
+	  echo "Aucune pile visée."; \
+	  echo; \
+	  echo "  Ce dépôt n'a pas de .env, et ZDC n'est pas défini."; \
+	  echo "  Pour piloter votre installation Zammad :"; \
+	  echo; \
+	  echo "    export ZDC=/opt/zammad-docker-compose"; \
+	  echo; \
+	  echo "  (à ajouter à ~/.bashrc pour ne plus y penser)"; \
+	  exit 1; \
+	fi
+
+up: .check-stack ## Démarre la pile (make up ZDC=…)
 	$(COMPOSE_AT) up -d
 
-down: ## Arrête la pile — SANS --remove-orphans, jamais
+down: .check-stack ## Arrête la pile — SANS --remove-orphans, jamais
 	$(COMPOSE_AT) down
 
-restart: ## Redémarre les services applicatifs
+restart: .check-stack ## Redémarre les services applicatifs
 	$(COMPOSE_AT) restart zammad-railsserver zammad-scheduler zammad-websocket zammad-nginx
 
-ps: ## État des conteneurs
+ps: .check-stack ## État des conteneurs
 	$(COMPOSE_AT) ps
 
-logs: ## Suit les journaux (make logs S=zammad-railsserver)
+logs: .check-stack ## Suit les journaux (make logs S=zammad-railsserver)
 	$(COMPOSE_AT) logs -f --tail=200 $(S)
 
-console: ## Ouvre une console Rails
+console: .check-stack ## Ouvre une console Rails
 	$(COMPOSE_AT) exec zammad-railsserver bundle exec rails console
 
-provision: ## Réapplique la configuration Odice (forcé)
+provision: .check-stack ## Réapplique la configuration Odice (forcé)
 	$(COMPOSE_AT) exec -T -e ODICE_PROVISION_FORCE=true zammad-railsserver \
 	  bundle exec rake odice:provision
 
-backup: ## Déclenche une sauvegarde immédiate
+backup: .check-stack ## Déclenche une sauvegarde immédiate
 	$(COMPOSE_AT) run --rm -e BACKUP_ONCE=true zammad-backup
 
 # ---------- Migration depuis une instance existante ----------
@@ -91,16 +108,16 @@ restore-local: ## Charge l'export dans la pile locale pour vérification (DÉTRU
 # ZDC= désigne une installation zammad-docker-compose existante à piloter :
 #   make use-odice ZDC=/opt/zammad-docker-compose
 # Sans ZDC, c'est la pile de ce dépôt qui est visée.
-use-odice: ## Met la version Odice en service (sauvegarde la base d'abord)
+use-odice: .check-stack ## Met la version Odice en service (sauvegarde la base d'abord)
 	contrib/odice/switch/use-odice.sh $(SWITCH_DIR)
 
-use-legacy: ## Revient à la version historique (restaure la base d'avant bascule)
+use-legacy: .check-stack ## Revient à la version historique (restaure la base d'avant bascule)
 	contrib/odice/switch/use-legacy.sh $(SWITCH_DIR)
 
-use-legacy-dry-run: ## Montre ce que coûterait le retour arrière, sans rien changer
+use-legacy-dry-run: .check-stack ## Montre ce que coûterait le retour arrière, sans rien changer
 	contrib/odice/switch/use-legacy.sh $(SWITCH_DIR) --dry-run
 
-which-version: ## Affiche la version actuellement en service (make which-version ZDC=…)
+which-version: .check-stack ## Affiche la version actuellement en service (make which-version ZDC=…)
 	@echo "image   : $$($(COMPOSE_AT) ps --format '{{.Image}}' zammad-railsserver 2>/dev/null | head -n1)"
 	@echo "version : $$($(COMPOSE_AT) exec -T zammad-railsserver cat /opt/zammad/VERSION 2>/dev/null || echo '(hors ligne)')"
 
