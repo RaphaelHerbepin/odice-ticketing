@@ -459,11 +459,51 @@ body {
   padding-inline: 10px;
 }
 
-/* La colonne secondaire (« Manage », « Channels »…) reprend la surface sombre
-   du nouveau frontend plutôt qu'un charbon neutre. */
+/* Colonne secondaire — « Gérer », « Canaux », les réglages de profil.
+ *
+ * Elle était peinte en surface sombre pour reprendre le nouveau frontend. Mais
+ * le desktop y met une colonne BLANCHE en mode clair : c'est ce contraste entre
+ * le bandeau bleu marine et la colonne claire qui fait sa lisibilité. La
+ * conserver sombre donnait deux colonnes sombres côte à côte, et l'impression
+ * d'une administration restée en arrière.
+ *
+ * Les couleurs suivent donc le thème, au lieu d'être figées. */
 .content .sidebar,
 .sidebar-block,
 #manage .sidebar {
+  background-color: var(--background-secondary);
+  border-inline-end: 1px solid var(--border);
+}
+
+/* Sur fond clair, les libellés doivent repasser en charcoal : l'amont les
+   prévoit clairs, puisqu'il les pose sur du sombre. */
+.content .sidebar a,
+.sidebar-block a,
+#manage .sidebar a {
+  color: var(--text-normal);
+}
+
+.content .sidebar .is-active,
+.content .sidebar .active > a,
+#manage .sidebar .is-active,
+#manage .sidebar .active > a {
+  background-color: var(--od-bleu-2020);
+  color: #fff;
+}
+
+/* Les intertitres restent en retrait, mais pas au prix de la lisibilité : le
+   gris moyen de la charte (#9ea4a6) tombe à 2.53:1 sur blanc, sous le seuil AA.
+   Le gris assombri employé ailleurs dans le thème tient 4.86:1. */
+.content .sidebar h2,
+.content .sidebar .sidebar-header,
+#manage .sidebar h2 {
+  color: #6e7274;
+}
+
+/* En sombre, la colonne reprend la surface profonde du nouveau frontend. */
+[data-theme='dark'] .content .sidebar,
+[data-theme='dark'] .sidebar-block,
+[data-theme='dark'] #manage .sidebar {
   background-color: #1f2127;
 }
 
