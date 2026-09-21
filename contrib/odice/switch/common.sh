@@ -4,11 +4,33 @@
 # Ce fichier se source, il ne s'exécute pas.
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-ENV_FILE="${REPO_ROOT}/.env"
-STATE_FILE="${REPO_ROOT}/.odice-cutover-state"
 
-cd "${REPO_ROOT}"
-[ -f "${ENV_FILE}" ] || { echo "Erreur : .env absent à la racine du dépôt." >&2; exit 1; }
+# La pile pilotée n'est pas forcément celle de ce dépôt. ODICE_COMPOSE_DIR — ou
+# l'option --dir — permet de viser une installation existante, typiquement un
+# clone de zammad-docker-compose. Les données ne bougent alors pas d'un octet :
+# ce sont les mêmes volumes, la même base.
+COMPOSE_DIR="${ODICE_COMPOSE_DIR:-${REPO_ROOT}}"
+for _i in "$@"; do
+  [ "${_prev:-}" = '--dir' ] && COMPOSE_DIR="${_i}"
+  _prev="${_i}"
+done
+COMPOSE_DIR="$(cd "${COMPOSE_DIR}" 2>/dev/null && pwd)" || {
+  echo "Erreur : répertoire de pile introuvable : ${ODICE_COMPOSE_DIR:-${REPO_ROOT}}" >&2; exit 1; }
+
+ENV_FILE="${COMPOSE_DIR}/.env"
+STATE_FILE="${COMPOSE_DIR}/.odice-cutover-state"
+
+cd "${COMPOSE_DIR}"
+[ -f "${ENV_FILE}" ] || { echo "Erreur : .env absent dans ${COMPOSE_DIR}." >&2; exit 1; }
+
+# Le nom des variables d'image diffère selon la pile : zammad-docker-compose
+# utilise IMAGE_REPO/VERSION, la pile de ce dépôt ODICE_IMAGE_REPO/ODICE_IMAGE_TAG.
+# On le déduit du compose plutôt que de le demander.
+if grep -q 'IMAGE_REPO' "${COMPOSE_DIR}/docker-compose.yml" 2>/dev/null; then
+  VAR_REPO='IMAGE_REPO'; VAR_TAG='VERSION'; PILE='zammad-docker-compose'
+else
+  VAR_REPO='ODICE_IMAGE_REPO'; VAR_TAG='ODICE_IMAGE_TAG'; PILE='odice-ticketing'
+fi
 
 # Le .env n'est PAS un script shell : Docker Compose y autorise des valeurs non
 # quotées contenant des espaces (ODICE_PRODUCT_NAME=Odice Helpdesk), qu'un
@@ -34,8 +56,8 @@ function env_set {
 
 function dc { docker compose --env-file "${ENV_FILE}" "$@"; }
 
-PG_USER="$(env_get POSTGRESQL_USER zammad)"
-PG_DB="$(env_get POSTGRESQL_DB zammad_production)"
+PG_USER="$(env_get POSTGRESQL_USER "$(env_get POSTGRES_USER zammad)")"
+PG_DB="$(env_get POSTGRESQL_DB "$(env_get POSTGRES_DB zammad_production)")"
 ROLLBACK_DIR="$(env_get ODICE_ROLLBACK_DIR "${REPO_ROOT}/tmp/rollback")"
 
 # Dump de la base en cours, conservé hors des volumes Docker. C'est lui, et lui

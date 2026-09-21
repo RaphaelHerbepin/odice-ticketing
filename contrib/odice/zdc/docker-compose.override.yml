@@ -1,0 +1,43 @@
+# Odice — complément pour une installation zammad-docker-compose.
+#
+# À COPIER dans le répertoire de votre clone de zammad-docker-compose :
+#
+#   cp contrib/odice/zdc/docker-compose.override.yml /opt/zammad-docker-compose/
+#
+# Compose charge `docker-compose.override.yml` automatiquement, sans option :
+# votre `docker-compose.yml` n'est donc pas modifié et reste mis à jour par
+# `git pull` du dépôt amont.
+#
+# À quoi ça sert : le compose officiel énumère explicitement les variables qu'il
+# transmet aux conteneurs. Les variables ODICE_* n'y figurent pas, et
+# `rake odice:provision` ne les verrait donc jamais — le branding ne s'appliquerait
+# pas. Cet override les ajoute là où la tâche s'exécute.
+#
+# Il ne change NI l'image, NI les volumes, NI les services. La bascule entre les
+# deux versions se fait par IMAGE_REPO et VERSION dans votre `.env`, ce dont
+# s'occupent contrib/odice/switch/use-odice.sh et use-legacy.sh.
+
+services:
+  zammad-railsserver:
+    environment: &odice-environment
+      # Interpolation explicite plutôt que la forme « CLE: » sans valeur : cette
+      # dernière dépend d'une résolution implicite que `docker compose config`
+      # n'affiche même pas, donc impossible à vérifier avant de démarrer.
+      ODICE_PRODUCT_NAME: ${ODICE_PRODUCT_NAME:-}
+      ODICE_ORGANIZATION: ${ODICE_ORGANIZATION:-}
+      ODICE_LOGO_PATH: ${ODICE_LOGO_PATH:-}
+      ODICE_LOCALE_DEFAULT: ${ODICE_LOCALE_DEFAULT:-}
+      ODICE_FORCE_USER_LOCALE: ${ODICE_FORCE_USER_LOCALE:-}
+      ODICE_TIMEZONE_DEFAULT: ${ODICE_TIMEZONE_DEFAULT:-}
+      ODICE_DISABLE_IMAGE_BACKEND: ${ODICE_DISABLE_IMAGE_BACKEND:-}
+      ODICE_PROVISION_VERSION: ${ODICE_PROVISION_VERSION:-}
+      ODICE_PROVISION_FORCE: ${ODICE_PROVISION_FORCE:-}
+      ODICE_SANDBOX_CONFIRM: ${ODICE_SANDBOX_CONFIRM:-}
+      ODICE_SANDBOX_FQDN: ${ODICE_SANDBOX_FQDN:-}
+      ODICE_SANDBOX_HTTP_TYPE: ${ODICE_SANDBOX_HTTP_TYPE:-}
+      ODICE_SANDBOX_PASSWORD: ${ODICE_SANDBOX_PASSWORD:-}
+
+  # L'initialisation joue les migrations ; elle lit aussi ces variables lorsque
+  # le provisioning est déclenché depuis l'entrée en service.
+  zammad-init:
+    environment: *odice-environment

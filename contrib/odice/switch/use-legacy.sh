@@ -36,15 +36,17 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run) DRY_RUN=true; shift ;;
     --dump)    DUMP_OVERRIDE="$2"; shift 2 ;;
+    --dir)     shift 2 ;;   # consommé par common.sh
     *)         echo "Option inconnue : $1" >&2; exit 1 ;;
   esac
 done
 
 LEGACY_REPO="$(env_get ODICE_LEGACY_IMAGE_REPO zammad/zammad)"
 LEGACY_TAG="$(env_get ODICE_LEGACY_IMAGE_TAG)"
-SITE="$(env_get ODICE_SITE_ADDRESS)"
+SITE="$(env_get ODICE_SITE_ADDRESS "$(env_get ZAMMAD_HTTP_TYPE https)://$(env_get ZAMMAD_FQDN localhost)")"
 
 echo '== État'
+echo "  pile : ${PILE} (${COMPOSE_DIR})"
 if [ -f "${STATE_FILE}" ]; then
   CUTOVER_AT="$(head -n1 "${STATE_FILE}")"
   DUMP="${DUMP_OVERRIDE:-$(grep '^pre_odice_dump=' "${STATE_FILE}" | cut -d= -f2- || true)}"
@@ -115,11 +117,13 @@ restore_database "${DUMP}"
 echo
 echo '== 4/4 — Démarrage de la version historique'
 dc down
-env_set ODICE_IMAGE_REPO "${LEGACY_REPO}"
-env_set ODICE_IMAGE_TAG "${LEGACY_TAG}"
+env_set "${VAR_REPO}" "${LEGACY_REPO}"
+env_set "${VAR_TAG}" "${LEGACY_TAG}"
 # Profil vidé : la tâche odice:provision n'existe pas dans l'image historique,
 # son conteneur échouerait.
-env_set COMPOSE_PROFILES ''
+if [ "${PILE}" = 'odice-ticketing' ]; then
+  env_set COMPOSE_PROFILES ''
+fi
 dc up -d
 
 wait_for_http "http://127.0.0.1:$(env_get NGINX_PORT 8080)/api/v1/getting_started" 600 || {

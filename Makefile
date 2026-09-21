@@ -7,7 +7,7 @@ SHELL       := /bin/bash
 COMPOSE     := docker compose
 COMPOSE_DEV := docker compose -f docker-compose.dev.yml
 
-.PHONY: help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local use-odice use-legacy use-legacy-dry-run which-version
+.PHONY: help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local use-odice use-legacy use-legacy-dry-run which-version install-zdc
 
 help: ## Affiche cette aide
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -69,21 +69,36 @@ restore-local: ## Charge l'export dans la pile locale pour vérification (DÉTRU
 	contrib/odice/restore-local.sh --from tmp/import
 
 # ---------- Version en service ----------
-# Une seule pile tourne à la fois, sur le même domaine et la même base.
-# Ces deux cibles gèrent la sauvegarde qui rend le retour arrière possible :
-# ne changez pas ODICE_IMAGE_TAG à la main.
+# Une seule version tourne à la fois, sur la même base. Ces cibles gèrent la
+# sauvegarde qui rend le retour arrière possible : ne changez pas le tag de
+# l'image à la main.
+#
+# ZDC= désigne une installation zammad-docker-compose existante à piloter :
+#   make use-odice ZDC=/opt/zammad-docker-compose
+# Sans ZDC, c'est la pile de ce dépôt qui est visée.
+ZDC ?=
+SWITCH_DIR := $(if $(ZDC),--dir $(ZDC),)
+COMPOSE_AT  = $(if $(ZDC),docker compose --project-directory $(ZDC),$(COMPOSE))
+
 use-odice: ## Met la version Odice en service (sauvegarde la base d'abord)
-	contrib/odice/switch/use-odice.sh
+	contrib/odice/switch/use-odice.sh $(SWITCH_DIR)
 
 use-legacy: ## Revient à la version historique (restaure la base d'avant bascule)
-	contrib/odice/switch/use-legacy.sh
+	contrib/odice/switch/use-legacy.sh $(SWITCH_DIR)
 
 use-legacy-dry-run: ## Montre ce que coûterait le retour arrière, sans rien changer
-	contrib/odice/switch/use-legacy.sh --dry-run
+	contrib/odice/switch/use-legacy.sh $(SWITCH_DIR) --dry-run
 
-which-version: ## Affiche la version actuellement en service
-	@echo "image   : $$($(COMPOSE) ps --format '{{.Image}}' zammad-railsserver 2>/dev/null | head -n1)"
-	@echo "version : $$($(COMPOSE) exec -T zammad-railsserver cat /opt/zammad/VERSION 2>/dev/null || echo '(hors ligne)')"
+which-version: ## Affiche la version actuellement en service (make which-version ZDC=…)
+	@echo "image   : $$($(COMPOSE_AT) ps --format '{{.Image}}' zammad-railsserver 2>/dev/null | head -n1)"
+	@echo "version : $$($(COMPOSE_AT) exec -T zammad-railsserver cat /opt/zammad/VERSION 2>/dev/null || echo '(hors ligne)')"
+
+install-zdc: ## Installe le complément Odice dans un zammad-docker-compose (ZDC= requis)
+	@test -n "$(ZDC)" || { echo "ZDC=/chemin/vers/zammad-docker-compose est obligatoire"; exit 1; }
+	cp contrib/odice/zdc/docker-compose.override.yml $(ZDC)/
+	@grep -q ODICE_IMAGE_REPO $(ZDC)/.env 2>/dev/null \
+	  || cat contrib/odice/zdc/env.odice.example >> $(ZDC)/.env
+	@echo "Complément installé. Relisez $(ZDC)/.env, puis : make use-odice ZDC=$(ZDC)"
 
 # ---------- Qualité ----------
 lint-odice: ## Lint des fichiers de thème Odice

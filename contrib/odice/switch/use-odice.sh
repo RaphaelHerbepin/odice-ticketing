@@ -24,14 +24,25 @@ set -o pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
 TAG_OVERRIDE=''
-[ "${1:-}" = '--tag' ] && { TAG_OVERRIDE="$2"; shift 2; }
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --tag) TAG_OVERRIDE="$2"; shift 2 ;;
+    --dir) shift 2 ;;   # consommé par common.sh
+    *)     echo "Option inconnue : $1" >&2; exit 1 ;;
+  esac
+done
 
-ODICE_REPO="$(env_get ODICE_IMAGE_REPO)"
-ODICE_TAG="${TAG_OVERRIDE:-$(env_get ODICE_IMAGE_TAG odice-main)}"
-SITE="$(env_get ODICE_SITE_ADDRESS)"
+ODICE_REPO="${ODICE_IMAGE_REPO:-$(env_get ODICE_IMAGE_REPO)}"
+ODICE_TAG="${TAG_OVERRIDE:-${ODICE_IMAGE_TAG:-$(env_get ODICE_IMAGE_TAG odice-main)}}"
+SITE="$(env_get ODICE_SITE_ADDRESS "$(env_get ZAMMAD_HTTP_TYPE https)://$(env_get ZAMMAD_FQDN localhost)")"
 
 echo '== Contrôles préalables'
-[ -n "${ODICE_REPO}" ] || { echo "Erreur : ODICE_IMAGE_REPO non renseigné." >&2; exit 1; }
+echo "  pile        : ${PILE} (${COMPOSE_DIR})"
+[ -n "${ODICE_REPO}" ] || {
+  echo "Erreur : dépôt de l'image Odice inconnu." >&2
+  echo "         Renseignez ODICE_IMAGE_REPO dans ${ENV_FILE}, ou exportez-le." >&2
+  exit 1
+}
 echo "  image visée : ${ODICE_REPO}:${ODICE_TAG}"
 if docker pull "${ODICE_REPO}:${ODICE_TAG}" >/dev/null 2>&1; then
   echo '  image tirée du registry'
@@ -51,7 +62,8 @@ fi
 
 # Relever l'image en service AVANT de la remplacer : c'est la cible du retour.
 CURRENT_IMAGE="$(dc ps --format '{{.Image}}' zammad-railsserver 2>/dev/null | head -n1 || true)"
-if [ -n "${CURRENT_IMAGE}" ] && [ "${CURRENT_IMAGE%%:*}" != "${ODICE_REPO%%:*}" ]; then
+[ -n "${CURRENT_IMAGE}" ] || CURRENT_IMAGE="$(env_get "${VAR_REPO}"):$(env_get "${VAR_TAG}")"
+if [ -n "${CURRENT_IMAGE#:}" ] && [ "${CURRENT_IMAGE%:*}" != "${ODICE_REPO}" ]; then
   env_set ODICE_LEGACY_IMAGE_REPO "${CURRENT_IMAGE%:*}"
   env_set ODICE_LEGACY_IMAGE_TAG "${CURRENT_IMAGE##*:}"
   echo "  version historique épinglée : ${CURRENT_IMAGE}"
@@ -83,17 +95,25 @@ dc down
 
 echo
 echo '== 3/4 — Démarrage de la version Odice'
-env_set ODICE_IMAGE_REPO "${ODICE_REPO}"
-env_set ODICE_IMAGE_TAG "${ODICE_TAG}"
+env_set "${VAR_REPO}" "${ODICE_REPO}"
+env_set "${VAR_TAG}" "${ODICE_TAG}"
 # Le profil `odice` ajoute odice-provision, dont la tâche rake n'existe que dans
 # cette image. On l'inscrit dans .env plutôt que de le passer à la volée : ainsi
 # `make up`, `make restart` et tout appel direct à docker compose restent
 # corrects après la bascule, sans avoir à y penser.
-env_set COMPOSE_PROFILES odice
+if [ "${PILE}" = 'odice-ticketing' ]; then
+  env_set COMPOSE_PROFILES odice
+fi
 dc up -d
 
 echo
 echo '== 4/4 — Contrôles'
+if [ "${PILE}" != 'odice-ticketing' ]; then
+  echo '  application de la configuration Odice…'
+  dc exec -T zammad-railsserver bundle exec rake odice:provision || {
+    echo '  (provisioning à rejouer plus tard : make provision)' >&2; }
+fi
+
 wait_for_http "http://127.0.0.1:$(env_get NGINX_PORT 8080)/api/v1/getting_started" 600 || {
   cat >&2 <<FAIL
 

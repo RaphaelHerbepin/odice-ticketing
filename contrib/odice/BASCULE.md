@@ -27,13 +27,18 @@ l'image et à redémarrer.
               (volumes communs, jamais détruits)
 ```
 
-Deux commandes suffisent :
+Deux commandes suffisent. `ZDC=` désigne votre installation
+zammad-docker-compose ; omettez-le si vous utilisez la pile de ce dépôt.
 
 ```bash
-make use-odice     # met la version Odice en service
-make use-legacy    # revient à la version historique
-make which-version # affiche ce qui tourne actuellement
+make use-odice     ZDC=/opt/zammad-docker-compose   # version Odice en service
+make use-legacy    ZDC=/opt/zammad-docker-compose   # retour à l'historique
+make which-version ZDC=/opt/zammad-docker-compose   # ce qui tourne
 ```
+
+Les scripts reconnaissent seuls la pile visée — `IMAGE_REPO`/`VERSION` pour
+zammad-docker-compose, `ODICE_IMAGE_REPO`/`ODICE_IMAGE_TAG` pour celle-ci — et
+lisent les identifiants PostgreSQL au bon endroit dans chaque cas.
 
 ## Ce que ces commandes font de plus qu'un `down` / `up`
 
@@ -60,97 +65,93 @@ Ils gèrent donc trois choses :
 3. `use-legacy.sh` **restaure cette sauvegarde** avant de redémarrer l'ancienne
    image, ce qui remet le schéma dans l'état qu'elle sait servir.
 
-## Première mise en service
+## Vous utilisez zammad-docker-compose — c'est le cas le plus simple
+
+Le compose officiel déclare `image: ${IMAGE_REPO:-ghcr.io/zammad/zammad}:${VERSION}`.
+**Changer ces deux variables suffit à basculer**, sur exactement les mêmes
+volumes : aucune donnée n'est déplacée, la base est rigoureusement la même. Vous
+gardez votre installation, votre `docker-compose.yml` reste à jour par
+`git pull`, et les scripts la détectent d'eux-mêmes.
 
 ### 1. Publier l'image
 
-`contrib/odice/build.sh` refuse `--push` depuis un arbre de travail modifié — le
-tag mentirait sur le contenu. La construction se fait en CI : `assets:precompile`
-lance rolldown, un binaire natif Rust, dont l'émulation QEMU sur un Mac prend 30
-à 60 minutes et plante.
+La construction se fait en CI : `assets:precompile` lance rolldown, un binaire
+natif Rust, dont l'émulation QEMU sur un Mac prend 30 à 60 minutes et plante.
 
 ```bash
 git push origin odice/main        # déclenche .github/workflows/odice-image.yaml
 gh run list --repo <compte>/odice-ticketing
 ```
 
-Le workflow publie `ghcr.io/<compte>/odice-ticketing:7.2.x-<sha8>` et
-`:odice-main`. **Préférez le tag horodaté** : il correspond exactement à ce
-qu'affiche Administration → Version, ce qui permet de remonter d'un ticket de
-support au commit.
+Notez le tag publié — préférez l'horodaté `7.2.x-<sha8>` au tag de branche : il
+correspond exactement à ce qu'affiche Administration → Version.
 
-L'image est publique ou privée selon les réglages du dépôt. Si elle est privée,
-authentifiez le serveur une fois :
+Si le paquet GHCR est privé, authentifiez le serveur une fois :
 
 ```bash
 echo <token> | docker login ghcr.io -u <compte> --password-stdin
 ```
 
-### 2. Reprendre l'installation existante dans cette pile
-
-Si votre Zammad actuel tourne avec un autre `docker-compose.yml`, il faut
-d'abord amener ses données dans les volumes de celle-ci.
+### 2. Installer le complément Odice sur le serveur
 
 ```bash
 git clone git@github.com:<compte>/odice-ticketing.git /opt/odice
 cd /opt/odice && git checkout odice/main
+make install-zdc ZDC=/opt/zammad-docker-compose
+```
+
+Cela dépose deux choses, sans toucher à votre `docker-compose.yml` :
+
+- `docker-compose.override.yml` — Compose le charge automatiquement. Il ajoute
+  les variables `ODICE_*` à l'environnement des conteneurs. Sans lui,
+  `rake odice:provision` ne les verrait pas et le branding ne s'appliquerait
+  pas : le compose officiel énumère explicitement les variables qu'il transmet ;
+- les lignes de configuration Odice à la fin de votre `.env`.
+
+Relisez ensuite `/opt/zammad-docker-compose/.env` et ajustez `ODICE_IMAGE_TAG`,
+`ODICE_ROLLBACK_DIR` et les valeurs de marque.
+
+### 3. Sauvegarder, puis basculer
+
+```bash
+cd /opt/zammad-docker-compose && docker compose exec -T zammad-backup \
+  /opt/zammad/contrib/docker/backup.sh   # ou attendez la sauvegarde nocturne
+
+cd /opt/odice
+make use-odice ZDC=/opt/zammad-docker-compose
+```
+
+Le script relève l'image en service et l'épingle comme cible de retour, demande
+confirmation, sauvegarde la base, bascule `IMAGE_REPO` et `VERSION`, redémarre,
+applique `odice:provision`, puis attend que l'application réponde. Coupure
+attendue : **5 à 10 minutes**.
+
+Vérifiez à tout moment ce qui tourne :
+
+```bash
+make which-version ZDC=/opt/zammad-docker-compose
+```
+
+## Si vous utilisez la pile de ce dépôt
+
+Le fonctionnement est identique, sans `ZDC=`. Les variables d'image s'appellent
+alors `ODICE_IMAGE_REPO` et `ODICE_IMAGE_TAG`, et le service `odice-provision`
+joue le provisioning automatiquement via le profil `odice`.
+
+```bash
 cp .env.example .env && $EDITOR .env
+make up            # démarre avec l'image indiquée
+make use-odice     # bascule
 ```
-
-Renseignez au minimum : `ODICE_SITE_ADDRESS`, `ODICE_ACME_EMAIL`,
-`ZAMMAD_FQDN`, `NGINX_SERVER_NAME`, les mots de passe PostgreSQL, et
-`ODICE_LEGACY_IMAGE_REPO` / `ODICE_LEGACY_IMAGE_TAG` avec **le tag exact de
-votre image actuelle** :
-
-```bash
-(cd <ancien-répertoire> && docker compose config | grep image:)
-```
-
-Si ce tag est `latest`, épinglez une version précise maintenant : c'est votre
-cible de retour arrière, elle ne doit pas changer sous vos pieds.
-
-Puis, en partant de la version historique pour ne rien casser :
-
-```bash
-# Dans .env : ODICE_IMAGE_REPO / ODICE_IMAGE_TAG = l'image historique
-make up
-
-# Import des données de l'ancienne pile
-contrib/odice/vps-pull.sh --local --path <ancien-répertoire>
-contrib/odice/restore-local.sh --from tmp/import --keep-channels
-```
-
-`--keep-channels` est important : c'est la production, les canaux, déclencheurs
-et automatisations doivent rester actifs. (Sans cette option, la restauration
-appelle `odice:sandbox`, qui les désactive — c'est ce qu'on veut pour une copie
-de test, jamais pour la production.)
-
-Vérifiez que tout répond sur `support.odice.info`, puis seulement ensuite :
-
-### 3. Basculer
-
-```bash
-make use-odice
-```
-
-Le script demande confirmation, sauvegarde la base, arrête la pile, redémarre
-avec l'image Odice — les migrations s'appliquent au démarrage — puis attend que
-l'application réponde. Coupure attendue : **5 à 10 minutes**.
-
-Si la version Odice ne répond pas, le script s'arrête et affiche le chemin de la
-sauvegarde ainsi que la commande de retour.
-
-À vérifier tout de suite : connexion d'un agent, ouverture d'un ticket ancien
-**avec pièce jointe**, création d'un ticket en contrôlant que les champs
-conditionnels apparaissent selon le service et le type de demande — c'est le
-test qui valide les 53 Core Workflows —, et le temps réel dans un second onglet.
 
 ## Revenir en arrière
 
 ```bash
-make use-legacy-dry-run   # ce que ça coûterait, sans rien changer
-make use-legacy           # pour de vrai
+make use-legacy-dry-run ZDC=/opt/zammad-docker-compose   # sans rien changer
+make use-legacy         ZDC=/opt/zammad-docker-compose   # pour de vrai
 ```
+
+(sans `ZDC=` si vous utilisez la pile de ce dépôt)
 
 Environ **5 minutes** : sauvegarde de l'état Odice, restauration du schéma
 d'avant migration, redémarrage avec l'image historique.
