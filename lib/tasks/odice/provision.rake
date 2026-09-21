@@ -102,7 +102,26 @@ namespace :odice do
       puts "  langue de l'interface : #{updated} utilisateur(s) alignés sur #{locale}"
     end
 
-    # 5. Traductions des libellés propres à Odice.
+    # 5. Mode d'affichage par défaut.
+    #    Zammad n'a AUCUN réglage de thème par défaut : la valeur est purement
+    #    individuelle, et son absence signifie « suivre le système ». Les deux
+    #    frontends divergeaient donc selon le poste de l'agent. On pose un
+    #    défaut clair pour les comptes qui n'ont jamais choisi — chacun reste
+    #    libre de prendre le sombre ou le suivi du système dans son profil.
+    theme = ENV.fetch('ODICE_DEFAULT_THEME', 'light')
+    if theme.present? && theme != 'none'
+      aligned = 0
+      ::User.find_each do |user|
+        next if user.preferences[:theme].present?
+
+        user.preferences[:theme] = theme
+        user.save!
+        aligned += 1
+      end
+      puts "  mode d'affichage : #{aligned} compte(s) sans préférence alignés sur « #{theme} »"
+    end
+
+    # 6. Traductions des libellés propres à Odice.
     #    Les fichiers `i18n/*.po` sont gérés par translations.zammad.org et ne
     #    doivent pas être édités ici : on passe donc par les traductions
     #    personnalisées, stockées en base et prioritaires sur celles du code.
@@ -140,7 +159,7 @@ namespace :odice do
       puts '  traductions Odice enregistrées.'
     end
 
-    # 6. Logo produit : stocké EN BASE via Store, pas dans l'image.
+    # 7. Logo produit : stocké EN BASE via Store, pas dans l'image.
     #    `public/assets/images/logo.svg` n'est que le repli.
     if (logo_path = ENV['ODICE_LOGO_PATH'].presence)
       path = Rails.root.join(logo_path)
@@ -157,7 +176,7 @@ namespace :odice do
       end
     end
 
-    # 7. Marqueur de version, pour que la tâche ne réécrase pas des réglages
+    # 8. Marqueur de version, pour que la tâche ne réécrase pas des réglages
     #    modifiés depuis l'interface d'administration.
     Setting.create_if_not_exists(
       title:       'Odice provisioning version',

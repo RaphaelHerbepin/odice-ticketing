@@ -35,9 +35,25 @@
       document.head.appendChild(polyfillScriptTag);
     }
 
+    /* Odice — thème appliqué AVANT le chargement de la session.
+
+       L'amont forçait le sombre dès que le système l'était, sous condition
+       d'une clé localStorage `theme` que rien, dans tout le code, n'écrit
+       jamais : la condition était donc toujours vraie. L'interface historique
+       basculait en sombre même pour un agent ayant choisi le clair, d'où
+       l'écart permanent avec le nouveau frontend, qui lit `preferences.theme`.
+
+       Ici : défaut CLAIR, et la préférence réelle — mémorisée par
+       odice_theme_sync.coffee après chaque changement — est respectée dès le
+       premier rendu, sans clignotement. */
     try {
-      if(window.matchMedia('(prefers-color-scheme: dark)').matches && localStorage.getItem('theme') != 'light' && !window.location.href.includes('/tests_') ){
-        document.documentElement.dataset.theme = 'dark';
+      var odiceTheme = localStorage.getItem('odice_theme') || 'light';
+      if (odiceTheme === 'auto') {
+        odiceTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      if (!window.location.href.includes('/tests_')) {
+        document.documentElement.dataset.theme = odiceTheme;
+        document.documentElement.style.colorScheme = odiceTheme;
       }
     } catch (e) { };
   <% end -%>
