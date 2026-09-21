@@ -10,6 +10,36 @@
  */
 
 :root {
+  /* ---------- Fondations de marque, communes aux trois surfaces ----------
+   * Les mêmes variables existent dans les feuilles custom du desktop et du
+   * mobile. Les redéclarer ici plutôt que de les importer est délibéré : les
+   * deux univers ont des chaînes de compilation distinctes (Sprockets d'un
+   * côté, Vite de l'autre) et aucun point de partage. C'est le prix d'une
+   * cohérence sans couplage. */
+  --od-bleu-2020: #134c82;
+  --od-bleu: #27a9ce;
+  --od-navy: #0c3258;
+  --od-charcoal: #414042;
+  --od-focus: #27a9ce;
+  --od-focus-width: 2px;
+  --od-focus-offset: 2px;
+  --od-r-xs: 2px;
+  --od-r-sm: 4px;
+  --od-r-md: 6px;
+  --od-r-lg: 8px;
+  --od-r-xl: 12px;
+  --od-r-2xl: 20px;
+  --od-r-pill: 9999px;
+  --od-shadow-1: 0 1px 2px rgba(24, 23, 26, 0.06), 0 1px 1px rgba(24, 23, 26, 0.04);
+  --od-shadow-2: 0 4px 12px rgba(24, 23, 26, 0.08), 0 1px 2px rgba(24, 23, 26, 0.05);
+  --od-shadow-3: 0 12px 32px rgba(24, 23, 26, 0.12), 0 2px 6px rgba(24, 23, 26, 0.06);
+
+  /* Les mêmes deux familles que les applications Vue. Le legacy déclarait bien
+   * les @font-face et appliquait Inter au body, mais sans exposer de variable :
+   * toute règle voulant la police de titrage retombait sur `inherit`. */
+  --font-sans: inter, "Helvetica Neue", helvetica, arial, sans-serif;
+  --font-display: "Fundamental Brigade", inter, "Helvetica Neue", helvetica, arial, sans-serif;
+
   /* ---------- Action primaire : Bleu 2020 ---------- */
   --button-primary-background: #134c82;
   --button-primary-background-active: #0c3258;

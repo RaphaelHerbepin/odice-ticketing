@@ -1,0 +1,94 @@
+/* Odice — alignement visuel de l'interface historique sur le nouveau frontend.
+ *
+ * Objectif : qu'un agent passant de /desktop à l'administration reconnaisse le
+ * même produit. Ce qui est transposable l'est ici — formes, ombres, focus,
+ * intertitres, transitions. Ce qui ne l'est pas — la structure des écrans —
+ * relèverait d'une réécriture des vues, hors de portée d'une feuille de style.
+ *
+ * L'amont mélange six rayons différents (3, 5, 4, 2, 8, 999 px) sans échelle :
+ * on les ramène sur celle de la charte, la même que les deux applications Vue.
+ */
+
+/* ---------- Actions ---------- */
+.btn {
+  border-radius: var(--od-r-sm);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn--primary,
+.btn--success,
+.btn--create,
+.btn--positive {
+  border-radius: var(--od-r-sm);
+}
+
+/* ---------- Champs ---------- */
+.form-control,
+.js-filterElement,
+.token-input,
+.searchfield input {
+  border-radius: var(--od-r-md);
+}
+
+.select,
+select.form-control {
+  border-radius: var(--od-r-md);
+}
+
+/* ---------- Surfaces ---------- */
+.modal-dialog .modal-content,
+.popover,
+.dropdown-menu {
+  border-radius: var(--od-r-lg);
+  box-shadow: var(--od-shadow-2);
+}
+
+.sidebar,
+.ticketZoom-controls,
+.dashboard-module {
+  border-radius: var(--od-r-lg);
+}
+
+.avatar {
+  border-radius: var(--od-r-pill);
+}
+
+/* ---------- Intertitres de tableau ----------
+ * Le desktop pose les en-têtes en capitales espacées : c'est la signature la
+ * plus reconnaissable d'un écran de liste. On la reprend à l'identique. */
+.table > thead > tr > th,
+.table-overview > thead > tr > th {
+  font-family: var(--font-display, inherit);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---------- Focus ----------
+ * Exigence d'accessibilité absente des maquettes de la charte : l'anneau est
+ * ajouté, pas repris. `:focus-visible` plutôt que `:focus` pour ne pas le
+ * montrer au clic à la souris. */
+.btn:focus-visible,
+.form-control:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: var(--od-focus-width) solid var(--od-focus);
+  outline-offset: var(--od-focus-offset);
+}
+
+/* ---------- Dégradés ----------
+ * La charte les proscrit : ils ne survivent ni au contraste ni à l'impression,
+ * et brouillent la hiérarchie des surfaces. */
+.btn,
+.tabs .tab,
+.sidebar-header {
+  background-image: none;
+}

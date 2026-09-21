@@ -1,0 +1,28 @@
+/* Odice — formulaires, application mobile.
+ *
+ * Transposition de `desktop/70-odice-forms.css`. Les deux surfaces partagent le
+ * même système de formulaires (FormKit) : les classes ciblées sont donc
+ * identiques, seules les valeurs suivent la densité tactile.
+ */
+
+.formkit-inner {
+  border-radius: var(--od-r-lg);
+}
+
+/* Le liseré de champ modifié : la charte le veut en bleu franc et plein,
+ * là où l'amont emploie un masque en dégradé. */
+.form-group.form-group-mark-dirty
+  > .formkit-outer[data-dirty]
+  > .formkit-block
+  > .formkit-wrapper
+  > .formkit-inner::before {
+  background: var(--od-bleu);
+  background-image: none;
+  mask-image: none;
+  width: 2px;
+}
+
+.formkit-label {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}

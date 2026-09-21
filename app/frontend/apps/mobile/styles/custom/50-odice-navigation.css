@@ -1,0 +1,30 @@
+/* Odice — navigation, application mobile.
+ *
+ * Le desktop pose un bandeau latéral bleu marine ; le mobile n'a pas de
+ * bandeau latéral mais un en-tête et une barre de navigation basse. Ce sont eux
+ * qui portent l'identité : on leur applique le même bleu marine, de sorte que
+ * les deux surfaces se reconnaissent au premier coup d'œil.
+ *
+ * La retouche est volontairement restreinte à ces deux conteneurs. Appliquée
+ * plus largement, elle déborderait sur les feuilles et les menus contextuels
+ * qui s'ancrent dessus — l'erreur commise puis corrigée côté desktop.
+ */
+
+[data-zammad-target='LayoutHeader'],
+[data-zammad-target='LayoutBottomNavigation'],
+[data-zammad-target='LayoutCustomNavigation'] {
+  background-color: var(--od-navy, #0c3258);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-zammad-target='LayoutHeader'] {
+  box-shadow: var(--od-shadow-1);
+}
+
+/* Sur le bleu marine, les gris de la palette sombre perdent leur lisibilité :
+ * on remonte les deux niveaux de texte pour rester au-dessus de 4.5:1. */
+[data-zammad-target='LayoutHeader'],
+[data-zammad-target='LayoutBottomNavigation'] {
+  --color-gray: #a8bdd1;
+  --color-gray-100: #d6e2ec;
+}

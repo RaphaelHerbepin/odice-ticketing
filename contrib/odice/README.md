@@ -18,6 +18,33 @@ Zammad fournit trois mécanismes exploités ici :
 | `app/frontend/addons/odice/odice.weave.mjs` | Changements de structure du DOM (réécriture du source en mémoire) | aucune |
 | `initializer/assets/*.svg` | Jeu d'icônes, à noms de fichiers constants | fichiers d'assets |
 
+## Trois surfaces, des fondations communes
+
+Le desktop Vue, le mobile Vue et l'interface historique CoffeeScript ont des
+chaînes de compilation distinctes (Vite d'un côté, Sprockets de l'autre) et
+aucun point de partage. Les mêmes variables de marque sont donc **déclarées
+trois fois**, à l'identique : c'est le prix d'une cohérence sans couplage.
+
+| | desktop | mobile | historique |
+|---|---|---|---|
+| Palette | `00-odice-tokens.css` | `00-odice-tokens.css` | `01-odice-tokens.css` |
+| Marque, rayons, ombres | `05-odice-brand.css` | `05-odice-brand.css` | `01-odice-tokens.css` |
+| Typographie | `10-odice-type.css` | `10-odice-type.css` | `00-odice-fonts.css` |
+| Formes | `30-odice-shape.css` | `30-odice-shape.css` | `03-odice-align.css` |
+| Actions | `40-odice-actions.css` | `40-odice-actions.css` | `03-odice-align.css` |
+| Navigation | `50-odice-navigation.css` | `50-odice-navigation.css` | `02-odice-legacy.css` |
+
+L'échelle de rayons (`--od-r-xs` à `--od-r-pill`), les trois niveaux d'ombre,
+l'anneau de focus et les deux familles typographiques portent les mêmes noms et
+les mêmes valeurs partout. Toucher à la charte, c'est donc modifier trois
+fichiers — et un contrôle vérifie qu'aucune variable employée n'est orpheline.
+
+**Ce qui reste différent, et pourquoi.** L'application mobile de Zammad n'a
+aucun mode clair : ni `data-theme`, ni `prefers-color-scheme`, et sa palette est
+bâtie sur un fond `#191919`. Elle reste donc sombre, aux couleurs Odice. La
+structure des écrans de l'interface historique, elle, relèverait d'une
+réécriture des vues, pas d'une feuille de style.
+
 ## Thème
 
 Les fichiers CSS sont chargés **non-layerés et après** les styles de

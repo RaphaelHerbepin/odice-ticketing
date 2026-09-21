@@ -1,0 +1,34 @@
+/* Odice — formes et profondeur, application mobile.
+ *
+ * Transposition de `desktop/30-odice-shape.css`. Le mobile emploie des rayons
+ * plus généreux que le desktop (rounded-xl et rounded-3xl y sont courants), ce
+ * qui est justifié : les cibles tactiles sont plus grandes et les cartes
+ * occupent toute la largeur. On ne les aplatit donc pas au niveau du desktop,
+ * on les ramène sur l'échelle de la charte — même vocabulaire de formes, même
+ * famille d'ombres, densité propre au tactile.
+ */
+
+[data-zammad-target='CommonSectionMenu'],
+[data-zammad-target='CommonSectionPopup'],
+[data-zammad-target='TicketItem'] {
+  border-radius: var(--od-r-xl);
+}
+
+[data-zammad-target='CommonSectionPopup'] {
+  box-shadow: var(--od-shadow-3);
+}
+
+[data-zammad-target='CommonButtonGroup'],
+[data-zammad-target='CommonStepper'] {
+  border-radius: var(--od-r-pill);
+}
+
+[data-zammad-target='CommonInputSearch'] {
+  border-radius: var(--od-r-lg);
+}
+
+/* La charte proscrit les dégradés : ils ne survivent ni au contraste ni à
+ * l'impression, et brouillent la hiérarchie des surfaces. */
+[data-zammad-target] {
+  background-image: none;
+}

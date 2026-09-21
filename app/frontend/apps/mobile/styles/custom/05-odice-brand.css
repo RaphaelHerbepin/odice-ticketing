@@ -11,6 +11,9 @@
   --od-bleu: #27a9ce;
   --od-charcoal: #414042;
 
+  /* Bleu marine des surfaces de navigation, identique au desktop. */
+  --od-navy: #0c3258;
+
   /* Anneau de focus.
    * La charte impose un anneau CYAN de 2px à 2px d'offset. Mesuré : le cyan pur
    * #27a9ce sur fond blanc donne 2.74:1, sous le seuil de 3:1 exigé par le
@@ -30,6 +33,21 @@
 
 [data-theme='dark'] {
   --od-focus: #27a9ce;
+
+  /* ---------- Rayons ---------- *
+   * Ces variables étaient utilisées partout via leur valeur de repli
+   * (`var(--od-r-lg, 8px)`) sans être définies nulle part : l'échelle n'existait
+   * donc que dupliquée dans chaque déclaration. Les valeurs reprennent
+   * exactement ces replis, pour centraliser sans rien changer au rendu.
+   * L'échelle suit la charte : 2 / 4 / 8 / 12 / 20 / pilule. */
+  --od-r-xs: 2px;
+  --od-r-sm: 4px;
+  --od-r-md: 6px;
+  --od-r-lg: 8px;
+  --od-r-xl: 12px;
+  --od-r-2xl: 20px;
+  --od-r-pill: 9999px;
+
 }
 
 /* Un seul point d'application, non-layeré : l'emporte sur les nombreux

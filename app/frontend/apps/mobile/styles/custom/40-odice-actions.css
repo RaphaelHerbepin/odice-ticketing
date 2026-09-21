@@ -1,0 +1,42 @@
+/* Odice — actions et liens, application mobile.
+ *
+ * Transposition de `desktop/40-odice-actions.css`. Même durée, même courbe,
+ * même retour tactile : un agent qui passe du poste au téléphone doit
+ * reconnaître le même produit.
+ */
+
+[data-zammad-target='CommonButton'],
+[data-zammad-target='CommonShowMoreButton'] {
+  border-radius: var(--od-r-lg);
+  box-shadow: none;
+  transition:
+    background-color var(--dur-fast, 120ms) var(--ease-odice, ease),
+    color var(--dur-fast, 120ms) var(--ease-odice, ease);
+}
+
+/* Le bouton d'action principale de Zammad est jaune ; la charte réserve
+ * l'action primaire au Bleu 2020. Sur fond sombre, c'est la variante éclaircie
+ * qui tient le contraste AA — celle-là même qu'utilise le thème sombre du
+ * desktop, pour que l'accent soit identique d'une surface à l'autre. */
+[data-zammad-target='CommonButton'].bg-yellow,
+[data-zammad-target='CommonButton'].bg-yellow-300 {
+  background-color: var(--color-blue);
+  color: var(--color-white);
+}
+
+[data-zammad-target='CommonButton']:active {
+  transform: translateY(1px);
+}
+
+a,
+[data-zammad-target='CommonLink'] {
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+/* L'anneau de focus est une exigence d'accessibilité que les maquettes de la
+ * charte n'implémentaient pas : il est ajouté, pas repris. */
+:focus-visible {
+  outline: var(--od-focus-width) solid var(--od-focus);
+  outline-offset: var(--od-focus-offset);
+}
