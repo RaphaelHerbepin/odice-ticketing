@@ -27,14 +27,20 @@ l'image et à redémarrer.
               (volumes communs, jamais détruits)
 ```
 
-Deux commandes suffisent. `ZDC=` désigne votre installation
-zammad-docker-compose ; omettez-le si vous utilisez la pile de ce dépôt.
+Deux commandes suffisent. `ZDC` désigne votre installation
+zammad-docker-compose ; `make` importe la variable d'environnement, il suffit
+donc de l'exporter une fois (ou de l'ajouter à `~/.bashrc`) :
 
 ```bash
-make use-odice     ZDC=/opt/zammad-docker-compose   # version Odice en service
-make use-legacy    ZDC=/opt/zammad-docker-compose   # retour à l'historique
-make which-version ZDC=/opt/zammad-docker-compose   # ce qui tourne
+export ZDC=/opt/zammad-docker-compose
+
+make use-odice      # version Odice en service
+make use-legacy     # retour à l'historique
+make which-version  # ce qui tourne, et quelle build
 ```
+
+Sans `ZDC`, les commandes visent la pile de ce dépôt ; `make help` affiche en
+tête celle qui est réellement visée.
 
 Les scripts reconnaissent seuls la pile visée — `IMAGE_REPO`/`VERSION` pour
 zammad-docker-compose, `ODICE_IMAGE_REPO`/`ODICE_IMAGE_TAG` pour celle-ci — et
@@ -97,7 +103,9 @@ echo <token> | docker login ghcr.io -u <compte> --password-stdin
 ```bash
 git clone git@github.com:<compte>/odice-ticketing.git /opt/odice
 cd /opt/odice && git checkout odice/main
-make install-zdc ZDC=/opt/zammad-docker-compose
+
+export ZDC=/opt/zammad-docker-compose    # à ajouter à ~/.bashrc
+make install-zdc
 ```
 
 Cela dépose deux choses, sans toucher à votre `docker-compose.yml` :
@@ -132,7 +140,7 @@ cd /opt/zammad-docker-compose && docker compose exec -T zammad-backup \
   /opt/zammad/contrib/docker/backup.sh   # ou attendez la sauvegarde nocturne
 
 cd /opt/odice
-make use-odice ZDC=/opt/zammad-docker-compose
+make use-odice
 ```
 
 Le script relève l'image en service et l'épingle comme cible de retour, demande
@@ -143,12 +151,12 @@ attendue : **5 à 10 minutes**.
 Vérifiez à tout moment ce qui tourne :
 
 ```bash
-make which-version ZDC=/opt/zammad-docker-compose
+make which-version
 ```
 
 ## Si vous utilisez la pile de ce dépôt
 
-Le fonctionnement est identique, sans `ZDC=`. Les variables d'image s'appellent
+Le fonctionnement est identique, sans exporter `ZDC`. Les variables d'image s'appellent
 alors `ODICE_IMAGE_REPO` et `ODICE_IMAGE_TAG`, et le service `odice-provision`
 joue le provisioning automatiquement via le profil `odice`.
 
@@ -161,11 +169,9 @@ make use-odice     # bascule
 ## Revenir en arrière
 
 ```bash
-make use-legacy-dry-run ZDC=/opt/zammad-docker-compose   # sans rien changer
-make use-legacy         ZDC=/opt/zammad-docker-compose   # pour de vrai
+make use-legacy-dry-run   # sans rien changer
+make use-legacy           # pour de vrai
 ```
-
-(sans `ZDC=` si vous utilisez la pile de ce dépôt)
 
 Environ **5 minutes** : sauvegarde de l'état Odice, restauration du schéma
 d'avant migration, redémarrage avec l'image historique.

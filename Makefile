@@ -6,9 +6,11 @@
 SHELL       := /bin/bash
 COMPOSE     := docker compose
 
-# ZDC= désigne une installation zammad-docker-compose existante à piloter :
-#   make logs ZDC=/opt/zammad-docker-compose S=zammad-railsserver
-# Sans ZDC, les cibles visent la pile de ce dépôt.
+# ZDC désigne l'installation Zammad à piloter. Comme toute variable
+# d'environnement, `make` l'importe : un `export ZDC=/opt/zammad-docker-compose`
+# une fois par session — ou dans ~/.bashrc — dispense de la répéter à chaque
+# commande. `make ps ZDC=…` reste possible pour viser ponctuellement une autre
+# pile. Sans elle, les cibles visent la pile de ce dépôt.
 ZDC         ?=
 COMPOSE_AT   = $(if $(ZDC),docker compose --project-directory $(ZDC),$(COMPOSE))
 SWITCH_DIR   = $(if $(ZDC),--dir $(ZDC),)
@@ -17,6 +19,8 @@ COMPOSE_DEV := docker compose -f docker-compose.dev.yml
 .PHONY: help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local use-odice use-legacy use-legacy-dry-run which-version install-zdc
 
 help: ## Affiche cette aide
+	@echo "Pile visée : $(if $(ZDC),$(ZDC),ce dépôt — export ZDC=/opt/zammad-docker-compose pour en viser une autre)"
+	@echo
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
 # ---------- Développement ----------
@@ -98,7 +102,7 @@ which-version: ## Affiche la version actuellement en service (make which-version
 	@echo "version : $$($(COMPOSE_AT) exec -T zammad-railsserver cat /opt/zammad/VERSION 2>/dev/null || echo '(hors ligne)')"
 
 install-zdc: ## Installe le complément Odice dans un zammad-docker-compose (ZDC= requis)
-	@test -n "$(ZDC)" || { echo "ZDC=/chemin/vers/zammad-docker-compose est obligatoire"; exit 1; }
+	@test -n "$(ZDC)" || { echo "ZDC est obligatoire : export ZDC=/opt/zammad-docker-compose"; exit 1; }
 	cp contrib/odice/zdc/docker-compose.override.yml $(ZDC)/
 	@grep -q ODICE_IMAGE_REPO $(ZDC)/.env 2>/dev/null \
 	  || cat contrib/odice/zdc/env.odice.example >> $(ZDC)/.env

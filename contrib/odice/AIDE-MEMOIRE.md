@@ -1,15 +1,18 @@
 # Aide-mémoire — exploitation Odice
 
 Toutes les commandes se lancent **depuis `/opt/odice-ticketing`** sur le VPS.
-`ZDC=` désigne l'installation Zammad à piloter : sans elle, les commandes
-viseraient la pile de ce dépôt, qui n'est pas celle en service.
 
-Pour ne pas la répéter à chaque fois :
+`ZDC` désigne l'installation Zammad à piloter. `make` importe les variables
+d'environnement : **exportez-la une fois, et toutes les commandes en héritent.**
 
 ```bash
 cd /opt/odice-ticketing
 export ZDC=/opt/zammad-docker-compose
 ```
+
+Pour ne plus jamais y penser, ajoutez cette ligne à `~/.bashrc`. En cas de
+doute, `make help` affiche en tête la pile réellement visée — sans `ZDC`, ce
+serait la pile de ce dépôt, qui n'est pas celle en service.
 
 | | |
 |---|---|
@@ -24,13 +27,13 @@ export ZDC=/opt/zammad-docker-compose
 ## Au quotidien
 
 ```bash
-make which-version ZDC=$ZDC          # quelle version tourne, et quelle build
-make ps            ZDC=$ZDC          # état des conteneurs
-make logs          ZDC=$ZDC S=zammad-railsserver
-make logs          ZDC=$ZDC S=zammad-init      # migrations et démarrage
-make console       ZDC=$ZDC          # console Rails
-make backup        ZDC=$ZDC          # sauvegarde immédiate (voir plus bas)
-make restart       ZDC=$ZDC          # redémarre les services applicatifs
+make which-version              # quelle version tourne, et quelle build
+make ps                         # état des conteneurs
+make logs S=zammad-railsserver  # journaux applicatifs
+make logs S=zammad-init         # migrations et démarrage
+make console                    # console Rails
+make backup                     # sauvegarde immédiate (voir plus bas)
+make restart                    # redémarre les services applicatifs
 ```
 
 ---
@@ -40,7 +43,7 @@ make restart       ZDC=$ZDC          # redémarre les services applicatifs
 ### Passer à Odice
 
 ```bash
-make use-odice ZDC=$ZDC
+make use-odice
 ```
 
 Sauvegarde la base, épingle la version en service comme cible de retour,
@@ -49,8 +52,8 @@ bascule l'image, joue les migrations, applique le branding. **5 à 10 minutes.**
 ### Revenir à la version historique
 
 ```bash
-make use-legacy-dry-run ZDC=$ZDC     # ce que ça coûterait, sans rien changer
-make use-legacy         ZDC=$ZDC     # pour de vrai
+make use-legacy-dry-run   # ce que ça coûterait, sans rien changer
+make use-legacy     # pour de vrai
 ```
 
 Restaure la base d'avant migration puis redémarre l'ancienne image. **Environ
@@ -75,8 +78,8 @@ Le tag publié est `7.2.x-<sha8>`. Puis sur le VPS :
 cd /opt/odice-ticketing && git pull
 sed -i 's|^ODICE_IMAGE_TAG=.*|ODICE_IMAGE_TAG=7.2.x-<sha8>|' $ZDC/.env
 sed -i 's|^VERSION=.*|VERSION=7.2.x-<sha8>|' $ZDC/.env
-make backup ZDC=$ZDC
-make up     ZDC=$ZDC
+make backup
+make up
 ```
 
 Préférez toujours le tag horodaté à `odice-main`, qui change à chaque push. Il
@@ -106,7 +109,7 @@ docker compose --project-directory $ZDC exec -T zammad-postgresql \
 Restaurer une sauvegarde précise :
 
 ```bash
-contrib/odice/switch/use-legacy.sh --dir $ZDC --dump /opt/odice-rollback/<fichier>.psql.gz
+contrib/odice/switch/use-legacy.sh --dump /opt/odice-rollback/<fichier>.psql.gz
 ```
 
 ---
@@ -133,7 +136,7 @@ mot de passe administrateur.
 `settings`, qu'une restauration écrase :
 
 ```bash
-make provision ZDC=$ZDC
+make provision
 ```
 
 **La recherche ne renvoie rien** :
@@ -146,7 +149,7 @@ docker compose --project-directory $ZDC exec zammad-railsserver \
 **Se connecter sans le SSO** (accès de secours) :
 
 ```bash
-make console ZDC=$ZDC
+make console
 # puis dans la console :
 Setting.set('user_show_password_login', true)
 User.find_by(login: 'r.herbepin@odice.cc').update!(password: '…', login_failed: 0)
@@ -156,7 +159,7 @@ User.find_by(login: 'r.herbepin@odice.cc').update!(password: '…', login_failed
 les autres l'attendent :
 
 ```bash
-make logs ZDC=$ZDC S=zammad-init
+make logs S=zammad-init
 ```
 
 ---
