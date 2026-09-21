@@ -21,11 +21,17 @@ services:
       LETSENCRYPT_HOST: support.odice.info
       LETSENCRYPT_EMAIL: it@odice.info
     networks:
+      # `default` EST le réseau du projet : Compose le nomme <projet>_default,
+      # donc « zammad-docker-compose_default ». Ne l'ajoutez pas une seconde
+      # fois sous ce nom complet — il faudrait alors le déclarer en external,
+      # et Compose refuse la configuration tant qu'il ne l'est pas.
       - default
       - nginx-proxy
 
 networks:
   # Le réseau sur lequel tourne nginx-proxy, déjà créé : d'où `external`.
-  # Remplacez par le nom exact relevé ci-dessus.
+  # Le nom doit être EXACTEMENT celui relevé plus haut — souvent
+  # « nginx-proxy », parfois « <répertoire>_default » ou « webproxy ».
+  # S'il ne correspond pas, Compose échoue avec « network … not found ».
   nginx-proxy:
     external: true
