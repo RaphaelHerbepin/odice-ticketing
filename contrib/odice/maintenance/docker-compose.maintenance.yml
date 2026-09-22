@@ -1,0 +1,28 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+#
+# Page de maintenance, pilotée par contrib/odice/switch/maintenance.sh.
+#
+# Projet Compose distinct de la pile applicative : la page doit survivre au
+# `down` de l'application, et disparaître sans emporter autre chose.
+
+services:
+  maintenance:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    environment:
+      VIRTUAL_HOST: ${MAINTENANCE_VIRTUAL_HOST}
+      VIRTUAL_PORT: 80
+      # Volontairement PAS de LETSENCRYPT_HOST. Le certificat du domaine existe
+      # déjà dans le volume d'acme-companion, indexé par nom d'hôte, et
+      # nginx-proxy le sert quel que soit le conteneur en amont. Le redéclarer
+      # inviterait acme-companion à relancer un challenge pour un domaine qui
+      # n'en a pas besoin — inutile, et exposé aux limites de taux de
+      # Let's Encrypt (cinq certificats identiques par semaine).
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./html:/usr/share/nginx/html:ro
+    networks: [nginx-proxy]
+
+networks:
+  nginx-proxy:
+    external: true

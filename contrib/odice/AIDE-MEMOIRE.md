@@ -257,9 +257,18 @@ make logs S=zammad-init
 
 ---
 
+## Deux environnements
+
+Le déploiement passe désormais par une recette : un push sur `odice/main`
+déploie sur `recette.odice.info`, et seule une étiquette de version part en
+production, page de maintenance comprise.
+
+Voir [ENVIRONNEMENTS.md](ENVIRONNEMENTS.md) — installation, rafraîchissement des
+données, et ce qu'il faut savoir avant d'intervenir.
+
 ## À ne jamais faire
 
-**`docker compose down --remove-orphans` dans `/opt/zammad-docker-compose`.**
+**`docker compose down --remove-orphans` (dans l'un OU l'autre répertoire de pile) dans `/opt/zammad-docker-compose`.**
 Ce serveur fait tourner `nginx-proxy` et `acme-companion`, que Compose signale
 comme orphelins de ce projet. Cette option les supprimerait — avec le TLS et le
 renouvellement des certificats de **tous** vos sites.

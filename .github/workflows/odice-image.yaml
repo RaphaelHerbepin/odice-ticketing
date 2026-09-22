@@ -21,6 +21,64 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Barrière minimale, et volontairement minimale.
+  #
+  # La suite Zammad complète demande plus de quarante minutes, une base et une
+  # image dédiée : la mettre sur le chemin de chaque push garantirait qu'on la
+  # contourne. Ce qui suit tient sur un runner nu, sans Ruby ni base, en cinq à
+  # sept minutes — donc EN PARALLÈLE du build, sans allonger le délai.
+  #
+  # Ce que ces contrôles n'attraperont pas : une régression purement visuelle.
+  # C'est le rôle de la recette, qu'on regarde avant de poser une étiquette.
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Nécessaire au diff avec le commit précédent, plus bas.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Le dépôt ne porte pas de .node-version ; la contrainte vit dans
+          # package.json (engines.node >= 24).
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Types
+        run: pnpm lint:ts
+
+      # `vitest run` et non `pnpm test` : ce dernier lance vitest en mode veille,
+      # qui ne rend jamais la main sur un runner. Les chemins sont relatifs à
+      # `app/frontend`, racine déclarée par la configuration Vitest.
+      - name: Tests des pages Odice
+        run: pnpm exec vitest run apps/desktop/pages/statistics
+
+      - name: Feuilles de style Odice
+        run: make lint-odice
+
+      - name: ESLint sur les fichiers modifiés
+        run: |
+          set -o pipefail
+          BASE='${{ github.event.before }}'
+          # Premier push sur une branche, ou push forcé : pas de base
+          # exploitable, on ne lint alors que ce que porte le commit.
+          if [ -z "${BASE}" ] || [ "${BASE}" = '0000000000000000000000000000000000000000' ] \
+             || ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then
+            BASE="$(git rev-parse HEAD^ 2>/dev/null || git rev-parse HEAD)"
+          fi
+          FILES="$(git diff --name-only --diff-filter=d "${BASE}" "${{ github.sha }}" \
+                    -- 'app/frontend/**/*.ts' 'app/frontend/**/*.vue' || true)"
+          if [ -z "${FILES}" ]; then
+            echo "Aucun fichier frontend modifié."
+            exit 0
+          fi
+          echo "${FILES}" | tr '\n' ' '
+          echo "${FILES}" | xargs pnpm exec eslint
+
   build:
     runs-on: ubuntu-24.04
     permissions:
@@ -77,18 +135,25 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-  # Déploiement déclenché par la CI plutôt que par une interrogation périodique
-  # du serveur : la mise en production suit immédiatement la construction, et il
-  # n'y a qu'un seul endroit où lire ce qui s'est passé.
+  # Déploiement en RECETTE. La production, elle, part d'une étiquette de version
+  # et passe par odice-release.yaml.
+  #
+  # Volontairement `needs: build` seul, et non `needs: [build, checks]` : la
+  # recette sert justement à regarder ce qui vient d'être écrit, y compris quand
+  # un contrôle échoue. La barrière est sur le chemin de la production.
   deploy:
     needs: build
     runs-on: ubuntu-24.04
+    environment: staging
     steps:
-      - name: Déployer sur le serveur
+      - name: Déployer sur la recette
         env:
           DEPLOY_HOST: ${{ secrets.ODICE_DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.ODICE_DEPLOY_USER }}
-          DEPLOY_KEY: ${{ secrets.ODICE_DEPLOY_KEY }}
+          # Clé distincte de celle de la production : sa commande forcée ne peut
+          # lancer que odice-deploy-staging. Une fuite de ce secret ne permet
+          # donc pas d'atteindre la production.
+          DEPLOY_KEY: ${{ secrets.ODICE_DEPLOY_KEY_STAGING || secrets.ODICE_DEPLOY_KEY }}
           DEPLOY_KNOWN_HOSTS: ${{ secrets.ODICE_DEPLOY_KNOWN_HOSTS }}
           TAG: ${{ needs.build.outputs.tag }}
         run: |

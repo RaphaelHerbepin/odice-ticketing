@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <!-- Rechargement périodique : le visiteur retrouve le site de lui-même,
+         sans avoir à deviner quand revenir. -->
+    <meta http-equiv="refresh" content="60" />
+    <title>Maintenance en cours — Odice</title>
+    <style>
+      /* Aucune ressource distante : ni police, ni image, ni feuille de style.
+         La page doit s'afficher même quand tout le reste est arrêté. */
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0; min-height: 100vh;
+        display: flex; align-items: center; justify-content: center;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f4f6f8; color: #1f2430;
+      }
+      @media (prefers-color-scheme: dark) {
+        body { background: #12161d; color: #e6e9ee; }
+        .card { background: #1b212b !important; border-color: #2a323f !important; }
+        .hint { color: #97a1b0 !important; }
+      }
+      .card {
+        max-width: 32rem; margin: 1rem; padding: 2.5rem 2rem;
+        background: #fff; border: 1px solid #e2e6eb; border-radius: 12px;
+        text-align: center;
+      }
+      .mark {
+        width: 3rem; height: 3rem; margin: 0 auto 1.25rem;
+        border-radius: 10px; background: #134c82;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-weight: 700; font-size: 1.25rem; letter-spacing: .05em;
+      }
+      h1 { margin: 0 0 .75rem; font-size: 1.35rem; }
+      p { margin: 0 0 .5rem; line-height: 1.55; }
+      .hint { margin-top: 1.5rem; font-size: .875rem; color: #5b6678; }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="mark" aria-hidden="true">O</div>
+      <h1>Mise à jour en cours</h1>
+      <p>L’assistance Odice est momentanément indisponible, le temps d’installer une nouvelle version.</p>
+      <p>L’opération dure généralement quelques minutes.</p>
+      <p class="hint">Cette page se rafraîchit toute seule. En cas d’urgence, contactez le service informatique par téléphone.</p>
+    </main>
+  </body>
+</html>

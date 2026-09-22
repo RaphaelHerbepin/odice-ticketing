@@ -15,11 +15,24 @@
 services:
   zammad-nginx:
     environment:
-      VIRTUAL_HOST: support.odice.info
+      # Interpolé depuis le .env, et NON écrit en dur : c'est ce qui rend la
+      # page de maintenance possible.
+      #
+      # nginx-proxy répartit les requêtes entre tous les conteneurs déclarant un
+      # même VIRTUAL_HOST : en démarrer un second pour la maintenance donnerait
+      # une alternance aléatoire entre le site et la page. Détacher celui-ci du
+      # réseau ne tient pas davantage — `docker compose up -d` le recrée au
+      # milieu du déploiement, avec son vhost retrouvé.
+      #
+      # Vider ZAMMAD_VIRTUAL_HOST dans le .env retire en revanche l'application
+      # des vhosts de façon PERSISTANTE aux recréations de conteneurs. C'est le
+      # seul état qui survive à un `up -d`, donc le seul pivot fiable.
+      # Voir contrib/odice/switch/maintenance.sh.
+      VIRTUAL_HOST: ${ZAMMAD_VIRTUAL_HOST:-}
       # Port INTERNE du conteneur, pas celui publié sur l'hôte.
       VIRTUAL_PORT: 8080
-      LETSENCRYPT_HOST: support.odice.info
-      LETSENCRYPT_EMAIL: it@odice.info
+      LETSENCRYPT_HOST: ${LETSENCRYPT_HOST:-}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}
     networks:
       # `default` EST le réseau du projet : Compose le nomme <projet>_default,
       # donc « zammad-docker-compose_default ». Ne l'ajoutez pas une seconde

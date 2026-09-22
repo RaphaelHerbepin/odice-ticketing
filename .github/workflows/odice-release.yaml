@@ -1,0 +1,154 @@
+# Odice — mise en production, déclenchée par une étiquette de version.
+#
+# Rien n'est reconstruit ici. La production met en service EXACTEMENT l'image
+# qui a été validée en recette : reconstruire depuis l'étiquette produirait une
+# image différente — image de base rafraîchie, dépendances flottantes — de celle
+# qu'on a regardée pendant une semaine, ce qui viderait la recette de son sens.
+#
+# Poser une étiquette :
+#   git tag -a v1.4.0 -m "Tableau de bord analytique" && git push origin v1.4.0
+
+name: Odice — mise en production
+
+on:
+  push:
+    tags: ['v*']
+
+concurrency:
+  group: odice-release
+  # Jamais d'annulation : interrompre une mise en production laisserait la pile
+  # à mi-chemin, page de maintenance comprise.
+  cancel-in-progress: false
+
+jobs:
+  # Les mêmes contrôles que sur la branche, rejoués sur le commit étiqueté.
+  # Une étiquette peut être posée sur un commit ancien, ou déplacée.
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Types
+        run: pnpm lint:ts
+      - name: Tests des pages Odice
+        run: pnpm exec vitest run apps/desktop/pages/statistics
+      - name: Feuilles de style Odice
+        run: make lint-odice
+
+  promote:
+    needs: [checks]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Identifier l'image à promouvoir
+        id: meta
+        run: |
+          set -o errexit -o pipefail
+          SHA8="$(git rev-parse --short=8 HEAD)"
+          VERSION="$(tr -d '\n' < VERSION)"
+          REPO="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+          {
+            echo "tag=${VERSION}-${SHA8}"
+            echo "repo=${REPO}"
+            echo "release=${GITHUB_REF_NAME}"
+          } >> "$GITHUB_OUTPUT"
+
+      # Une étiquette posée sur une branche parallèle ne doit pas partir en
+      # production : le commit doit appartenir à l'historique de odice/main,
+      # donc être passé par la recette.
+      - name: Vérifier que le commit est bien passé par la branche
+        run: |
+          git fetch --quiet origin odice/main
+          if ! git merge-base --is-ancestor "${{ github.sha }}" origin/odice/main; then
+            echo "::error::le commit étiqueté n'appartient pas à odice/main — il n'est jamais passé en recette."
+            exit 1
+          fi
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Promouvoir l'image validée
+        run: |
+          set -o errexit -o pipefail
+          REPO='${{ steps.meta.outputs.repo }}'
+          TAG='${{ steps.meta.outputs.tag }}'
+
+          if ! docker buildx imagetools inspect "${REPO}:${TAG}" >/dev/null 2>&1; then
+            echo "::error::aucune image pour ${TAG}. Ce commit a-t-il été poussé sur odice/main ?"
+            exit 1
+          fi
+
+          # Nouveaux noms pour le MÊME cliché : rien n'est reconstruit.
+          docker buildx imagetools create \
+            --tag "${REPO}:${{ steps.meta.outputs.release }}" \
+            --tag "${REPO}:odice-prod" \
+            "${REPO}:${TAG}"
+
+  deploy-production:
+    needs: [checks, promote]
+    runs-on: ubuntu-24.04
+    # Permet d'exiger une validation manuelle si l'environnement GitHub est
+    # configuré pour, et sépare les secrets de ceux de la recette.
+    environment: production
+    steps:
+      - name: Déployer sur la production
+        env:
+          DEPLOY_HOST: ${{ secrets.ODICE_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.ODICE_DEPLOY_USER }}
+          DEPLOY_KEY: ${{ secrets.ODICE_DEPLOY_KEY_PROD }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.ODICE_DEPLOY_KNOWN_HOSTS }}
+          TAG: ${{ needs.promote.outputs.tag }}
+        run: |
+          set -o errexit
+
+          DEPLOY_HOST="$(printf '%s' "${DEPLOY_HOST}" | tr -d '[:space:]')"
+          DEPLOY_USER="$(printf '%s' "${DEPLOY_USER}" | tr -d '[:space:]')"
+
+          if [ -z "${DEPLOY_HOST}" ] || [ -z "${DEPLOY_KEY}" ]; then
+            echo "::error::secrets de production absents (ODICE_DEPLOY_KEY_PROD)."
+            exit 1
+          fi
+
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "${DEPLOY_KEY}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+
+          if [ -z "${DEPLOY_KNOWN_HOSTS}" ]; then
+            echo "::error::ODICE_DEPLOY_KNOWN_HOSTS est vide — connexion refusée."
+            exit 1
+          fi
+          printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" | tr -d '\r' > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+          if ! ssh-keygen -F "${DEPLOY_HOST}" -f ~/.ssh/known_hosts >/dev/null 2>&1; then
+            echo "::error::aucune entrée known_hosts pour l'hôte configuré."
+            exit 1
+          fi
+
+          # La clé porte côté serveur une commande forcée qui ne peut lancer que
+          # odice-deploy-production : l'environnement n'est pas transmis ici.
+          ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=yes -o BatchMode=yes \
+            "${DEPLOY_USER:-raphael}@${DEPLOY_HOST}" "${TAG}"
+
+          {
+            echo "### Mise en production"
+            echo ""
+            echo "- version : \`${{ needs.promote.outputs.tag }}\`"
+            echo "- étiquette : \`${GITHUB_REF_NAME}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

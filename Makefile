@@ -19,7 +19,7 @@ COMPOSE_AT   = $(if $(ZDC),cd $(ZDC) && docker compose,$(COMPOSE))
 SWITCH_DIR   = $(if $(ZDC),--dir $(ZDC),)
 COMPOSE_DEV := docker compose -f docker-compose.dev.yml
 
-.PHONY: .check-stack help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local image-tag deploy use-odice use-legacy use-legacy-dry-run which-version install-zdc
+.PHONY: .check-stack help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local image-tag deploy use-odice use-legacy use-legacy-dry-run which-version install-zdc refresh-staging maintenance-on maintenance-off maintenance-status deploy-production install-ci-entry
 
 help: ## Affiche cette aide
 	@echo "Pile visée : $(if $(ZDC),$(ZDC),ce dépôt — export ZDC=/opt/zammad-docker-compose pour en viser une autre)"
@@ -130,6 +130,28 @@ which-version: .check-stack ## Affiche la version actuellement en service (make 
 install-zdc: ## Installe le complément Odice dans un zammad-docker-compose
 	@test -n "$(ZDC)" || { echo "ZDC est obligatoire : export ZDC=/opt/zammad-docker-compose"; exit 1; }
 	@contrib/odice/zdc/install.sh "$(ZDC)"
+
+# ---------- Recette et maintenance ----------
+STAGING ?= /opt/zammad-staging
+PROD    ?= /opt/zammad-docker-compose
+
+refresh-staging: ## Recharge la recette avec une copie neutralisée de la production
+	@contrib/odice/staging/refresh.sh --from "$(PROD)" --to "$(STAGING)"
+
+maintenance-on: .check-stack ## Coupe le site et affiche la page de maintenance (ZDC=…)
+	@contrib/odice/switch/maintenance.sh on $(SWITCH_DIR)
+
+maintenance-off: .check-stack ## Retire la page de maintenance et rend le site (ZDC=…)
+	@contrib/odice/switch/maintenance.sh off $(SWITCH_DIR)
+
+maintenance-status: .check-stack ## Dit si une maintenance est active (ZDC=…)
+	@contrib/odice/switch/maintenance.sh status $(SWITCH_DIR)
+
+deploy-production: .check-stack ## Mise en production complète, page de maintenance comprise
+	@contrib/odice/switch/deploy-production.sh $(SWITCH_DIR)
+
+install-ci-entry: ## (Re)installe les points d'entrée SSH hors du dépôt — à rejouer après toute modification
+	@contrib/odice/switch/install-ci-entry.sh
 
 # ---------- Qualité ----------
 lint-odice: ## Lint des fichiers de thème Odice
