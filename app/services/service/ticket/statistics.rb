@@ -14,6 +14,8 @@ class Service::Ticket::Statistics < Service::Base
   # illisible et la requête coûteuse.
   TOP_N = 15
 
+  Values = Service::Ticket::Statistics::Values
+
   # Pas de la série temporelle. La valeur est interpolée dans un DATE_TRUNC —
   # elle ne peut donc PAS venir du client sans passer par cette liste.
   INTERVALS = {
@@ -56,63 +58,25 @@ class Service::Ticket::Statistics < Service::Base
 
   private
 
+  # Le périmètre vient de `Scope`, comme pour les statistiques par agent. Le
+  # reconstruire ici laissait deux définitions du même périmètre vivre côte à
+  # côte : celle-ci appliquait les filtres, celle de `volume_over_time` non.
+  def stats_scope
+    @stats_scope ||= Service::Ticket::Statistics::Scope.new(
+      current_user:, from:, to:, group_ids:, organization_ids:,
+    )
+  end
+
   def scope
-    @scope ||= begin
-      relation = TicketPolicy::ReadScope.new(current_user).resolve.where(created_at: from..to)
-      relation = relation.where(group_id: group_ids) if group_ids
-      relation = relation.where(organization_id: organization_ids) if organization_ids
-      relation
-    end
+    stats_scope.created_in_period
   end
 
   def totals
-    closed_state_ids = ::Ticket::State.by_category_ids(:closed)
-
-    {
-      total:                          scope.count,
-      open:                           scope.where.not(state_id: closed_state_ids).count,
-      closed:                         scope.where(state_id: closed_state_ids).count,
-      escalated:                      scope.where.not(escalation_at: nil).where(escalation_at: ..Time.zone.now).count,
-      average_first_response_minutes: average(:first_response_in_min),
-      average_close_minutes:          average(:close_in_min),
-      # Part des tickets ayant respecté leur objectif de première réponse.
-      # `first_response_diff_in_min` est positif quand l'objectif est tenu.
-      first_response_in_time_percent: percentage_in_time(:first_response_diff_in_min),
-      close_in_time_percent:          percentage_in_time(:close_diff_in_min),
-      time_logged_minutes:            time_logged_minutes,
-      # La saisie du temps étant facultative, un total seul est trompeur : il
-      # paraît mesurer l'effort alors qu'il ne mesure que la part déclarée. Le
-      # taux de couverture est donc calculé avec lui, et l'interface a la
-      # consigne de ne jamais montrer l'un sans l'autre.
-      time_coverage_percent:          time_coverage_percent,
-    }
+    totals_service.call
   end
 
-  # `tickets.time_unit` est maintenu à jour par callback à chaque saisie : la
-  # somme ne demande aucune jointure avec la table de détail.
-  def time_logged_minutes
-    value = scope.sum(:time_unit)
-    value.to_f.round(1) if value&.positive?
-  end
-
-  def time_coverage_percent
-    total = scope.count
-    return if total.zero?
-
-    ((scope.where(time_unit: 0.001..).count.to_f / total) * 100).round(1)
-  end
-
-  def average(column)
-    value = scope.where.not(column => nil).average(column)
-    value&.to_f&.round(1)
-  end
-
-  def percentage_in_time(column)
-    measured = scope.where.not(column => nil)
-    total    = measured.count
-    return if total.zero?
-
-    ((measured.where(column => 0..).count.to_f / total) * 100).round(1)
+  def totals_service
+    @totals_service ||= Service::Ticket::Statistics::Totals.new(scope: stats_scope)
   end
 
   # Agrégation générique sur une colonne de clé étrangère, résolue en libellés.
@@ -165,28 +129,25 @@ class Service::Ticket::Statistics < Service::Base
     # `arel_table[...]` plutôt qu'une chaîne : la colonne est déjà validée par
     # la liste blanche, mais Arel la cite correctement, ce qui protège aussi
     # des noms de champs personnalisés qui heurteraient un mot réservé SQL.
-    node   = ::Ticket.arel_table[column]
-    counts = scope.group(node).order(count_all: :desc).limit(TOP_N).count
+    node = ::Ticket.arel_table[column]
 
-    buckets = merge_unset(counts).map do |value, count|
-      { value: value.nil? ? nil : value.to_s, label: humanize_value(value), count: }
-    end
+    # Pas de `limit` en base : la fusion des valeurs non renseignées doit
+    # précéder la troncature, sinon NULL et la chaîne vide occupent deux des
+    # quinze places avant même d'être reconnues comme une seule et même réponse.
+    # Un axe est un `select` : sa cardinalité est bornée par sa liste d'options.
+    #
+    # Le tri porte trois critères, et non le seul compte : à nombre égal, l'ordre
+    # viendrait sinon de la base, qui n'en garantit aucun — deux chargements
+    # successifs intervertiraient deux barres sans que rien n'ait changé. Les
+    # valeurs non renseignées passent en dernier à égalité : une absence de
+    # réponse n'a pas à devancer une vraie valeur en tête de classement.
+    counts  = Values.merge_unset(scope.group(node).count)
+    buckets = counts
+              .sort_by { |value, count| [-count, Values.unset?(value) ? 1 : 0, value.to_s] }
+              .first(TOP_N)
+              .map { |value, count| { value: value.nil? ? nil : value.to_s, label: humanize_value(value), count: } }
 
-    append_others(buckets.sort_by { |bucket| -bucket[:count] })
-  end
-
-  # Un champ jamais renseigné vaut NULL ; un champ vidé après coup vaut la
-  # chaîne vide. La distinction est un accident du stockage, pas une
-  # information : laissées telles quelles, elles produisaient deux barres, dont
-  # l'une sans étiquette du tout.
-  #
-  # `false` n'est pas concerné : un booléen à « non » est une réponse. D'où le
-  # test sur `nil` et la chaîne vide, et non sur `blank?`.
-  def merge_unset(counts)
-    counts.each_with_object({}) do |(value, count), merged|
-      key = value.is_a?(::String) && value.strip.empty? ? nil : value
-      merged[key] = (merged[key] || 0) + count
-    end
+    append_others(buckets)
   end
 
   # Au-delà de TOP_N, la somme des barres ne fait plus le total : tout
@@ -200,21 +161,8 @@ class Service::Ticket::Statistics < Service::Base
     buckets << { value: nil, label: ::Translation.translate(locale, 'Others'), count: rest }
   end
 
-  # Les champs arborescents stockent le chemin complet avec « :: » pour
-  # séparateur (« Flex::Bug ou erreur ») : illisible sur un graphique, le
-  # chevron rend la hiérarchie sans l'expliquer.
-  #
-  # `nil?` et non `blank?` : un champ booléen à `false` est « blank » au sens
-  # de Rails, et serait donc compté comme non renseigné — alors que « non
-  # bloquant » est une réponse, pas une absence de réponse.
   def humanize_value(value)
-    return ::Translation.translate(locale, 'Not set') if value.nil?
-
-    case value
-    when true  then ::Translation.translate(locale, 'yes')
-    when false then ::Translation.translate(locale, 'no')
-    else value.to_s.gsub('::', ' › ')
-    end
+    Values.humanize(value, locale)
   end
 
   def locale
@@ -263,13 +211,11 @@ class Service::Ticket::Statistics < Service::Base
   def volume_over_time
     created = bucketize(scope.group(truncated('tickets', 'created_at')).count)
     closed  = bucketize(
-      TicketPolicy::ReadScope.new(current_user).resolve
-                             .where(close_at: from..to)
-                             .group(truncated('tickets', 'close_at')).count,
+      stats_scope.closed_in_period.group(truncated('tickets', 'close_at')).count,
     )
     logged  = bucketize(
       ::Ticket::TimeAccounting
-        .where(ticket_id: visible_ids)
+        .where(ticket_id: stats_scope.visible_ids)
         .where(created_at: from..to)
         .group(truncated('ticket_time_accountings', 'created_at'))
         .sum(:time_unit),
@@ -309,11 +255,5 @@ class Service::Ticket::Statistics < Service::Base
   # c'est elle qui sert de clé commune aux trois séries.
   def bucketize(counts)
     counts.transform_keys { |key| key.to_date }
-  end
-
-  # Tous les tickets visibles, sans filtre de date : le temps peut être saisi
-  # aujourd'hui sur un ticket ouvert l'an dernier. Sous-requête, jamais `pluck`.
-  def visible_ids
-    TicketPolicy::ReadScope.new(current_user).resolve.select(:id)
   end
 end

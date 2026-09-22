@@ -14,7 +14,11 @@ import type { NavigationTab } from '#desktop/components/CommonTabs/types.ts'
 export const useStatisticsTabs = () => {
   const route = useRoute()
 
-  const query = computed(() => (route.query.days ? { days: route.query.days } : {}))
+  /* Toute la query string, et non les seules clés connues au moment d'écrire
+     ces lignes : le pas de temps a été ajouté à l'URL sans l'être ici, et
+     changer d'onglet le remettait silencieusement sur automatique. Chaque
+     réglage futur — filtres, axes croisés — tomberait dans le même trou. */
+  const query = computed(() => ({ ...route.query }))
 
   const tabs = computed<NavigationTab[]>(() => [
     {

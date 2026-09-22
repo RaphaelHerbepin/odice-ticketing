@@ -56,9 +56,18 @@ export const useStatisticsPeriod = () => {
     router.replace({ query: { ...route.query, step: key } })
   }
 
-  /** Bornes seules : ce que réclament les requêtes sans série temporelle. */
+  /**
+   * Bornes seules : ce que réclament les requêtes sans série temporelle.
+   *
+   * `to` est tronqué à la minute. Ce calcul est réévalué à chaque changement de
+   * la query string ; à la milliseconde près, chaque navigation produirait des
+   * bornes neuves, donc une clé de cache Apollo jamais réutilisée, une requête
+   * réseau à chaque clic, et des totaux qui bougent de quelques unités entre
+   * deux réglages sans que rien ne l'explique à l'écran.
+   */
   const variables = computed(() => {
     const to = new Date()
+    to.setSeconds(0, 0)
     const from = new Date(to.getTime() - selectedDays.value * 24 * 60 * 60 * 1000)
     return { from: from.toISOString(), to: to.toISOString() }
   })
