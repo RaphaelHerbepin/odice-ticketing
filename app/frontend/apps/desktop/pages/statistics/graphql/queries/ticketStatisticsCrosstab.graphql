@@ -1,0 +1,36 @@
+query ticketStatisticsCrosstab(
+  $rowAxis: String!
+  $columnAxis: String!
+  $from: ISO8601DateTime
+  $to: ISO8601DateTime
+  $axisFilters: [TicketStatisticsAxisFilterInput!]
+) {
+  ticketStatisticsCrosstab(
+    rowAxis: $rowAxis
+    columnAxis: $columnAxis
+    from: $from
+    to: $to
+    axisFilters: $axisFilters
+  ) {
+    rowAxis {
+      name
+      label
+    }
+    columnAxis {
+      name
+      label
+    }
+    columns {
+      value
+      label
+      count
+    }
+    rows {
+      value
+      label
+      total
+      cells
+    }
+    total
+  }
+}

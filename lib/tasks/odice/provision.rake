@@ -85,6 +85,17 @@
       'none over the preceding period' => 'aucun sur la période précédente',
       'pts'                         => 'pts',
       'vs'                          => 'vs',
+      # Tableau croisé.
+      'Cross-tabulation'            => 'Croisement',
+      'Rows'                        => 'Lignes',
+      'Columns'                     => 'Colonnes',
+      'Total'                       => 'Total',
+      'Swap rows and columns'       => 'Intervertir les lignes et les colonnes',
+      'Ticket count by %s and %s'   => 'Nombre de tickets par %s et %s',
+      'Number of tickets created over the selected period.' =>
+        'Nombre de tickets créés sur la période choisie.',
+      'Shading runs from 0 to %s tickets, the busiest cell.' =>
+        'L’intensité va de 0 à %s tickets, la cellule la plus chargée.',
       'No ticket has an owner yet: assign tickets to agents for this table to fill in.' =>
         'Aucun ticket n’a encore de propriétaire : attribuez-en aux agents pour que ce tableau se remplisse.',
     }.each do |source, target|

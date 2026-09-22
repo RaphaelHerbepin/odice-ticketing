@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router'
 import type { NavigationTab } from '#desktop/components/CommonTabs/types.ts'
 
 /**
- * Les trois onglets de la page Statistiques.
+ * Les quatre onglets de la page Statistiques.
  *
  * La période voyage dans la query string : on la recopie dans les liens pour
  * qu'un changement d'onglet ne la réinitialise pas.
@@ -32,6 +32,11 @@ export const useStatisticsTabs = () => {
       link: { name: 'StatisticsAxes', query: query.value },
     },
     {
+      key: 'cross',
+      label: __('Cross-tabulation'),
+      link: { name: 'StatisticsCross', query: query.value },
+    },
+    {
       key: 'agents',
       label: __('Agents'),
       link: { name: 'StatisticsAgents', query: query.value },
@@ -40,6 +45,7 @@ export const useStatisticsTabs = () => {
 
   const activeTab = computed(() => {
     if (route.name === 'StatisticsAxes') return 'axes'
+    if (route.name === 'StatisticsCross') return 'cross'
     if (route.name === 'StatisticsAgents') return 'agents'
     return 'overview'
   })

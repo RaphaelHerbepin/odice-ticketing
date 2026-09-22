@@ -3613,6 +3613,8 @@ export type Queries = {
   ticketStatisticsAgents: Array<TicketStatisticsAgent>;
   /** Business axes available for ticket statistics breakdowns */
   ticketStatisticsAxes: Array<TicketStatisticsAxisDefinition>;
+  /** Ticket counts crossed over two business axes */
+  ticketStatisticsCrosstab: TicketStatisticsCrosstab;
   /** Fetch tickets of a given customer with optional filters */
   ticketsByCustomer: TicketConnection;
   /** Fetch tickets of a given organization with optional filters */
@@ -4019,6 +4021,18 @@ export type QueriesTicketStatisticsAgentsArgs = {
   from?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   organizationIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  to?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+};
+
+
+/** All available queries */
+export type QueriesTicketStatisticsCrosstabArgs = {
+  axisFilters?: InputMaybe<Array<TicketStatisticsAxisFilterInput>>;
+  columnAxis: Scalars['String']['input'];
+  from?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  organizationIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  rowAxis: Scalars['String']['input'];
   to?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 };
 
@@ -5828,6 +5842,38 @@ export type TicketStatisticsComparison = {
   to: Scalars['ISO8601DateTime']['output'];
   /** Tickets created in the preceding period */
   total: Scalars['Int']['output'];
+};
+
+/** Ticket counts crossed over two business axes */
+export type TicketStatisticsCrosstab = {
+  __typename?: 'TicketStatisticsCrosstab';
+  columnAxis: TicketStatisticsCrosstabAxis;
+  /** Column headers and their totals, in display order */
+  columns: Array<TicketStatisticsAxisBucket>;
+  rowAxis: TicketStatisticsCrosstabAxis;
+  /** Rows in display order; cells follow the column order */
+  rows: Array<TicketStatisticsCrosstabRow>;
+  /** Grand total, Others included */
+  total: Scalars['Int']['output'];
+};
+
+/** The axis a crosstab dimension was built on */
+export type TicketStatisticsCrosstabAxis = {
+  __typename?: 'TicketStatisticsCrosstabAxis';
+  label: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+};
+
+/** One row of a crosstab */
+export type TicketStatisticsCrosstabRow = {
+  __typename?: 'TicketStatisticsCrosstabRow';
+  /** One count per entry of `columns`, in the same order */
+  cells: Array<Scalars['Int']['output']>;
+  label: Scalars['String']['output'];
+  /** Row total, across every column */
+  total: Scalars['Int']['output'];
+  /** Stored value; null for "not set" and for the Others row */
+  value?: Maybe<Scalars['String']['output']>;
 };
 
 /** The period analysed, and the time step the server actually applied */

@@ -2,7 +2,7 @@
 
 import type { RouteRecordRaw } from 'vue-router'
 
-/* Trois routes plutôt qu'un onglet piloté par un état local : chaque onglet a
+/* Quatre routes plutôt qu'un onglet piloté par un état local : chaque onglet a
  * son URL, donc se transmet et se met en favori. Seule la première porte
  * `mainNavigation`, sans quoi la navigation principale afficherait trois
  * entrées « Statistiques ». */
@@ -31,6 +31,13 @@ const route: RouteRecordRaw[] = [
     props: true,
     component: () => import('./views/StatisticsAxes.vue'),
     meta: { ...shared(), title: __('Business axes'), icon: 'statistics', order: 0 },
+  },
+  {
+    path: '/statistics/cross',
+    name: 'StatisticsCross',
+    props: true,
+    component: () => import('./views/StatisticsCross.vue'),
+    meta: { ...shared(), title: __('Cross-tabulation'), icon: 'statistics', order: 0 },
   },
   {
     path: '/statistics/agents',

@@ -933,6 +933,17 @@ export type TicketStatisticsAxesQueryVariables = Exact<{ [key: string]: never; }
 
 export type TicketStatisticsAxesQuery = { ticketStatisticsAxes: Array<{ __typename: 'TicketStatisticsAxisDefinition', name: string, label: string, values: Array<{ __typename: 'TicketStatisticsAxisValue', value: string, label: string }> }> };
 
+export type TicketStatisticsCrosstabQueryVariables = Exact<{
+  rowAxis: string;
+  columnAxis: string;
+  from?: string | null | undefined;
+  to?: string | null | undefined;
+  axisFilters?: Array<Types.TicketStatisticsAxisFilterInput> | Types.TicketStatisticsAxisFilterInput | null | undefined;
+}>;
+
+
+export type TicketStatisticsCrosstabQuery = { ticketStatisticsCrosstab: { __typename: 'TicketStatisticsCrosstab', total: number, rowAxis: { __typename: 'TicketStatisticsCrosstabAxis', name: string, label: string }, columnAxis: { __typename: 'TicketStatisticsCrosstabAxis', name: string, label: string }, columns: Array<{ __typename: 'TicketStatisticsAxisBucket', value: string | null | undefined, label: string, count: number }>, rows: Array<{ __typename: 'TicketStatisticsCrosstabRow', value: string | null | undefined, label: string, total: number, cells: Array<number> }> } };
+
 export type AiAssistantAnalyticsMetaFragment = { __typename: 'AIAnalyticsMetadata', run: { __typename: 'AIAnalyticsRun', id: string } | null | undefined, usage: { __typename: 'AIAnalyticsUsage', userHasProvidedFeedback: boolean | null | undefined } | null | undefined };
 
 export type IdoitObjectAttributesFragment = { __typename: 'TicketExternalReferencesIdoitObject', idoitObjectId: number, link: string | null | undefined, title: string, type: string, status: string };
