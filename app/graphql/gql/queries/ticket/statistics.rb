@@ -13,6 +13,9 @@ module Gql::Queries
     # built from ObjectManager::Attribute and rejects anything else: a column
     # name cannot be a bound parameter, so it must never come from the client.
     argument :axes, [String], required: false, description: 'Business axes to break down by, e.g. agence, service_demandeur'
+    # Interpolated into a DATE_TRUNC, so the service checks it against its own
+    # whitelist and silently falls back to a step chosen from the period length.
+    argument :interval, String, required: false, description: 'Time step for the series: day, week or month. Chosen from the period length when omitted'
 
     type Gql::Types::Ticket::StatisticsType, null: false
 
@@ -22,10 +25,10 @@ module Gql::Queries
       ctx.current_user.permissions?('ticket.agent')
     end
 
-    def resolve(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil)
+    def resolve(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil, interval: nil)
       Service::Ticket::Statistics
         .with_current_user(context.current_user)
-        .execute(from:, to:, group_ids:, organization_ids:, axes:)
+        .execute(from:, to:, group_ids:, organization_ids:, axes:, interval:)
     end
   end
 end

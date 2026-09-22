@@ -4005,6 +4005,7 @@ export type QueriesTicketStatisticsArgs = {
   axes?: InputMaybe<Array<Scalars['String']['input']>>;
   from?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  interval?: InputMaybe<Scalars['String']['input']>;
   organizationIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   to?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 };
@@ -5711,9 +5712,11 @@ export type TicketStatistics = {
   byPriority: Array<TicketStatisticsBucket>;
   /** Ticket count per state */
   byState: Array<TicketStatisticsBucket>;
+  /** Period analysed and the time step actually used */
+  period: TicketStatisticsPeriod;
   /** Headline figures */
   totals: TicketStatisticsTotals;
-  /** Created and closed counts per day */
+  /** Created and closed counts, and time logged, per period */
   volumeOverTime: Array<TicketStatisticsVolumePoint>;
 };
 
@@ -5786,6 +5789,17 @@ export type TicketStatisticsBucket = {
   label: Scalars['String']['output'];
 };
 
+/** The period analysed, and the time step the server actually applied */
+export type TicketStatisticsPeriod = {
+  __typename?: 'TicketStatisticsPeriod';
+  /** Start of the period */
+  from: Scalars['ISO8601DateTime']['output'];
+  /** Time step used: day, week or month */
+  interval: Scalars['String']['output'];
+  /** End of the period */
+  to: Scalars['ISO8601DateTime']['output'];
+};
+
 /** Headline figures for the selected period */
 export type TicketStatisticsTotals = {
   __typename?: 'TicketStatisticsTotals';
@@ -5811,15 +5825,17 @@ export type TicketStatisticsTotals = {
   total: Scalars['Int']['output'];
 };
 
-/** Created and closed ticket counts for a single day */
+/** Created and closed ticket counts, and time logged, for a single period */
 export type TicketStatisticsVolumePoint = {
   __typename?: 'TicketStatisticsVolumePoint';
-  /** Tickets closed on that day */
+  /** Tickets closed in that period */
   closed: Scalars['Int']['output'];
-  /** Tickets created on that day */
+  /** Tickets created in that period */
   created: Scalars['Int']['output'];
-  /** Day in ISO 8601 format */
+  /** Start of the period in ISO 8601 format */
   date: Scalars['String']['output'];
+  /** Minutes logged in that period */
+  timeLoggedMinutes: Scalars['Float']['output'];
 };
 
 /** Monthly ticket stats */

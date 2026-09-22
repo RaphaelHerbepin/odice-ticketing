@@ -6,14 +6,20 @@ import * as VueCompositionApi from 'vue';
 export type ReactiveFunction<TParam> = () => TParam;
 
 export const TicketStatisticsDocument = gql`
-    query ticketStatistics($from: ISO8601DateTime, $to: ISO8601DateTime, $groupIds: [ID!], $organizationIds: [ID!], $axes: [String!]) {
+    query ticketStatistics($from: ISO8601DateTime, $to: ISO8601DateTime, $groupIds: [ID!], $organizationIds: [ID!], $axes: [String!], $interval: String) {
   ticketStatistics(
     from: $from
     to: $to
     groupIds: $groupIds
     organizationIds: $organizationIds
     axes: $axes
+    interval: $interval
   ) {
+    period {
+      from
+      to
+      interval
+    }
     totals {
       total
       open
@@ -63,6 +69,7 @@ export const TicketStatisticsDocument = gql`
       date
       created
       closed
+      timeLoggedMinutes
     }
   }
 }

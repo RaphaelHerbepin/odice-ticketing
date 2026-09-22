@@ -14,17 +14,34 @@ class Service::Ticket::Statistics < Service::Base
   # illisible et la requête coûteuse.
   TOP_N = 15
 
-  def initialize(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil)
+  # Pas de la série temporelle. La valeur est interpolée dans un DATE_TRUNC —
+  # elle ne peut donc PAS venir du client sans passer par cette liste.
+  INTERVALS = {
+    'day'   => 1.day,
+    'week'  => 1.week,
+    'month' => 1.month,
+  }.freeze
+
+  # Au-delà de ces durées, le pas suivant prend le relais. Un an au jour le jour
+  # produit 365 barres larges d'un pixel : le graphique cesse d'être lisible
+  # bien avant de cesser d'être exact, et personne ne pense à changer un réglage
+  # dont il ignore l'existence. D'où un pas choisi par défaut, et modifiable.
+  AUTO_THRESHOLDS = [[45.days, 'day'], [180.days, 'week']].freeze
+
+  attr_reader :interval
+
+  def initialize(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil, interval: nil)
     @from             = from || 30.days.ago.beginning_of_day
     @to               = to || Time.zone.now.end_of_day
     @group_ids        = group_ids.presence
     @organization_ids = organization_ids.presence
     @axes             = Array(axes).presence
+    @interval         = INTERVALS.key?(interval.to_s) ? interval.to_s : auto_interval
   end
 
   def execute
     {
-      period:           { from:, to: },
+      period:           { from:, to:, interval: },
       totals:           totals,
       by_group:         count_by(:group_id, ::Group),
       by_organization:  count_by(:organization_id, ::Organization),
@@ -151,11 +168,25 @@ class Service::Ticket::Statistics < Service::Base
     node   = ::Ticket.arel_table[column]
     counts = scope.group(node).order(count_all: :desc).limit(TOP_N).count
 
-    buckets = counts.map do |value, count|
+    buckets = merge_unset(counts).map do |value, count|
       { value: value.nil? ? nil : value.to_s, label: humanize_value(value), count: }
     end
 
-    append_others(buckets)
+    append_others(buckets.sort_by { |bucket| -bucket[:count] })
+  end
+
+  # Un champ jamais renseigné vaut NULL ; un champ vidé après coup vaut la
+  # chaîne vide. La distinction est un accident du stockage, pas une
+  # information : laissées telles quelles, elles produisaient deux barres, dont
+  # l'une sans étiquette du tout.
+  #
+  # `false` n'est pas concerné : un booléen à « non » est une réponse. D'où le
+  # test sur `nil` et la chaîne vide, et non sur `blank?`.
+  def merge_unset(counts)
+    counts.each_with_object({}) do |(value, count), merged|
+      key = value.is_a?(::String) && value.strip.empty? ? nil : value
+      merged[key] = (merged[key] || 0) + count
+    end
   end
 
   # Au-delà de TOP_N, la somme des barres ne fait plus le total : tout
@@ -190,24 +221,99 @@ class Service::Ticket::Statistics < Service::Base
     current_user&.locale.presence || ::Setting.get('locale_default').presence || 'en-us'
   end
 
+  # Les noms d'états, de priorités et de canaux sont stockés en anglais et
+  # traduits à l'affichage par le catalogue Zammad — c'est ainsi que le reste de
+  # l'interface montre « nouveau » et « 2 normale ». Les renvoyer bruts laissait
+  # « new », « closed » et « 2 normal » sur une page par ailleurs française.
+  #
+  # Les noms propres, eux, ne se traduisent pas : un groupe « Informatique » ou
+  # une organisation resteraient inchangés de toute façon, le catalogue ne les
+  # connaissant pas — `translate` renvoie alors la chaîne d'origine.
   def label_map(model, ids)
     return {} if ids.empty?
 
     model.where(id: ids).index_by(&:id).transform_values do |record|
-      record.try(:name) || record.try(:fullname) || record.id.to_s
+      name = record.try(:name) || record.try(:fullname) || record.id.to_s
+      ::Translation.translate(locale, name)
     end
   end
 
-  # Volume créé / clôturé, par jour. Deux requêtes groupées plutôt qu'une
-  # boucle sur les jours, pour rester en O(1) requêtes.
-  def volume_over_time
-    created = scope.group("DATE(tickets.created_at)").count
-    closed  = TicketPolicy::ReadScope.new(current_user).resolve
-                                     .where(close_at: from..to)
-                                     .group('DATE(tickets.close_at)').count
+  # Pas par défaut, déduit de l'étendue demandée. Voir AUTO_THRESHOLDS.
+  def auto_interval
+    span = to - from
+    AUTO_THRESHOLDS.each { |limit, name| return name if span <= limit }
+    'month'
+  end
 
-    (from.to_date..to.to_date).map do |date|
-      { date: date.iso8601, created: created[date] || 0, closed: closed[date] || 0 }
+  # Le regroupement se fait dans le fuseau de l'instance, pas en UTC. Sans cela
+  # un ticket créé à 1 h du matin à Paris tombe dans la veille : le total reste
+  # juste, mais chaque journée est décalée, et l'écart devient visible dès qu'on
+  # compare la courbe à une liste de tickets.
+  #
+  # `interval` est sûr à interpoler : le constructeur ne retient qu'une clé
+  # d'INTERVALS. Le fuseau, lui, est échappé — il vient d'un réglage.
+  def truncated(table, column)
+    zone = ::ActiveRecord::Base.connection.quote(Time.zone.tzinfo.identifier)
+    Arel.sql("DATE_TRUNC('#{interval}', (#{table}.#{column} AT TIME ZONE 'UTC' AT TIME ZONE #{zone}))")
+  end
+
+  # Volume créé / clôturé et temps saisi, au pas retenu. Trois requêtes
+  # groupées plutôt qu'une boucle sur les périodes : le nombre de requêtes ne
+  # dépend pas de l'étendue analysée.
+  def volume_over_time
+    created = bucketize(scope.group(truncated('tickets', 'created_at')).count)
+    closed  = bucketize(
+      TicketPolicy::ReadScope.new(current_user).resolve
+                             .where(close_at: from..to)
+                             .group(truncated('tickets', 'close_at')).count,
+    )
+    logged  = bucketize(
+      ::Ticket::TimeAccounting
+        .where(ticket_id: visible_ids)
+        .where(created_at: from..to)
+        .group(truncated('ticket_time_accountings', 'created_at'))
+        .sum(:time_unit),
+    )
+
+    bucket_starts.map do |start|
+      key = start.to_date
+      {
+        date:                start.to_date.iso8601,
+        created:             created[key] || 0,
+        closed:              closed[key] || 0,
+        time_logged_minutes: logged[key]&.to_f&.round(1) || 0.0,
+      }
     end
+  end
+
+  # Les périodes vides doivent exister dans la série : sans elles, une semaine
+  # sans aucun ticket serait absente de l'axe plutôt que montrée à zéro, et la
+  # courbe raconterait une activité continue qui n'a pas eu lieu.
+  def bucket_starts
+    step   = INTERVALS.fetch(interval)
+    cursor = case interval
+             when 'week'  then from.beginning_of_week
+             when 'month' then from.beginning_of_month
+             else from.beginning_of_day
+             end
+
+    [].tap do |starts|
+      while cursor <= to
+        starts << cursor
+        cursor += step
+      end
+    end
+  end
+
+  # DATE_TRUNC renvoie un horodatage ; seule la date porte l'information, et
+  # c'est elle qui sert de clé commune aux trois séries.
+  def bucketize(counts)
+    counts.transform_keys { |key| key.to_date }
+  end
+
+  # Tous les tickets visibles, sans filtre de date : le temps peut être saisi
+  # aujourd'hui sur un ticket ouvert l'an dernier. Sous-requête, jamais `pluck`.
+  def visible_ids
+    TicketPolicy::ReadScope.new(current_user).resolve.select(:id)
   end
 end

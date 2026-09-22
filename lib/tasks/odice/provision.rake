@@ -59,6 +59,18 @@
         'Trop peu de tickets portent une saisie de temps pour que le total ait un sens.',
       'Workload is a snapshot of the present; the other figures cover the selected period.' =>
         'La charge est un instantané ; les autres chiffres portent sur la période choisie.',
+      # Période et pas de la série temporelle.
+      'Period'                      => 'Période',
+      'Time step'                   => 'Pas de temps',
+      'Automatic'                   => 'Automatique',
+      'By day'                      => 'Par jour',
+      'By week'                     => 'Par semaine',
+      'By month'                    => 'Par mois',
+      # Minuscule : la chaîne est suivie d'une date, « sem. du 14/09 ».
+      'week of'                     => 'sem. du',
+      # Noms des axes du graphique d'évolution.
+      'Tickets'                     => 'Tickets',
+      'Minutes'                     => 'Minutes',
     }.each do |source, target|
       translation = ::Translation.find_or_initialize_by(locale: 'fr-fr', source: source)
       next if translation.persisted? && translation.target == target

@@ -4,6 +4,7 @@ query ticketStatistics(
   $groupIds: [ID!]
   $organizationIds: [ID!]
   $axes: [String!]
+  $interval: String
 ) {
   ticketStatistics(
     from: $from
@@ -11,7 +12,13 @@ query ticketStatistics(
     groupIds: $groupIds
     organizationIds: $organizationIds
     axes: $axes
+    interval: $interval
   ) {
+    period {
+      from
+      to
+      interval
+    }
     totals {
       total
       open
@@ -61,6 +68,7 @@ query ticketStatistics(
       date
       created
       closed
+      timeLoggedMinutes
     }
   }
 }

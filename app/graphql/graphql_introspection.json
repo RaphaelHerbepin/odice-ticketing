@@ -21514,6 +21514,16 @@
                     }
                   },
                   "defaultValue": null
+                },
+                {
+                  "name": "interval",
+                  "description": "Time step for the series: day, week or month. Chosen from the period length when omitted",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
                 }
               ],
               "type": {
@@ -31641,6 +31651,22 @@
               "deprecationReason": null
             },
             {
+              "name": "period",
+              "description": "Period analysed and the time step actually used",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "TicketStatisticsPeriod",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "totals",
               "description": "Headline figures",
               "args": [],
@@ -31658,7 +31684,7 @@
             },
             {
               "name": "volumeOverTime",
-              "description": "Created and closed counts per day",
+              "description": "Created and closed counts, and time logged, per period",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -32083,6 +32109,65 @@
         },
         {
           "kind": "OBJECT",
+          "name": "TicketStatisticsPeriod",
+          "description": "The period analysed, and the time step the server actually applied",
+          "fields": [
+            {
+              "name": "from",
+              "description": "Start of the period",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ISO8601DateTime",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "interval",
+              "description": "Time step used: day, week or month",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "to",
+              "description": "End of the period",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ISO8601DateTime",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "TicketStatisticsTotals",
           "description": "Headline figures for the selected period",
           "fields": [
@@ -32231,11 +32316,11 @@
         {
           "kind": "OBJECT",
           "name": "TicketStatisticsVolumePoint",
-          "description": "Created and closed ticket counts for a single day",
+          "description": "Created and closed ticket counts, and time logged, for a single period",
           "fields": [
             {
               "name": "closed",
-              "description": "Tickets closed on that day",
+              "description": "Tickets closed in that period",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -32251,7 +32336,7 @@
             },
             {
               "name": "created",
-              "description": "Tickets created on that day",
+              "description": "Tickets created in that period",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -32267,7 +32352,7 @@
             },
             {
               "name": "date",
-              "description": "Day in ISO 8601 format",
+              "description": "Start of the period in ISO 8601 format",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -32275,6 +32360,22 @@
                 "ofType": {
                   "kind": "SCALAR",
                   "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "timeLoggedMinutes",
+              "description": "Minutes logged in that period",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Float",
                   "ofType": null
                 }
               },

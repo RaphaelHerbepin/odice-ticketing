@@ -3,15 +3,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import CommonBarChart from '#desktop/components/CommonCharts/CommonBarChart/CommonBarChart.vue'
-import type { BarChartOptions } from '#desktop/components/CommonCharts/CommonBarChart/types.ts'
+import { useLocaleStore } from '#shared/stores/locale.ts'
+
 import LayoutContent from '#desktop/components/layout/LayoutContent.vue'
+import StatisticsChart from '#desktop/pages/statistics/components/StatisticsChart.vue'
 import StatisticsPanel from '#desktop/pages/statistics/components/StatisticsPanel.vue'
 import StatisticsPeriodFilter from '#desktop/pages/statistics/components/StatisticsPeriodFilter.vue'
 import {
   accentColor,
   barOption,
-  brandColor,
+  timeSeriesOption,
 } from '#desktop/pages/statistics/composables/useStatisticsChart.ts'
 import { useStatisticsFormat } from '#desktop/pages/statistics/composables/useStatisticsFormat.ts'
 import { useStatisticsPeriod } from '#desktop/pages/statistics/composables/useStatisticsPeriod.ts'
@@ -19,10 +20,11 @@ import { useStatisticsTabs } from '#desktop/pages/statistics/composables/useStat
 import { useTicketStatisticsQuery } from '#desktop/pages/statistics/graphql/queries/ticketStatistics.api.ts'
 
 const { tabs, activeTab } = useStatisticsTabs()
-const { variables } = useStatisticsPeriod()
+const { seriesVariables } = useStatisticsPeriod()
 const { formatNumber, formatDuration, formatPercent } = useStatisticsFormat()
+const locale = useLocaleStore()
 
-const { result, loading } = useTicketStatisticsQuery(variables)
+const { result, loading } = useTicketStatisticsQuery(seriesVariables)
 const statistics = computed(() => result.value?.ticketStatistics)
 const totals = computed(() => statistics.value?.totals)
 
@@ -71,35 +73,33 @@ const timeCard = computed(() => {
   }
 })
 
-const volumeOption = computed<BarChartOptions>(() => {
-  const points = statistics.value?.volumeOverTime ?? []
-  return {
-    tooltip: { trigger: 'axis' },
-    legend: { top: 0 },
-    grid: { left: 8, right: 16, top: 40, bottom: 8, containLabel: true },
-    xAxis: { type: 'category', data: points.map((point) => point.date) },
-    yAxis: { type: 'value', minInterval: 1 },
-    series: [
-      {
-        name: __('Created'),
-        type: 'bar',
-        data: points.map((point) => point.created),
-        itemStyle: { color: brandColor, borderRadius: [3, 3, 0, 0] },
-      },
-      {
-        name: __('Closed'),
-        type: 'bar',
-        data: points.map((point) => point.closed),
-        itemStyle: { color: accentColor, borderRadius: [3, 3, 0, 0] },
-      },
-    ],
-  }
-})
+/* Le pas est celui que le serveur a réellement appliqué, et non celui demandé :
+   en mode automatique, seul lui le connaît. */
+const appliedInterval = computed(() => statistics.value?.period?.interval ?? 'day')
 
+const volumeOption = computed(() =>
+  timeSeriesOption(
+    statistics.value?.volumeOverTime ?? [],
+    appliedInterval.value,
+    locale.localeData?.locale,
+  ),
+)
+
+/* Six répartitions, et non trois. Les trois premières décrivent la NATURE des
+   demandes, les trois suivantes leur RÉPARTITION dans l'organisation — deux
+   questions distinctes, que la page traitait à moitié. */
 const breakdowns = computed(() => [
   { key: 'state', title: __('By state'), buckets: statistics.value?.byState ?? [] },
   { key: 'priority', title: __('By priority'), buckets: statistics.value?.byPriority ?? [] },
   { key: 'channel', title: __('By channel'), buckets: statistics.value?.byChannel ?? [] },
+  { key: 'group', title: __('By service'), buckets: statistics.value?.byGroup ?? [], accent: true },
+  { key: 'owner', title: __('By agent'), buckets: statistics.value?.byOwner ?? [], accent: true },
+  {
+    key: 'organization',
+    title: __('By organization'),
+    buckets: statistics.value?.byOrganization ?? [],
+    accent: true,
+  },
 ])
 </script>
 
@@ -111,7 +111,7 @@ const breakdowns = computed(() => [
     width="full"
   >
     <div class="flex flex-col gap-6 p-4">
-      <StatisticsPeriodFilter />
+      <StatisticsPeriodFilter show-interval />
 
       <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div
@@ -144,7 +144,7 @@ const breakdowns = computed(() => [
         :has-data="!!statistics?.volumeOverTime?.length"
         :loading="loading"
       >
-        <div class="h-72 w-full"><CommonBarChart :option="volumeOption" /></div>
+        <div class="h-72 w-full"><StatisticsChart :option="volumeOption" /></div>
       </StatisticsPanel>
 
       <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -155,7 +155,11 @@ const breakdowns = computed(() => [
           :has-data="breakdown.buckets.length > 0"
           :loading="loading"
         >
-          <div class="h-64 w-full"><CommonBarChart :option="barOption(breakdown.buckets)" /></div>
+          <div class="h-64 w-full">
+            <StatisticsChart
+              :option="barOption(breakdown.buckets, breakdown.accent ? accentColor : undefined)"
+            />
+          </div>
         </StatisticsPanel>
       </div>
     </div>
