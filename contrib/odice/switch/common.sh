@@ -20,7 +20,9 @@ COMPOSE_DIR="$(cd "${COMPOSE_DIR}" 2>/dev/null && pwd)" || {
 ENV_FILE="${COMPOSE_DIR}/.env"
 STATE_FILE="${COMPOSE_DIR}/.odice-cutover-state"
 
-cd "${COMPOSE_DIR}"
+# `|| exit` : sans lui, un `cd` qui échoue laisserait le script s'exécuter dans
+# le répertoire courant — donc piloter une autre pile que celle demandée.
+cd "${COMPOSE_DIR}" || exit 1
 [ -f "${ENV_FILE}" ] || { echo "Erreur : .env absent dans ${COMPOSE_DIR}." >&2; exit 1; }
 
 # Le nom des variables d'image diffère selon la pile : zammad-docker-compose
