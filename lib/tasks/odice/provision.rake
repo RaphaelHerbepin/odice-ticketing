@@ -81,7 +81,16 @@ namespace :odice do
     Rails.cache.clear
     puts '  traductions Odice enregistrées.'
 
-    target  = ENV.fetch('ODICE_PROVISION_VERSION', '1').to_i
+    # À INCRÉMENTER à chaque ajout d'étape sous le compteur, sans quoi une
+    # instance déjà provisionnée saute la nouveauté en silence : elle a déjà
+    # atteint la cible. La version 2 ajoute le décompte du temps et la relance
+    # automatique.
+    # `.presence ||` et non `ENV.fetch(..., défaut)` : le fichier compose
+    # DÉCLARE toutes les variables ODICE_* avec `${VAR:-}`, donc elles existent
+    # dans le conteneur, vides. `fetch` trouve alors la clé et renvoie la chaîne
+    # vide — jamais le défaut. C'est ce qui ramenait la cible à 0 en production
+    # et faisait sortir la tâche avant d'avoir rien appliqué.
+    target  = (ENV['ODICE_PROVISION_VERSION'].presence || '2').to_i
     applied = Setting.get('odice_provision_version').to_i
     forced  = %w[1 true yes].include?(ENV['ODICE_PROVISION_FORCE'].to_s.downcase)
 
@@ -148,15 +157,17 @@ namespace :odice do
     #    anglais malgré un défaut français. On aligne donc les comptes dont la
     #    langue n'a pas été choisie délibérément.
     if (locale = ENV['ODICE_LOCALE_DEFAULT'].presence)
-      forced  = %w[1 true yes].include?(ENV['ODICE_FORCE_USER_LOCALE'].to_s.downcase)
-      updated = 0
+      # Nom distinct de `forced` : celui-ci gouverne le provisionnement entier,
+      # et le réutiliser ici l'écraserait pour tout ce qui suit.
+      force_locale = %w[1 true yes].include?(ENV['ODICE_FORCE_USER_LOCALE'].to_s.downcase)
+      updated      = 0
 
       ::User.find_each do |user|
         current = user.preferences[:locale]
         next if current == locale
         # Sans forçage, on ne touche pas à un utilisateur ayant explicitement
         # choisi une autre langue que celle héritée de l'installation.
-        next if !forced && current.present? && !current.start_with?('en')
+        next if !force_locale && current.present? && !current.start_with?('en')
 
         user.preferences[:locale] = locale
         user.save!
@@ -172,7 +183,7 @@ namespace :odice do
     #    frontends divergeaient donc selon le poste de l'agent. On pose un
     #    défaut clair pour les comptes qui n'ont jamais choisi — chacun reste
     #    libre de prendre le sombre ou le suivi du système dans son profil.
-    theme = ENV.fetch('ODICE_DEFAULT_THEME', 'light')
+    theme = ENV['ODICE_DEFAULT_THEME'].presence || 'light'
     if theme.present? && theme != 'none'
       aligned = 0
       ::User.find_each do |user|
@@ -200,7 +211,7 @@ namespace :odice do
     #    Les types d'activité restent désactivés : un champ de moins à remplir
     #    améliore l'adoption, et on les activera si « déplacement / téléphone /
     #    intervention » devient une question qu'on se pose vraiment.
-    if %w[1 true yes].include?(ENV.fetch('ODICE_TIME_ACCOUNTING', 'true').to_s.downcase)
+    if %w[1 true yes].include?((ENV['ODICE_TIME_ACCOUNTING'].presence || 'true').to_s.downcase)
       {
         'time_accounting'          => true,
         'time_accounting_selector' => {},
@@ -211,7 +222,7 @@ namespace :odice do
       puts '  décompte du temps activé (saisie facultative, en minutes).'
     end
 
-    # 6. Relance des tickets sans activité.
+    # 7. Relance des tickets sans activité.
     #
     #    Configuration pure : aucune ligne de code métier. Le scheduler Zammad
     #    évalue les automatisations toutes les cinq minutes, et le `timeplan`
@@ -282,7 +293,7 @@ namespace :odice do
       puts '  automatisation de relance : déjà présente, laissée telle quelle.'
     end
 
-    # 6. Logo produit : stocké EN BASE via Store, pas dans l'image.
+    # 8. Logo produit : stocké EN BASE via Store, pas dans l'image.
     #    `public/assets/images/logo.svg` n'est que le repli.
     if (logo_path = ENV['ODICE_LOGO_PATH'].presence)
       path = Rails.root.join(logo_path)
@@ -299,7 +310,7 @@ namespace :odice do
       end
     end
 
-    # 7. Marqueur de version, pour que la tâche ne réécrase pas des réglages
+    # 9. Marqueur de version, pour que la tâche ne réécrase pas des réglages
     #    modifiés depuis l'interface d'administration.
     Setting.create_if_not_exists(
       title:       'Odice provisioning version',

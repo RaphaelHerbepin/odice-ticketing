@@ -61,13 +61,16 @@ namespace :odice do
     # `NGINX_PORT` est le port INTERNE du conteneur nginx, pas celui publié sur
     # l'hôte : la pile expose Caddy sur 80. Utiliser 8080 ici produisait un FQDN
     # injoignable, affiché jusque dans le titre de la page de connexion.
-    fqdn = ENV.fetch('ODICE_SANDBOX_FQDN', 'localhost')
+    # `.presence ||` : le fichier compose déclare les variables ODICE_* avec
+    # `${VAR:-}`, donc elles existent, vides, et `fetch` ne prendrait jamais son
+    # défaut — le FQDN deviendrait la chaîne vide.
+    fqdn = ENV['ODICE_SANDBOX_FQDN'].presence || 'localhost'
     # `http_type` ne sert pas qu'à fabriquer des liens : `Session.secure_flag?`
     # le lit pour décider de poser l'attribut Secure sur le cookie de session.
     # Le forcer à `http` derrière une terminaison TLS produirait donc des liens
     # en clair ET un cookie sans Secure. D'où une variable, avec `http` par
     # défaut — le cas d'une copie servie en local, inchangé.
-    http_type = ENV.fetch('ODICE_SANDBOX_HTTP_TYPE', 'http')
+    http_type = ENV['ODICE_SANDBOX_HTTP_TYPE'].presence || 'http'
     Setting.set('fqdn', fqdn)
     Setting.set('http_type', http_type)
     puts "  fqdn → #{http_type}://#{fqdn}"
