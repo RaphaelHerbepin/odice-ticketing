@@ -92,5 +92,15 @@ wait_for_http "http://127.0.0.1:$(env_get NGINX_PORT 8080)/api/v1/getting_starte
 }
 
 echo
+echo '== Configuration Odice'
+# Sans cette étape, tout libellé ou réglage ajouté depuis la mise en service
+# initiale n'atteignait jamais la production : la page Statistiques restait en
+# anglais alors que ses traductions étaient au dépôt depuis des semaines.
+# La tâche est idempotente et son compteur protège les réglages qu'un
+# administrateur aurait modifiés entre-temps.
+dc exec -T zammad-railsserver bundle exec rake odice:provision \
+  || echo '  provisionnement en échec — à rejouer avec : make provision' >&2
+
+echo
 echo "== En service : ${REPO}:${TAG}"
 echo "  $(dc exec -T zammad-railsserver cat /opt/zammad/VERSION 2>/dev/null || echo '(version illisible)')"

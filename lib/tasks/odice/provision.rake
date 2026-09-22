@@ -10,9 +10,61 @@
 # Une tâche sous `lib/tasks/` est chargée automatiquement par
 # `Zammad::Application.load_tasks` : aucun câblage, aucun fichier Zammad touché.
 
+  # Traductions des libellés propres à Odice.
+  #
+  # Hors du compteur de version, et rejouées à chaque exécution : ce ne sont pas
+  # des réglages qu'un administrateur pourrait vouloir conserver, mais les
+  # libellés de l'interface Odice elle-même. Les laisser sous le compteur
+  # signifiait qu'aucune traduction ajoutée après la première mise en service
+  # n'était jamais appliquée — la page Statistiques restait en anglais.
+  #
+  # Les fichiers `i18n/*.po` sont gérés par translations.zammad.org et ne
+  # doivent pas être édités : on passe donc par les traductions personnalisées,
+  # stockées en base et prioritaires sur celles du code.
+  def odice_translations!
+    {
+        'Statistics'                  => 'Statistiques',
+        '7 days'                      => '7 jours',
+        '30 days'                     => '30 jours',
+        '90 days'                     => '90 jours',
+        '12 months'                   => '12 mois',
+        'Tickets created'             => 'Tickets créés',
+        'Still open'                  => 'Encore ouverts',
+        'Escalated'                   => 'En escalade',
+        'Average first response'      => 'Délai moyen de première réponse',
+        'Average time to close'       => 'Délai moyen de clôture',
+        'First response in time'      => 'Première réponse dans les délais',
+        'Closed in time'              => 'Clôturés dans les délais',
+        'Created and closed over time' => 'Créations et clôtures dans le temps',
+        'By service'                  => 'Par service',
+        'By organization'             => 'Par organisation',
+        'By state'                    => 'Par état',
+        'By priority'                 => 'Par priorité',
+        'By agent'                    => 'Par agent',
+        'By channel'                  => 'Par canal',
+        'No data for this period.'    => 'Aucune donnée sur cette période.',
+    }.each do |source, target|
+      translation = ::Translation.find_or_initialize_by(locale: 'fr-fr', source: source)
+      next if translation.persisted? && translation.target == target
+
+      translation.target = target
+      translation.is_synchronized_from_codebase = false
+      translation.save!
+    end
+  end
+
 namespace :odice do
   desc 'Applique la configuration Odice (branding, locale, logo). Idempotent.'
   task provision: :environment do
+    # Les libellés d'abord : ils ne dépendent ni du compteur ni de la locale
+    # configurée, et doivent suivre chaque mise à jour de l'image.
+    UserInfo.current_user_id = 1
+    odice_translations!
+    # Sans cela, le frontend continue de servir le catalogue précédent — et la
+    # sortie anticipée par le compteur sautait le Rails.cache.clear final.
+    Rails.cache.clear
+    puts '  traductions Odice enregistrées.'
+
     target  = ENV.fetch('ODICE_PROVISION_VERSION', '1').to_i
     applied = Setting.get('odice_provision_version').to_i
     forced  = %w[1 true yes].include?(ENV['ODICE_PROVISION_FORCE'].to_s.downcase)
@@ -21,10 +73,6 @@ namespace :odice do
       puts "odice:provision — déjà appliqué (version #{applied}), rien à faire."
       next
     end
-
-    # Les modèles Zammad exigent un auteur (`created_by_id` / `updated_by_id`
-    # sont NOT NULL) : hors requête HTTP, il faut le déclarer explicitement.
-    UserInfo.current_user_id = 1
 
     # 1. Couper la suggestion d'image AVANT l'auto-wizard.
     #    `lib/auto_wizard.rb:128` appelle `Service::Image.organization_suggest`,
@@ -121,45 +169,7 @@ namespace :odice do
       puts "  mode d'affichage : #{aligned} compte(s) sans préférence alignés sur « #{theme} »"
     end
 
-    # 6. Traductions des libellés propres à Odice.
-    #    Les fichiers `i18n/*.po` sont gérés par translations.zammad.org et ne
-    #    doivent pas être édités ici : on passe donc par les traductions
-    #    personnalisées, stockées en base et prioritaires sur celles du code.
-    if ENV['ODICE_LOCALE_DEFAULT'].to_s.start_with?('fr')
-      {
-        'Statistics'                  => 'Statistiques',
-        '7 days'                      => '7 jours',
-        '30 days'                     => '30 jours',
-        '90 days'                     => '90 jours',
-        '12 months'                   => '12 mois',
-        'Tickets created'             => 'Tickets créés',
-        'Still open'                  => 'Encore ouverts',
-        'Escalated'                   => 'En escalade',
-        'Average first response'      => 'Délai moyen de première réponse',
-        'Average time to close'       => 'Délai moyen de clôture',
-        'First response in time'      => 'Première réponse dans les délais',
-        'Closed in time'              => 'Clôturés dans les délais',
-        'Created and closed over time' => 'Créations et clôtures dans le temps',
-        'By service'                  => 'Par service',
-        'By organization'             => 'Par organisation',
-        'By state'                    => 'Par état',
-        'By priority'                 => 'Par priorité',
-        'By agent'                    => 'Par agent',
-        'By channel'                  => 'Par canal',
-        'No data for this period.'    => 'Aucune donnée sur cette période.',
-      }.each do |source, target|
-        translation = ::Translation.find_or_initialize_by(locale: 'fr-fr', source: source)
-        next if translation.persisted? && translation.target == target
-
-        translation.target = target
-        translation.is_synchronized_from_codebase = false
-        translation.save!
-      end
-
-      puts '  traductions Odice enregistrées.'
-    end
-
-    # 7. Logo produit : stocké EN BASE via Store, pas dans l'image.
+    # 6. Logo produit : stocké EN BASE via Store, pas dans l'image.
     #    `public/assets/images/logo.svg` n'est que le repli.
     if (logo_path = ENV['ODICE_LOGO_PATH'].presence)
       path = Rails.root.join(logo_path)
@@ -176,7 +186,7 @@ namespace :odice do
       end
     end
 
-    # 8. Marqueur de version, pour que la tâche ne réécrase pas des réglages
+    # 7. Marqueur de version, pour que la tâche ne réécrase pas des réglages
     #    modifiés depuis l'interface d'administration.
     Setting.create_if_not_exists(
       title:       'Odice provisioning version',
