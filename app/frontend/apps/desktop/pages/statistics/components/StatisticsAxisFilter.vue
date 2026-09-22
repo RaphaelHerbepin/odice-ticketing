@@ -43,41 +43,65 @@ const optionsFor = (axis: AxisDefinition) => [
   { value: UNSET, label: __('Not set') },
 ]
 
-const onSelect = (axis: string, values: unknown) => {
-  emit('change', axis, (values as string[] | null) ?? [])
+/**
+ * Remontée d'une sélection vers l'URL.
+ *
+ * La comparaison n'est pas une optimisation : `model-value` étant réactif, un
+ * changement d'URL réinjecte la valeur dans le champ, qui la réémet aussitôt.
+ * Sans cette garde, l'aller-retour se rejouerait à chaque navigation.
+ */
+const onChange = (axis: string, values: unknown) => {
+  const next = Array.isArray(values) ? (values as string[]) : []
+  const current = props.valuesFor(axis)
+
+  if (next.length === current.length && next.every((value, index) => value === current[index])) {
+    return
+  }
+
+  emit('change', axis, next)
   if (pendingAxis.value === axis) pendingAxis.value = null
 }
 </script>
 
 <template>
   <div class="flex flex-wrap items-end gap-3">
+    <!--
+      `model-value` et NON `value` : FormKit ne lit `value` qu'une seule fois, au
+      montage (`cloneAny(context.attrs.value)`), et son observateur est réservé à
+      `model-value`. Avec `value`, le champ envoyait bien les clics au parent
+      mais restait sourd à ce que le parent lui renvoyait — la sélection
+      n'apparaissait jamais, et de l'extérieur « il ne se passait rien ».
+
+      Pas de `placeholder` : ce champ ne le déclare pas, l'attribut finissait sur
+      un `<output>` où il n'a aucun effet, et le champ paraissait vide.
+    -->
     <div v-for="axis in openAxes" :key="axis.name" class="min-w-56">
       <FormKit
         :id="`statistics-filter-${axis.name}`"
         type="select"
         :label="axis.label"
         :options="optionsFor(axis)"
-        :value="valuesFor(axis.name)"
+        :model-value="valuesFor(axis.name)"
         :multiple="true"
         :clearable="true"
-        :placeholder="$t('All')"
-        no-options-label-translation
-        @input="(values: unknown) => onSelect(axis.name, values)"
+        :no-options-label-translation="true"
+        @update:model-value="(values: unknown) => onChange(axis.name, values)"
       />
     </div>
 
+    <!-- Celui-ci porte un état local et transitoire — quel axe on est en train
+         d'ouvrir — et non un état d'URL : d'où le `v-model` sur son propre ref,
+         qui le remet à vide de lui-même une fois le filtre posé. -->
     <div v-if="addableAxes.length" class="min-w-56">
       <FormKit
         id="statistics-filter-add"
+        v-model="pendingAxis"
         type="select"
         :label="$t('Add a filter')"
         :options="addableAxes"
-        :value="null"
         :multiple="false"
         :clearable="true"
-        :placeholder="$t('Choose a field')"
-        no-options-label-translation
-        @input="(axis: unknown) => (pendingAxis = (axis as string | null) ?? null)"
+        :no-options-label-translation="true"
       />
     </div>
   </div>

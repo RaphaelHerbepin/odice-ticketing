@@ -39,6 +39,20 @@ const { result, loading } = useTicketStatisticsCrosstabQuery(queryVariables, () 
 }))
 
 const crosstab = computed(() => result.value?.ticketStatisticsCrosstab)
+
+/* `model-value` est réactif : un changement d'URL réinjecte l'axe dans le champ,
+   qui le réémet aussitôt. Sans cette comparaison, l'aller-retour se rejouerait à
+   chaque navigation — et l'interversion des axes se défaîrait toute seule. */
+const onAxisChange = (side: 'rows' | 'cols', name: unknown) => {
+  const next = String(name ?? '')
+  if (!next) return
+
+  if (side === 'rows') {
+    if (next !== rowAxis.value) setRowAxis(next)
+  } else if (next !== columnAxis.value) {
+    setColumnAxis(next)
+  }
+}
 </script>
 
 <template>
@@ -57,15 +71,19 @@ const crosstab = computed(() => result.value?.ticketStatisticsCrosstab)
 
       <div class="flex flex-wrap items-end gap-3">
         <div class="min-w-56">
+          <!-- `model-value` et non `value` : FormKit ne lit `value` qu'au
+               montage, donc le champ n'aurait jamais reflété l'axe réellement
+               retenu — ni celui venu de l'URL, ni celui issu d'une
+               interversion. -->
           <FormKit
             id="statistics-cross-rows"
             type="select"
             :label="$t('Rows')"
             :options="options"
-            :value="rowAxis"
+            :model-value="rowAxis"
             :clearable="false"
-            no-options-label-translation
-            @input="(name: unknown) => setRowAxis(String(name ?? ''))"
+            :no-options-label-translation="true"
+            @update:model-value="(name: unknown) => onAxisChange('rows', name)"
           />
         </div>
 
@@ -85,10 +103,10 @@ const crosstab = computed(() => result.value?.ticketStatisticsCrosstab)
             type="select"
             :label="$t('Columns')"
             :options="options"
-            :value="columnAxis"
+            :model-value="columnAxis"
             :clearable="false"
-            no-options-label-translation
-            @input="(name: unknown) => setColumnAxis(String(name ?? ''))"
+            :no-options-label-translation="true"
+            @update:model-value="(name: unknown) => onAxisChange('cols', name)"
           />
         </div>
       </div>
