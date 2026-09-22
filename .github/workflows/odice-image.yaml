@@ -93,6 +93,16 @@ jobs:
           TAG: ${{ needs.build.outputs.tag }}
         run: |
           set -o errexit
+
+          # Un secret est saisi à la main : un espace de fin ou un retour
+          # chariot collé depuis Windows y survit sans être visible, et
+          # `ssh-keygen -F` compare la chaîne brute — « srv.example.com » et
+          # « srv.example.com » suivi d'un espace sont deux hôtes différents
+          # pour lui. Un nom d'hôte ne contient jamais de blanc : les retirer
+          # tous est sans risque et supprime toute une classe de faux échecs.
+          DEPLOY_HOST="$(printf '%s' "${DEPLOY_HOST}" | tr -d '[:space:]')"
+          DEPLOY_USER="$(printf '%s' "${DEPLOY_USER}" | tr -d '[:space:]')"
+
           if [ -z "${DEPLOY_HOST}" ] || [ -z "${DEPLOY_KEY}" ]; then
             echo "Déploiement non configuré : secrets ODICE_DEPLOY_* absents."
             echo "Voir contrib/odice/BASCULE.md, section « Déploiement continu »."
@@ -110,7 +120,9 @@ jobs:
             echo "  Sur le serveur : ssh-keyscan \"\$ODICE_DEPLOY_HOST\""
             exit 1
           fi
-          printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" > ~/.ssh/known_hosts
+          # Même précaution sur le relevé : des fins de ligne Windows y
+          # laisseraient un \r collé à la clé, que OpenSSH refuse en silence.
+          printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" | tr -d '\r' > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
           # L'entrée doit porter EXACTEMENT le nom utilisé pour se connecter.
@@ -133,6 +145,17 @@ jobs:
             echo ""
             echo "  Le nom ci-dessus doit correspondre EXACTEMENT à ODICE_DEPLOY_HOST."
             echo "  Une entrée « [hôte]:22 » ne vaut pas pour « hôte » sans port."
+            echo ""
+            # GitHub masque la valeur d'un secret dans les logs, mais pas sa
+            # longueur : deux chaînes qui s'affichent pareil et dont le compte
+            # de caractères diffère désignent un caractère invisible. C'est le
+            # seul indice exploitable sans divulguer le secret.
+            echo "  Longueur de ODICE_DEPLOY_HOST : ${#DEPLOY_HOST} caractères."
+            grep -v '^#' ~/.ssh/known_hosts | cut -d' ' -f1 | sort -u | while read -r entry; do
+              echo "  Longueur de l'entrée relevée  : ${#entry} caractères."
+            done
+            echo "  Des longueurs différentes pour un même nom affiché"
+            echo "  signalent un caractère invisible dans l'un des deux secrets."
             exit 1
           fi
 
