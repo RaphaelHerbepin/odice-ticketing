@@ -23,21 +23,30 @@ set -o pipefail
 
 FROM_DIR=''
 SANDBOX=true
-ENV_FILE='.env'
-COMPOSE_ARGS=()
+ENV_FILE=''
+TARGET_DIR=''
+SOURCE_DIR=''
+ASSUME_YES=false
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --from)           FROM_DIR="$2"; shift 2 ;;
+    --dir)            TARGET_DIR="$2"; shift 2 ;;
+    --source-dir)     SOURCE_DIR="$2"; shift 2 ;;
     --keep-channels)  SANDBOX=false; shift ;;
     --env-file)       ENV_FILE="$2"; shift 2 ;;
-    -h|--help)        sed -n '3,22p' "$0"; exit 0 ;;
+    --yes)            ASSUME_YES=true; shift ;;
+    -h|--help)        sed -n '3,30p' "$0"; exit 0 ;;
     *)                echo "Option inconnue : $1" >&2; exit 1 ;;
   esac
 done
 
 [ -n "${FROM_DIR}" ] || { echo "Erreur : --from <répertoire> est obligatoire." >&2; exit 1; }
 FROM_DIR="$(cd "${FROM_DIR}" && pwd)"
+
+# Capturé AVANT tout déplacement : le montage des tâches rake s'y réfère, et un
+# `cd` vers la pile cible le rendrait faux.
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
 DB_FILE="$(find "${FROM_DIR}" -maxdepth 1 -name '*_zammad_db.psql.gz' | sort | tail -n1)"
 [ -n "${DB_FILE}" ] || {
@@ -46,8 +55,14 @@ DB_FILE="$(find "${FROM_DIR}" -maxdepth 1 -name '*_zammad_db.psql.gz' | sort | t
 }
 FILES_FILE="$(find "${FROM_DIR}" -maxdepth 1 -name '*_zammad_files.tar.gz' | sort | tail -n1)"
 
-cd "$(dirname "$0")/../.."
-[ -f "${ENV_FILE}" ] || { echo "Erreur : ${ENV_FILE} absent à la racine du dépôt." >&2; exit 1; }
+# La pile visée n'est plus forcément celle de ce dépôt : une recette vit dans
+# son propre répertoire, avec son propre .env et son propre projet Compose.
+TARGET_DIR="$(cd "${TARGET_DIR:-${REPO_ROOT}}" 2>/dev/null && pwd)" || {
+  echo "Erreur : répertoire de pile introuvable." >&2; exit 1; }
+cd "${TARGET_DIR}"
+
+ENV_FILE="${ENV_FILE:-${TARGET_DIR}/.env}"
+[ -f "${ENV_FILE}" ] || { echo "Erreur : ${ENV_FILE} absent." >&2; exit 1; }
 
 # Toutes les commandes passent par cette fonction : elle fixe le fichier
 # compose et le fichier d'environnement, donc le PROJET visé. Sans cela, une
@@ -72,20 +87,89 @@ POSTGRESQL_DB="$(env_get POSTGRESQL_DB zammad_production)"
 POSTGRESQL_USER="$(env_get POSTGRESQL_USER zammad)"
 NGINX_PORT="$(env_get NGINX_PORT 8080)"
 
+function env_get_at {
+  local dir="$1" key="$2" default="${3:-}" value
+  [ -f "${dir}/.env" ] || { printf '%s' "${default}"; return; }
+  value="$(grep -E "^[[:space:]]*${key}=" "${dir}/.env" | tail -n1 | cut -d= -f2-)"
+  value="${value%\"}"; value="${value#\"}"
+  value="${value%\'}"; value="${value#\'}"
+  printf '%s' "${value:-${default}}"
+}
+
+# Le nom de projet RÉELLEMENT résolu par Compose, seul à faire foi : c'est lui
+# qui préfixe les volumes. Deux piles qui le partageraient partageraient leurs
+# données, quelles que soient les intentions de l'appelant.
+function project_name_at {
+  (cd "$1" && docker compose --env-file "$1/.env" config --format json 2>/dev/null \
+    | python3 -c 'import json,sys; print(json.load(sys.stdin)["name"])' 2>/dev/null) || printf ''
+}
+
+function refuse {
+  echo >&2
+  echo "REFUS — $1" >&2
+  echo >&2
+  echo "  Pile visée : ${TARGET_DIR}" >&2
+  exit 1
+}
+
+TARGET_ENVIRONMENT="$(env_get ODICE_ENVIRONMENT)"
+TARGET_PROJECT="$(project_name_at "${TARGET_DIR}")"
+
+# ── Garde-fous ───────────────────────────────────────────────────────────────
+#
+# Ils ne remplacent pas la confirmation : ils la rendent superflue. On tape
+# « oui » par réflexe, surtout la dixième fois ; ces contrôles-là, non. Chacun
+# est bloquant, et `--yes` n'en saute aucun — il ne saute que la saisie.
+#
+# Le premier est le seul qui compte vraiment : une restauration ne doit JAMAIS
+# pouvoir atteindre la production, quelle que soit la faute de frappe.
+[ "${TARGET_ENVIRONMENT}" != 'production' ] \
+  || refuse "cette pile se déclare « production » (ODICE_ENVIRONMENT)."
+
+[ -n "${TARGET_ENVIRONMENT}" ] \
+  || refuse "cette pile ne déclare aucun ODICE_ENVIRONMENT — impossible de savoir où l'on est."
+
+[ -n "${TARGET_PROJECT}" ] \
+  || refuse "Compose ne résout aucun nom de projet ici."
+
+if [ -n "${SOURCE_DIR}" ]; then
+  SOURCE_DIR="$(cd "${SOURCE_DIR}" && pwd)"
+  SOURCE_PROJECT="$(project_name_at "${SOURCE_DIR}")"
+
+  [ "${SOURCE_DIR}" != "${TARGET_DIR}" ] \
+    || refuse "la source et la destination sont la même pile."
+  [ "${SOURCE_PROJECT}" != "${TARGET_PROJECT}" ] \
+    || refuse "source et destination partagent le projet Compose « ${TARGET_PROJECT} » — donc les mêmes volumes."
+  [ "$(env_get_at "${SOURCE_DIR}" ZAMMAD_FQDN)" != "$(env_get ZAMMAD_FQDN)" ] \
+    || refuse "source et destination portent le même ZAMMAD_FQDN."
+fi
+
+if [ "${SANDBOX}" = true ]; then
+  [ -n "$(env_get ODICE_SANDBOX_FQDN)" ] \
+    || refuse "ODICE_SANDBOX_FQDN n'est pas renseigné : la copie garderait l'adresse de l'instance d'origine."
+fi
+
 cat <<WARN
 
   ┌──────────────────────────────────────────────────────────────────────┐
-  │  Cette opération DÉTRUIT la base locale (DROP SCHEMA PUBLIC CASCADE) │
-  │  et la remplace par la copie de production.                          │
+  │  Cette opération DÉTRUIT la base de la pile visée                     │
+  │  (DROP SCHEMA PUBLIC CASCADE) et la remplace par la copie fournie.    │
   └──────────────────────────────────────────────────────────────────────┘
 
-  Base      : ${DB_FILE}
-  Fichiers  : ${FILES_FILE:-aucun (pièces jointes supposées en base)}
-  Cible     : projet compose « odice-ticketing », base ${POSTGRESQL_DB}
+  Base        : ${DB_FILE}
+  Fichiers    : ${FILES_FILE:-aucun (pièces jointes supposées en base)}
+  Pile        : ${TARGET_DIR}
+  Projet      : ${TARGET_PROJECT}
+  Environnement : ${TARGET_ENVIRONMENT}
+  Base cible  : ${POSTGRESQL_DB}
+  Adresse après neutralisation : $(env_get ODICE_SANDBOX_FQDN '<inchangée>')
 
 WARN
-read -r -p "  Taper « oui » pour continuer : " CONFIRM
-[ "${CONFIRM}" = "oui" ] || { echo "Annulé."; exit 1; }
+
+if [ "${ASSUME_YES}" != true ]; then
+  read -r -p "  Taper « oui » pour continuer : " CONFIRM
+  [ "${CONFIRM}" = "oui" ] || { echo "Annulé."; exit 1; }
+fi
 
 echo
 echo "== 1/5 — Démarrage de PostgreSQL"
@@ -129,7 +213,20 @@ echo "== 4/5 — Restauration, puis migrations vers cette version de Zammad"
 # contiendraient des lignes d'erreur — ou un « Restore completed » — qui
 # fausseraient la détection ci-dessous.
 SINCE="$(date -u +'%Y-%m-%dT%H:%M:%S')"
-dc up -d
+
+# Démarrage ÉTAGÉ, et c'est le point le plus important de ce script.
+#
+# Un `dc up -d` global lancerait aussi `zammad-scheduler` — sur une base qui est,
+# à cet instant précis, une copie intégrale de la production avec ses canaux
+# e-mail ACTIFS. Pendant les minutes qui séparent la restauration de la
+# neutralisation, la copie relèverait les vraies boîtes de l'assistance (en y
+# marquant les messages comme lus), enverrait de vrais accusés de réception à de
+# vrais clients, et déclencherait les relances automatiques.
+#
+# On ne démarre donc que ce qui restaure et migre. Le reste attend que
+# `odice:sandbox` soit passé ET vérifié.
+dc up -d zammad-redis zammad-memcached zammad-elasticsearch
+dc up -d zammad-backup
 
 # Le service porte `restart: unless-stopped` : un échec de restauration ne
 # l'arrête pas, il le relance en boucle. On surveille donc le contenu des
@@ -161,8 +258,14 @@ while true; do
 done
 echo
 
-echo "   restauration terminée, attente des migrations…"
-until dc exec -T zammad-railsserver \
+echo "   restauration terminée, migrations…"
+# `zammad-init` porte les migrations ; il attend de lui-même la fin de la
+# restauration (`check_no_restore_running`).
+dc up -d zammad-init
+
+# `run --rm --no-deps` et non `exec` : le serveur applicatif ne tourne pas encore,
+# et c'est précisément ce qu'on veut à ce stade.
+until dc run --rm --no-deps zammad-railsserver \
         bundle exec rails r 'ActiveRecord::Migration.check_all_pending!' >/dev/null 2>&1; do
   echo "   migrations en cours…"; sleep 5
 done
@@ -176,7 +279,7 @@ echo "== 5/5 — Neutralisation et rebranding de la copie"
 # `run --no-deps` plutôt que `exec` : l'entrypoint retombe sur `exec "$@"` pour
 # une commande non reconnue (bin/docker-entrypoint), et les services nécessaires
 # tournent déjà.
-RAKE_MOUNT="$(pwd)/lib/tasks/odice:/opt/zammad/lib/tasks/odice:ro"
+RAKE_MOUNT="${REPO_ROOT}/lib/tasks/odice:/opt/zammad/lib/tasks/odice:ro"
 
 # La base restaurée écrase les réglages de marque : product_logo, product_name et
 # locale_default proviennent désormais de l'instance source. Il faut les réappliquer.
@@ -195,6 +298,40 @@ if [ "${SANDBOX}" = true ]; then
 else
   echo "   --keep-channels : canaux et automatisations laissés ACTIFS (dangereux hors production)."
 fi
+
+# ── Post-conditions ──────────────────────────────────────────────────────────
+#
+# Vérifiées, jamais supposées. Si la neutralisation n'a pas produit son effet,
+# la pile reste ÉTEINTE : une recette éteinte n'a aucune conséquence, une
+# recette qui écrit aux clients en a.
+if [ "${SANDBOX}" = true ]; then
+  echo
+  echo "== Vérification avant d'ouvrir la pile"
+  if ! dc run --rm --no-deps -v "${RAKE_MOUNT}" zammad-railsserver bundle exec rails r '
+    errors = []
+    errors << "canaux encore actifs (#{Channel.where(active: true).count})"     if Channel.where(active: true).any?
+    errors << "déclencheurs encore actifs (#{Trigger.where(active: true).count})" if Trigger.where(active: true).any?
+    errors << "automatisations encore actives (#{Job.where(active: true).count})" if Job.where(active: true).any?
+    expected = ENV["ODICE_SANDBOX_FQDN"].to_s
+    errors << "fqdn = #{Setting.get("fqdn")} au lieu de #{expected}" if expected.present? && Setting.get("fqdn") != expected
+    abort("ÉCHEC : #{errors.join(" ; ")}") if errors.any?
+    puts "  canaux, déclencheurs et automatisations coupés ; adresse réécrite."
+  ' -e ODICE_SANDBOX_FQDN="$(env_get ODICE_SANDBOX_FQDN)"; then
+    cat >&2 <<FAIL
+
+REFUS d'ouvrir la pile : la neutralisation n'a pas produit son effet.
+
+La base restaurée est une copie de production et ses canaux pourraient être
+actifs. La pile reste volontairement éteinte. Corrigez, puis relancez ce
+script — ne la démarrez pas à la main.
+FAIL
+    exit 1
+  fi
+fi
+
+echo
+echo "== Démarrage du reste de la pile"
+dc up -d
 
 echo
 echo "Restauration terminée."
