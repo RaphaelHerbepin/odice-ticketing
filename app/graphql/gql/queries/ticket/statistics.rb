@@ -19,6 +19,9 @@ module Gql::Queries
     # Interpolated into no SQL directly, but the axis NAME designates a column:
     # the service resolves every entry against the Axes whitelist and refuses
     # anything else. See Service::Ticket::Statistics::AxisFilter.
+    # Opt-in: the comparison costs a second pass of the headline aggregates, and
+    # the views that do not display an evolution should not pay for it.
+    argument :compare, Boolean, required: false, default_value: false, description: 'Also compute the same figures over the preceding period'
     argument :axis_filters, [Gql::Types::Input::Ticket::Statistics::AxisFilterInputType], required: false, description: 'Restrict to tickets matching these business axis values'
 
     type Gql::Types::Ticket::StatisticsType, null: false
@@ -29,10 +32,10 @@ module Gql::Queries
       ctx.current_user.permissions?('ticket.agent')
     end
 
-    def resolve(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil, interval: nil, axis_filters: nil)
+    def resolve(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil, interval: nil, axis_filters: nil, compare: false)
       Service::Ticket::Statistics
         .with_current_user(context.current_user)
-        .execute(from:, to:, group_ids:, organization_ids:, axes:, interval:, axis_filters: axis_filters&.map(&:to_h))
+        .execute(from:, to:, group_ids:, organization_ids:, axes:, interval:, compare:, axis_filters: axis_filters&.map(&:to_h))
     end
   end
 end

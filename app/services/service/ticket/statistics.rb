@@ -32,13 +32,14 @@ class Service::Ticket::Statistics < Service::Base
 
   attr_reader :interval
 
-  def initialize(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil, interval: nil, axis_filters: nil)
+  def initialize(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil, interval: nil, axis_filters: nil, compare: false)
     @from             = from || 30.days.ago.beginning_of_day
     @to               = to || Time.zone.now.end_of_day
     @group_ids        = group_ids.presence
     @organization_ids = organization_ids.presence
     @axes             = Array(axes).presence
     @axis_filters     = axis_filters
+    @compare          = compare
     @interval         = INTERVALS.key?(interval.to_s) ? interval.to_s : auto_interval
   end
 
@@ -46,6 +47,7 @@ class Service::Ticket::Statistics < Service::Base
     {
       period:           { from:, to:, interval: },
       totals:           totals,
+      comparison:       comparison,
       by_group:         count_by(:group_id, ::Group),
       by_organization:  count_by(:organization_id, ::Organization),
       by_state:         count_by(:state_id, ::Ticket::State),
@@ -78,6 +80,33 @@ class Service::Ticket::Statistics < Service::Base
 
   def totals_service
     @totals_service ||= Service::Ticket::Statistics::Totals.new(scope: stats_scope)
+  end
+
+  # Les mêmes chiffres sur la période immédiatement précédente, de même durée.
+  #
+  # Les bornes sont inclusives des deux côtés : la période précédente s'arrête
+  # donc une seconde avant `from`, sans quoi cet instant appartiendrait aux deux
+  # fenêtres et un ticket créé pile à la bascule serait compté deux fois.
+  #
+  # Un décalage de durée fixe, et non le mois calendaire précédent : « le mois
+  # dernier » n'est défini que pour une période qui est justement un mois, et
+  # tenter de le deviner marcherait pour septembre en ratant « les 30 derniers
+  # jours ». Les bornes retenues sont renvoyées, et l'interface les affiche.
+  def comparison
+    return unless @compare
+
+    previous_to   = from - 1.second
+    previous_from = previous_to - (to - from)
+
+    previous_scope = Service::Ticket::Statistics::Scope.new(
+      current_user:, from: previous_from, to: previous_to,
+      group_ids:, organization_ids:, axis_filters: @axis_filters,
+    )
+
+    Service::Ticket::Statistics::Totals
+      .new(scope: previous_scope)
+      .comparable
+      .merge(from: previous_from, to: previous_to)
   end
 
   # Agrégation générique sur une colonne de clé étrangère, résolue en libellés.

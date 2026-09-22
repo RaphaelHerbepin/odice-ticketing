@@ -4004,6 +4004,7 @@ export type QueriesTicketSharedDraftZoomShowArgs = {
 export type QueriesTicketStatisticsArgs = {
   axes?: InputMaybe<Array<Scalars['String']['input']>>;
   axisFilters?: InputMaybe<Array<TicketStatisticsAxisFilterInput>>;
+  compare?: InputMaybe<Scalars['Boolean']['input']>;
   from?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   interval?: InputMaybe<Scalars['String']['input']>;
@@ -5714,6 +5715,8 @@ export type TicketStatistics = {
   byPriority: Array<TicketStatisticsBucket>;
   /** Ticket count per state */
   byState: Array<TicketStatisticsBucket>;
+  /** Same figures over the preceding period; null unless `compare` was requested */
+  comparison?: Maybe<TicketStatisticsComparison>;
   /** Period analysed and the time step actually used */
   period: TicketStatisticsPeriod;
   /** Headline figures */
@@ -5808,6 +5811,23 @@ export type TicketStatisticsBucket = {
   id: Scalars['Int']['output'];
   /** Human readable label of the grouped record */
   label: Scalars['String']['output'];
+};
+
+/** The same figures over the immediately preceding period of equal length */
+export type TicketStatisticsComparison = {
+  __typename?: 'TicketStatisticsComparison';
+  averageCloseMinutes?: Maybe<Scalars['Float']['output']>;
+  averageFirstResponseMinutes?: Maybe<Scalars['Float']['output']>;
+  closeInTimePercent?: Maybe<Scalars['Float']['output']>;
+  firstResponseInTimePercent?: Maybe<Scalars['Float']['output']>;
+  /** Start of the preceding period */
+  from: Scalars['ISO8601DateTime']['output'];
+  timeCoveragePercent?: Maybe<Scalars['Float']['output']>;
+  timeLoggedMinutes?: Maybe<Scalars['Float']['output']>;
+  /** End of the preceding period */
+  to: Scalars['ISO8601DateTime']['output'];
+  /** Tickets created in the preceding period */
+  total: Scalars['Int']['output'];
 };
 
 /** The period analysed, and the time step the server actually applied */

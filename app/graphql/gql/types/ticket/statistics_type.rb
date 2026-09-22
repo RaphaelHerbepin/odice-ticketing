@@ -6,6 +6,7 @@ module Gql::Types::Ticket
 
     field :period, Gql::Types::Ticket::Statistics::PeriodType, null: false, description: 'Period analysed and the time step actually used'
     field :totals, Gql::Types::Ticket::Statistics::TotalsType, null: false, description: 'Headline figures'
+    field :comparison, Gql::Types::Ticket::Statistics::ComparisonType, null: true, description: 'Same figures over the preceding period; null unless `compare` was requested'
 
     field :by_group, [Gql::Types::Ticket::Statistics::BucketType], null: false, description: 'Ticket count per group (service)'
     field :by_organization, [Gql::Types::Ticket::Statistics::BucketType], null: false, description: 'Ticket count per organization'

@@ -6,7 +6,7 @@ import * as VueCompositionApi from 'vue';
 export type ReactiveFunction<TParam> = () => TParam;
 
 export const TicketStatisticsDocument = gql`
-    query ticketStatistics($from: ISO8601DateTime, $to: ISO8601DateTime, $groupIds: [ID!], $organizationIds: [ID!], $axes: [String!], $interval: String, $axisFilters: [TicketStatisticsAxisFilterInput!]) {
+    query ticketStatistics($from: ISO8601DateTime, $to: ISO8601DateTime, $groupIds: [ID!], $organizationIds: [ID!], $axes: [String!], $interval: String, $axisFilters: [TicketStatisticsAxisFilterInput!], $compare: Boolean) {
   ticketStatistics(
     from: $from
     to: $to
@@ -15,6 +15,7 @@ export const TicketStatisticsDocument = gql`
     axes: $axes
     interval: $interval
     axisFilters: $axisFilters
+    compare: $compare
   ) {
     period {
       from
@@ -26,6 +27,17 @@ export const TicketStatisticsDocument = gql`
       open
       closed
       escalated
+      averageFirstResponseMinutes
+      averageCloseMinutes
+      firstResponseInTimePercent
+      closeInTimePercent
+      timeLoggedMinutes
+      timeCoveragePercent
+    }
+    comparison {
+      from
+      to
+      total
       averageFirstResponseMinutes
       averageCloseMinutes
       firstResponseInTimePercent

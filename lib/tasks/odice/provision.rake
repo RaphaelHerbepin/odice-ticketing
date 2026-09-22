@@ -80,6 +80,11 @@
       'Remove the filter %s: %s'    => 'Retirer le filtre %s : %s',
       'This address filters on a field that no longer exists (%s); that filter is ignored.' =>
         'Cette adresse filtre sur un champ qui n’existe plus (%s) ; ce filtre est ignoré.',
+      # Comparaison avec la période précédente.
+      'no change'                   => 'stable',
+      'none over the preceding period' => 'aucun sur la période précédente',
+      'pts'                         => 'pts',
+      'vs'                          => 'vs',
       'No ticket has an owner yet: assign tickets to agents for this table to fill in.' =>
         'Aucun ticket n’a encore de propriétaire : attribuez-en aux agents pour que ce tableau se remplisse.',
     }.each do |source, target|

@@ -3,12 +3,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import { i18n } from '#shared/i18n/index.ts'
 import { useLocaleStore } from '#shared/stores/locale.ts'
 
 import LayoutContent from '#desktop/components/layout/LayoutContent.vue'
 import StatisticsChart from '#desktop/pages/statistics/components/StatisticsChart.vue'
 import StatisticsPanel from '#desktop/pages/statistics/components/StatisticsPanel.vue'
 import StatisticsToolbar from '#desktop/pages/statistics/components/StatisticsToolbar.vue'
+import StatisticsTrend from '#desktop/pages/statistics/components/StatisticsTrend.vue'
 import { useStatisticsAxes } from '#desktop/pages/statistics/composables/useStatisticsAxes.ts'
 import {
   accentColor,
@@ -19,6 +21,7 @@ import { useStatisticsFilters } from '#desktop/pages/statistics/composables/useS
 import { useStatisticsFormat } from '#desktop/pages/statistics/composables/useStatisticsFormat.ts'
 import { useStatisticsPeriod } from '#desktop/pages/statistics/composables/useStatisticsPeriod.ts'
 import { useStatisticsTabs } from '#desktop/pages/statistics/composables/useStatisticsTabs.ts'
+import { computeTrend } from '#desktop/pages/statistics/composables/useStatisticsTrend.ts'
 import { useTicketStatisticsQuery } from '#desktop/pages/statistics/graphql/queries/ticketStatistics.api.ts'
 
 const { tabs, activeTab } = useStatisticsTabs()
@@ -28,36 +31,95 @@ const { filterVariables } = useStatisticsFilters(axes)
 const { formatNumber, formatDuration, formatPercent } = useStatisticsFormat()
 const locale = useLocaleStore()
 
-const queryVariables = computed(() => ({ ...seriesVariables.value, ...filterVariables.value }))
+const queryVariables = computed(() => ({
+  ...seriesVariables.value,
+  ...filterVariables.value,
+  compare: true,
+}))
 
 const { result, loading } = useTicketStatisticsQuery(queryVariables)
 const statistics = computed(() => result.value?.ticketStatistics)
 const totals = computed(() => statistics.value?.totals)
 
+const comparison = computed(() => statistics.value?.comparison)
+
+/* Le libellé de la période de référence vient des bornes que le SERVEUR a
+   réellement interrogées. Les recalculer ici les placerait à quelques secondes
+   près, et la carte nommerait une période qui n'est pas celle mesurée. */
+const periodLabel = computed(() => {
+  if (!comparison.value) return ''
+  const from = new Date(comparison.value.from)
+  const to = new Date(comparison.value.to)
+  const format = new Intl.DateTimeFormat(locale.localeData?.locale, {
+    day: '2-digit',
+    month: '2-digit',
+  })
+  return `${i18n.t('vs')} ${format.format(from)} – ${format.format(to)}`
+})
+
+/* Le sens de lecture vit ici, à côté du libellé et du formateur de chaque
+   métrique : c'est une propriété de la grandeur, identique sur toute
+   instance. Le porter côté serveur imposerait d'inventer une API de
+   descripteurs plus grosse que la fonctionnalité.
+
+   `open`, `closed` et `escalated` n'ont volontairement pas d'évolution : ce
+   sont des états observés aujourd'hui sur une cohorte de création, et le
+   serveur refuse d'ailleurs de les comparer. */
 const headline = computed(() => [
-  { key: 'total', label: __('Tickets created'), value: formatNumber(totals.value?.total) },
-  { key: 'open', label: __('Still open'), value: formatNumber(totals.value?.open) },
-  { key: 'closed', label: __('Closed'), value: formatNumber(totals.value?.closed) },
-  { key: 'escalated', label: __('Escalated'), value: formatNumber(totals.value?.escalated) },
+  {
+    key: 'total',
+    label: __('Tickets created'),
+    value: formatNumber(totals.value?.total),
+    trend: computeTrend(totals.value?.total, comparison.value?.total, {
+      direction: 'neutral',
+      unit: 'count',
+    }),
+  },
+  { key: 'open', label: __('Still open'), value: formatNumber(totals.value?.open), trend: null },
+  { key: 'closed', label: __('Closed'), value: formatNumber(totals.value?.closed), trend: null },
+  {
+    key: 'escalated',
+    label: __('Escalated'),
+    value: formatNumber(totals.value?.escalated),
+    trend: null,
+  },
   {
     key: 'first',
     label: __('Average first response'),
     value: formatDuration(totals.value?.averageFirstResponseMinutes),
+    trend: computeTrend(
+      totals.value?.averageFirstResponseMinutes,
+      comparison.value?.averageFirstResponseMinutes,
+      { direction: 'down-is-good', unit: 'duration' },
+    ),
   },
   {
     key: 'close',
     label: __('Average time to close'),
     value: formatDuration(totals.value?.averageCloseMinutes),
+    trend: computeTrend(totals.value?.averageCloseMinutes, comparison.value?.averageCloseMinutes, {
+      direction: 'down-is-good',
+      unit: 'duration',
+    }),
   },
   {
     key: 'firstPct',
     label: __('First response in time'),
     value: formatPercent(totals.value?.firstResponseInTimePercent),
+    trend: computeTrend(
+      totals.value?.firstResponseInTimePercent,
+      comparison.value?.firstResponseInTimePercent,
+      { direction: 'up-is-good', unit: 'percent' },
+    ),
   },
   {
     key: 'closePct',
     label: __('Closed in time'),
     value: formatPercent(totals.value?.closeInTimePercent),
+    trend: computeTrend(totals.value?.closeInTimePercent, comparison.value?.closeInTimePercent, {
+      direction: 'up-is-good',
+      unit: 'percent',
+    }),
   },
 ])
 
@@ -129,6 +191,7 @@ const breakdowns = computed(() => [
           <div class="mt-1 text-2xl font-semibold text-gray-100 dark:text-neutral-400">
             {{ item.value }}
           </div>
+          <StatisticsTrend :trend="item.trend" :period-label="periodLabel" />
         </div>
 
         <div
