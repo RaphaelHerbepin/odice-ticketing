@@ -171,6 +171,77 @@ namespace :odice do
       puts "  mode d'affichage : #{aligned} compte(s) sans préférence alignés sur « #{theme} »"
     end
 
+    # 6. Relance des tickets sans activité.
+    #
+    #    Configuration pure : aucune ligne de code métier. Le scheduler Zammad
+    #    évalue les automatisations toutes les cinq minutes, et le `timeplan`
+    #    en restreint l'exécution — ici une fois par matin ouvré.
+    #
+    #    Trois choix méritent d'être explicités :
+    #
+    #    - la catégorie `work_on` (« new » et « open ») et NON « tout ce qui
+    #      n'est pas clos » : « pending reminder » et « pending close » sont des
+    #      mises en attente VOLONTAIRES, où l'agent a programmé une échéance.
+    #      Les relancer contredirait sa décision et produirait le bruit qui fait
+    #      désactiver ce genre de rappel au bout de deux semaines ;
+    #
+    #    - l'exclusion du propriétaire système (1) : sans elle, l'automatisation
+    #      cible des tickets sans propriétaire, la liste de destinataires est
+    #      vide, aucun article n'est créé — donc `updated_at` ne bouge pas et le
+    #      ticket reste éligible indéfiniment, réévalué à chaque passage ;
+    #
+    #    - une seule action, la notification. Elle crée un article, dont le
+    #      callback remet `updated_at` à jour : le ticket sort de la condition
+    #      et n'y revient que trois jours plus tard. La relance ne boucle donc
+    #      pas, et se répète d'elle-même au bon rythme. Y ajouter une note
+    #      produirait deux articles pour un seul effet.
+    job_name = 'Odice — relance de l’agent après 3 jours sans activité'
+    if ::Job.find_by(name: job_name).nil?
+      ::Job.create!(
+        name:      job_name,
+        object:    'Ticket',
+        active:    true,
+        note:      'Provisionné par Odice. Vous pouvez le modifier ou le désactiver : ' \
+                   'les déploiements suivants ne le réécriront pas.',
+        condition: {
+          'ticket.state_id'   => { 'operator' => 'is', 'value' => ::Ticket::State.by_category_ids(:work_on).map(&:to_s) },
+          'ticket.owner_id'   => { 'operator' => 'is not', 'value' => ['1'] },
+          'ticket.updated_at' => { 'operator' => 'before (relative)', 'value' => '3', 'range' => 'day' },
+        },
+        perform:   {
+          'notification.email' => {
+            'recipient' => ['ticket_owner'],
+            'internal'  => 'true',
+            'subject'   => 'Relance : ticket #{ticket.title} sans activité depuis 3 jours',
+            # Heredoc NON interpolant : les #{...} sont des marqueurs Zammad,
+            # résolus à l'envoi par NotificationFactory. Un heredoc ordinaire
+            # les ferait évaluer par Ruby ici même, au provisionnement.
+            'body'      => <<~'BODY',
+              <div>Bonjour #{ticket.owner.firstname},</div>
+              <br>
+              <div>Le ticket <b>##{ticket.number}</b> — #{ticket.title} — n'a pas évolué
+              depuis trois jours.</div>
+              <br>
+              <div>État actuel : #{ticket.state.name}<br>
+              Client : #{ticket.customer.fullname}</div>
+              <br>
+              <div><a href="#{config.http_type}://#{config.fqdn}/#ticket/zoom/#{ticket.id}">Ouvrir le ticket</a></div>
+            BODY
+          },
+        },
+        timeplan:  {
+          'days'    => { 'Mon' => true, 'Tue' => true, 'Wed' => true, 'Thu' => true,
+                         'Fri' => true, 'Sat' => false, 'Sun' => false },
+          # Une seule heure : 8 h, dans le fuseau `timezone_default` posé plus haut.
+          'hours'   => (0..23).index_with { |hour| hour == 8 },
+          'minutes' => { 0 => true, 10 => false, 20 => false, 30 => false, 40 => false, 50 => false },
+        },
+      )
+      puts "  automatisation de relance créée : #{job_name}"
+    else
+      puts '  automatisation de relance : déjà présente, laissée telle quelle.'
+    end
+
     # 6. Logo produit : stocké EN BASE via Store, pas dans l'image.
     #    `public/assets/images/logo.svg` n'est que le repli.
     if (logo_path = ENV['ODICE_LOGO_PATH'].presence)

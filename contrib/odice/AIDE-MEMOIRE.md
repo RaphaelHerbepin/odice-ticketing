@@ -164,6 +164,26 @@ mot de passe administrateur.
 
 ---
 
+## Relances automatiques
+
+Une automatisation est provisionnée : **rappel au propriétaire d'un ticket sans
+activité depuis 3 jours**, les matins ouvrés à 8 h. Elle ne touche que les états
+`new` et `open` — les mises en attente volontaires (« pending reminder »,
+« pending close ») sont délibérément épargnées, sinon le rappel contredirait la
+décision de l'agent.
+
+Elle se trouve dans Administration → Automatisation, sous
+« Odice — relance de l'agent après 3 jours sans activité ». **Vous pouvez la
+modifier ou la désactiver librement** : le provisionnement ne la réécrit pas, il
+se contente de la créer si elle a disparu.
+
+> **Un ticket sans propriétaire ne déclenche aucune relance.** C'est
+> intentionnel : sans destinataire, la notification ne partirait pas, le ticket
+> resterait éligible indéfiniment et serait réévalué à chaque passage. Si vos
+> tickets restent non assignés, c'est cette absence d'affectation qu'il faut
+> traiter — au besoin par une seconde automatisation notifiant tous les agents
+> du groupe.
+
 ## Réparer
 
 **Le logo ou le nom du produit a disparu** — ils vivent dans la table
