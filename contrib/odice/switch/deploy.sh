@@ -85,7 +85,7 @@ env_set "${VAR_REPO}" "${REPO}"
 env_set "${VAR_TAG}" "${TAG}"
 dc up -d
 
-wait_for_http "http://127.0.0.1:$(env_get NGINX_PORT 8080)/api/v1/getting_started" 600 || {
+wait_for_http "${HEALTH_URL}" 600 || {
   echo 'La pile ne répond pas. Journaux de zammad-init :' >&2
   dc logs --tail 40 zammad-init >&2
   exit 1

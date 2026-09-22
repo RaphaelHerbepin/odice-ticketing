@@ -26,7 +26,13 @@ cd "${COMPOSE_DIR}"
 # Le nom des variables d'image diffère selon la pile : zammad-docker-compose
 # utilise IMAGE_REPO/VERSION, la pile de ce dépôt ODICE_IMAGE_REPO/ODICE_IMAGE_TAG.
 # On le déduit du compose plutôt que de le demander.
-if grep -q 'IMAGE_REPO' "${COMPOSE_DIR}/docker-compose.yml" 2>/dev/null; then
+#
+# Le motif cherche « ${IMAGE_REPO » et non « IMAGE_REPO » : ce dernier est une
+# sous-chaîne d'ODICE_IMAGE_REPO, et la pile de ce dépôt était donc reconnue à
+# tort comme un zammad-docker-compose. Les scripts y écrivaient alors IMAGE_REPO
+# et VERSION — deux variables que son compose n'utilise pas — puis annonçaient
+# un succès sans que l'image ait changé.
+if grep -q '${IMAGE_REPO' "${COMPOSE_DIR}/docker-compose.yml" 2>/dev/null; then
   VAR_REPO='IMAGE_REPO'; VAR_TAG='VERSION'; PILE='zammad-docker-compose'
 else
   VAR_REPO='ODICE_IMAGE_REPO'; VAR_TAG='ODICE_IMAGE_TAG'; PILE='odice-ticketing'
@@ -55,6 +61,59 @@ function env_set {
 }
 
 function dc { docker compose --env-file "${ENV_FILE}" "$@"; }
+
+# Lit une variable dans le .env d'une AUTRE pile que celle qu'on pilote.
+# Indispensable aux garde-fous : comparer deux environnements suppose de lire
+# chez les deux, sans se déplacer ni changer d'ENV_FILE.
+function env_get_at {
+  local dir="$1" key="$2" default="${3:-}" value
+  [ -f "${dir}/.env" ] || { printf '%s' "${default}"; return; }
+  value="$(grep -E "^[[:space:]]*${key}=" "${dir}/.env" | tail -n1 | cut -d= -f2-)"
+  value="${value%\"}"; value="${value#\"}"
+  value="${value%\'}"; value="${value#\'}"
+  printf '%s' "${value:-${default}}"
+}
+
+# Le nom de projet RÉELLEMENT résolu par Compose, et non celui qu'on suppose.
+# Il dépend de COMPOSE_PROJECT_NAME, d'un `name:` dans le compose, ou à défaut
+# du nom du répertoire — trois sources qu'on ne peut pas deviner de l'extérieur.
+# C'est lui qui préfixe les volumes : deux piles qui le partageraient
+# partageraient leurs données.
+function project_name {
+  local dir="${1:-${COMPOSE_DIR}}"
+  (cd "${dir}" && docker compose --env-file "${dir}/.env" config --format json 2>/dev/null \
+    | python3 -c 'import json,sys; print(json.load(sys.stdin)["name"])' 2>/dev/null) || printf ''
+}
+
+# Refuse d'agir si la pile visée n'est pas l'environnement attendu.
+#
+# L'environnement est une propriété de l'EMPLACEMENT, jamais un argument : une
+# commande dangereuse doit le lire dans sa cible, pas le recevoir de l'appelant.
+# Un `--dir` mal tapé ne doit pas pouvoir devenir une opération sur la
+# production.
+function require_environment {
+  local expected="$1" dir="${2:-${COMPOSE_DIR}}" actual
+  actual="$(env_get_at "${dir}" ODICE_ENVIRONMENT)"
+
+  if [ "${actual}" != "${expected}" ]; then
+    cat >&2 <<FAIL
+Erreur : environnement inattendu.
+
+  Répertoire visé : ${dir}
+  Attendu         : ODICE_ENVIRONMENT=${expected}
+  Trouvé          : ${actual:-<non renseigné>}
+
+Posez ODICE_ENVIRONMENT dans le .env de cette pile, ou corrigez --dir.
+FAIL
+    exit 1
+  fi
+}
+
+# URL de contrôle de santé. NGINX_PORT est le port INTERNE du conteneur nginx ;
+# s'en servir comme port hôte ne marche que si la pile le publie tel quel, ce
+# qui n'est le cas que de la production. Une pile qui publie ailleurs — ou sur
+# la boucle locale seulement — renseigne ODICE_HEALTH_URL.
+HEALTH_URL="$(env_get ODICE_HEALTH_URL "http://127.0.0.1:$(env_get NGINX_PORT 8080)/api/v1/getting_started")"
 
 PG_USER="$(env_get POSTGRESQL_USER "$(env_get POSTGRES_USER zammad)")"
 PG_DB="$(env_get POSTGRESQL_DB "$(env_get POSTGRES_DB zammad_production)")"
