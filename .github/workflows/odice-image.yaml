@@ -29,7 +29,7 @@ jobs:
   # sept minutes — donc EN PARALLÈLE du build, sans allonger le délai.
   #
   # Ce que ces contrôles n'attraperont pas : une régression purement visuelle.
-  # C'est le rôle de la recette, qu'on regarde avant de poser une étiquette.
+  # C'est le rôle du staging, qu'on regarde avant de poser une étiquette.
   checks:
     runs-on: ubuntu-24.04
     steps:
@@ -139,14 +139,14 @@ jobs:
   # et passe par odice-release.yaml.
   #
   # Volontairement `needs: build` seul, et non `needs: [build, checks]` : la
-  # recette sert justement à regarder ce qui vient d'être écrit, y compris quand
+  # staging sert justement à regarder ce qui vient d'être écrit, y compris quand
   # un contrôle échoue. La barrière est sur le chemin de la production.
   deploy:
     needs: build
     runs-on: ubuntu-24.04
     environment: staging
     steps:
-      - name: Déployer sur la recette
+      - name: Déployer sur le staging
         env:
           DEPLOY_HOST: ${{ secrets.ODICE_DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.ODICE_DEPLOY_USER }}

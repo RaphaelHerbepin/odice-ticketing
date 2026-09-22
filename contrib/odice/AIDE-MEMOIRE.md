@@ -259,8 +259,8 @@ make logs S=zammad-init
 
 ## Deux environnements
 
-Le déploiement passe désormais par une recette : un push sur `odice/main`
-déploie sur `recette.odice.info`, et seule une étiquette de version part en
+Le déploiement passe désormais par une staging : un push sur `odice/main`
+déploie sur `staging.support.odice.info`, et seule une étiquette de version part en
 production, page de maintenance comprise.
 
 Voir [ENVIRONNEMENTS.md](ENVIRONNEMENTS.md) — installation, rafraîchissement des

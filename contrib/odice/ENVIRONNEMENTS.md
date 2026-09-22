@@ -1,11 +1,11 @@
-# Recette et production
+# Staging et production
 
 Deux instances sur le même serveur, deux chaînes de déploiement distinctes, et
 une page de maintenance pendant les mises en production.
 
-| | production | recette |
+| | production | staging |
 |---|---|---|
-| domaine | `support.odice.info` | `recette.odice.info` |
+| domaine | `support.odice.info` | `staging.support.odice.info` |
 | pile Docker | `/opt/zammad-docker-compose` | `/opt/zammad-staging` |
 | projet Compose | `zammad-docker-compose` | `zammad-staging` |
 | dépôt de pilotage | `/opt/odice-ticketing` | `/opt/odice-ticketing-staging` |
@@ -28,10 +28,10 @@ réflexe, surtout la dixième fois.
 ### Publier une version
 
 ```bash
-git push origin odice/main          # → construit, contrôle, déploie sur la RECETTE
+git push origin odice/main          # → construit, contrôle, déploie sur le STAGING
 ```
 
-Regarder `https://recette.odice.info/`. Quand c'est bon :
+Regarder `https://staging.support.odice.info/`. Quand c'est bon :
 
 ```bash
 git tag -a v1.4.0 -m "Tableau de bord analytique"
@@ -39,14 +39,14 @@ git push origin v1.4.0              # → page de maintenance, puis PRODUCTION
 ```
 
 La production ne reconstruit rien : elle met en service **exactement l'image
-validée en recette**. Reconstruire depuis l'étiquette donnerait une image
+validée en staging**. Reconstruire depuis l'étiquette donnerait une image
 différente — image de base rafraîchie, dépendances flottantes — de celle qu'on a
-regardée, ce qui viderait la recette de son sens.
+regardée, ce qui viderait le staging de son sens.
 
 Une étiquette posée sur un commit absent de `odice/main` est refusée : il ne
-serait jamais passé par la recette.
+serait jamais passé par le staging.
 
-### Recharger la recette avec les données du jour
+### Recharger le staging avec les données du jour
 
 ```bash
 cd /opt/odice-ticketing-staging
@@ -120,11 +120,11 @@ free -g ; df -h /var/lib/docker
 echo 'ODICE_ENVIRONMENT=production' >> /opt/zammad-docker-compose/.env
 docker volume ls | grep zammad-docker-compose
 
-# 3. Créer l'enregistrement DNS recette.odice.info AVANT le premier démarrage :
+# 3. Créer l'enregistrement DNS staging.support.odice.info AVANT le premier démarrage :
 #    acme-companion tente le challenge dès qu'il voit LETSENCRYPT_HOST, et un
 #    échec le met en retrait exponentiel.
 
-# 4. La pile de recette
+# 4. La pile de staging
 git clone https://github.com/zammad/zammad-docker-compose.git /opt/zammad-staging
 git clone git@github.com:RaphaelHerbepin/odice-ticketing.git /opt/odice-ticketing-staging
 cd /opt/odice-ticketing-staging && git checkout odice/main
@@ -151,9 +151,9 @@ sudo apt install iptables-persistent && sudo netfilter-persistent save
 # 8. Premières données, en surveillant le planificateur
 cd /opt/odice-ticketing-staging && make refresh-staging
 
-# 9. Répéter la maintenance SUR LA RECETTE avant de l'essayer en production
+# 9. Répéter la maintenance SUR LE STAGING avant de l'essayer en production
 export ZDC=/opt/zammad-staging
-make maintenance-on && curl -sI https://recette.odice.info/ | head -3
+make maintenance-on && curl -sI https://staging.support.odice.info/ | head -3
 make maintenance-off
 
 # 10. Points d'entrée et clés
@@ -171,19 +171,19 @@ command="/usr/local/sbin/odice-deploy-production",no-port-forwarding,no-agent-fo
 
 Et dans les secrets GitHub : `ODICE_DEPLOY_KEY_STAGING` et
 `ODICE_DEPLOY_KEY_PROD` (clés privées). `ODICE_DEPLOY_KEY` reste en repli tant
-que la recette n'existe pas — **jusque-là, un push déploie donc encore
+que le staging n'existe pas — **jusque-là, un push déploie donc encore
 directement en production.**
 
 ## Deux avertissements
 
-**La recette héberge l'intégralité du fichier client**, sur un sous-domaine
+**Le staging héberge l'intégralité du fichier client**, sur un sous-domaine
 public, avec le SSO coupé et une simple authentification par mot de passe. C'est
 une régression de sécurité par rapport à la production, et une question RGPD.
 Ajouter une authentification HTTP au niveau de nginx-proxy :
 
 ```bash
 docker exec nginx-proxy sh -c 'ls /etc/nginx/htpasswd/'   # retrouver le volume
-htpasswd -c /chemin/du/volume/recette.odice.info odice
+htpasswd -c /chemin/du/volume/staging.support.odice.info odice
 ```
 
 **Ne jamais lancer `docker compose down --remove-orphans` ni `down -v`** — ni

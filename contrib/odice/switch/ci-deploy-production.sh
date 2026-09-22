@@ -9,7 +9,7 @@
 #   command="/usr/local/sbin/odice-deploy-production",no-port-forwarding,…  ssh-ed25519 AAAA…
 #
 # Déclenché par une étiquette de version, jamais par un push : c'est la seule
-# différence de fond avec la recette, et elle tient dans la clé utilisée.
+# différence de fond avec le staging, et elle tient dans la clé utilisée.
 set -o errexit -o nounset -o pipefail
 
 export ENVIRONNEMENT='production'

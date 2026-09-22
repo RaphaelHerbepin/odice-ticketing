@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
 #
-# Odice — recharge la recette avec une copie fraîche de la production.
+# Odice — recharge le staging avec une copie fraîche de la production.
 #
 # Enchaîne l'extraction (vps-pull.sh --local) et la restauration neutralisée
 # (restore-local.sh), sans jamais laisser la copie envoyer quoi que ce soit :
@@ -36,7 +36,7 @@ while [ $# -gt 0 ]; do
 done
 
 [ -n "${SOURCE_DIR}" ] && [ -n "${TARGET_DIR}" ] || {
-  echo "Erreur : --from <pile de production> et --to <pile de recette> sont obligatoires." >&2
+  echo "Erreur : --from <pile de production> et --to <pile de staging> sont obligatoires." >&2
   exit 1
 }
 
@@ -76,13 +76,13 @@ chmod 700 "${EXPORT_ROOT}" "${EXPORT_DIR}"
 
 cat <<INFO
 
-  Rafraîchissement de la recette
+  Rafraîchissement du staging
   ─────────────────────────────
   Source (production) : ${SOURCE_DIR}   [$(env_get_at "${SOURCE_DIR}" ZAMMAD_FQDN)]
-  Cible  (recette)    : ${TARGET_DIR}   [$(env_get_at "${TARGET_DIR}" ZAMMAD_FQDN)]
+  Cible  (staging)    : ${TARGET_DIR}   [$(env_get_at "${TARGET_DIR}" ZAMMAD_FQDN)]
   Export temporaire   : ${EXPORT_DIR}
 
-  La base de la recette sera DÉTRUITE et remplacée.
+  La base du staging sera DÉTRUITE et remplacée.
   La production n'est pas interrompue.
 
 INFO
@@ -97,7 +97,7 @@ echo "== 1/3 — Extraction depuis la production"
 "${REPO_ROOT}/contrib/odice/vps-pull.sh" --local --path "${SOURCE_DIR}" --out "${EXPORT_DIR}"
 
 echo
-echo "== 2/3 — Restauration dans la recette, puis neutralisation"
+echo "== 2/3 — Restauration dans le staging, puis neutralisation"
 # `--source-dir` active les contrôles croisés : projets Compose distincts,
 # adresses distinctes. `--yes` ne saute que la saisie, jamais un garde-fou.
 "${REPO_ROOT}/contrib/odice/restore-local.sh" \
@@ -116,4 +116,4 @@ find "${EXPORT_ROOT}" -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n "+$(( 
     done
 
 echo
-echo "Recette rechargée : https://$(env_get_at "${TARGET_DIR}" ZAMMAD_FQDN)/"
+echo "Staging rechargé : https://$(env_get_at "${TARGET_DIR}" ZAMMAD_FQDN)/"

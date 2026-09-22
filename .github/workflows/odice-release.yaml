@@ -1,9 +1,9 @@
 # Odice — mise en production, déclenchée par une étiquette de version.
 #
 # Rien n'est reconstruit ici. La production met en service EXACTEMENT l'image
-# qui a été validée en recette : reconstruire depuis l'étiquette produirait une
+# qui a été validée en staging : reconstruire depuis l'étiquette produirait une
 # image différente — image de base rafraîchie, dépendances flottantes — de celle
-# qu'on a regardée pendant une semaine, ce qui viderait la recette de son sens.
+# qu'on a regardée pendant une semaine, ce qui viderait le staging de son sens.
 #
 # Poser une étiquette :
 #   git tag -a v1.4.0 -m "Tableau de bord analytique" && git push origin v1.4.0
@@ -68,12 +68,12 @@ jobs:
 
       # Une étiquette posée sur une branche parallèle ne doit pas partir en
       # production : le commit doit appartenir à l'historique de odice/main,
-      # donc être passé par la recette.
+      # donc être passé par le staging.
       - name: Vérifier que le commit est bien passé par la branche
         run: |
           git fetch --quiet origin odice/main
           if ! git merge-base --is-ancestor "${{ github.sha }}" origin/odice/main; then
-            echo "::error::le commit étiqueté n'appartient pas à odice/main — il n'est jamais passé en recette."
+            echo "::error::le commit étiqueté n'appartient pas à odice/main — il n'est jamais passé en staging."
             exit 1
           fi
 
@@ -104,7 +104,7 @@ jobs:
     needs: [checks, promote]
     runs-on: ubuntu-24.04
     # Permet d'exiger une validation manuelle si l'environnement GitHub est
-    # configuré pour, et sépare les secrets de ceux de la recette.
+    # configuré pour, et sépare les secrets de ceux du staging.
     environment: production
     steps:
       - name: Déployer sur la production

@@ -47,7 +47,7 @@ TAG="${SSH_ORIGINAL_COMMAND:-${1:-}}"
 #
 # L'environnement n'apparaît PAS ici, et c'est délibéré : il est codé dans la
 # commande forcée de la clé SSH, donc dans une donnée que l'appelant ne fournit
-# pas. Rien à valider, rien à analyser, et une clé compromise côté recette ne
+# pas. Rien à valider, rien à analyser, et une clé compromise côté staging ne
 # peut pas viser la production.
 if ! printf '%s' "${TAG}" | grep -qE '^[0-9]+\.[0-9]+\.[a-zA-Z0-9]+-[0-9a-f]{8}$'; then
   say "REFUS : tag invalide « ${TAG} »"
@@ -59,7 +59,7 @@ say "déploiement demandé : ${TAG}"
 
 # La pile visée doit se déclarer de l'environnement attendu. Un ZDC mal
 # renseigné dans le point d'entrée ne peut donc pas devenir un déploiement de
-# recette sur la production, ni l'inverse.
+# staging sur la production, ni l'inverse.
 ACTUAL="$(grep -E '^[[:space:]]*ODICE_ENVIRONMENT=' "${ZDC}/.env" 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
 if [ "${ACTUAL}" != "${ENVIRONNEMENT}" ]; then
   say "REFUS : ${ZDC} se déclare « ${ACTUAL:-<absent>} », attendu « ${ENVIRONNEMENT} »"
@@ -90,7 +90,7 @@ if [ "${ENVIRONNEMENT}" = 'production' ]; then
   ODICE_COMPOSE_DIR="${ZDC}" "${REPO}/contrib/odice/switch/deploy-production.sh" \
     --dir "${ZDC}" --tag "${TAG}" 2>&1 | tee -a "${LOG}"
 else
-  # La recette se déploie sans page de maintenance : personne n'y est en train
+  # Le staging se déploie sans page de maintenance : personne n'y est en train
   # de travailler, et une coupure de deux minutes y est sans conséquence.
   ODICE_COMPOSE_DIR="${ZDC}" "${REPO}/contrib/odice/switch/deploy.sh" \
     --dir "${ZDC}" 2>&1 | tee -a "${LOG}"

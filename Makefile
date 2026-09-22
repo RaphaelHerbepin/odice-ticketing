@@ -131,11 +131,11 @@ install-zdc: ## Installe le complément Odice dans un zammad-docker-compose
 	@test -n "$(ZDC)" || { echo "ZDC est obligatoire : export ZDC=/opt/zammad-docker-compose"; exit 1; }
 	@contrib/odice/zdc/install.sh "$(ZDC)"
 
-# ---------- Recette et maintenance ----------
+# ---------- Staging et maintenance ----------
 STAGING ?= /opt/zammad-staging
 PROD    ?= /opt/zammad-docker-compose
 
-refresh-staging: ## Recharge la recette avec une copie neutralisée de la production
+refresh-staging: ## Recharge le staging avec une copie neutralisée de la production
 	@contrib/odice/staging/refresh.sh --from "$(PROD)" --to "$(STAGING)"
 
 maintenance-on: .check-stack ## Coupe le site et affiche la page de maintenance (ZDC=…)

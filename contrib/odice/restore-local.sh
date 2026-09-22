@@ -55,7 +55,7 @@ DB_FILE="$(find "${FROM_DIR}" -maxdepth 1 -name '*_zammad_db.psql.gz' | sort | t
 }
 FILES_FILE="$(find "${FROM_DIR}" -maxdepth 1 -name '*_zammad_files.tar.gz' | sort | tail -n1)"
 
-# La pile visée n'est plus forcément celle de ce dépôt : une recette vit dans
+# La pile visée n'est plus forcément celle de ce dépôt : une staging vit dans
 # son propre répertoire, avec son propre .env et son propre projet Compose.
 TARGET_DIR="$(cd "${TARGET_DIR:-${REPO_ROOT}}" 2>/dev/null && pwd)" || {
   echo "Erreur : répertoire de pile introuvable." >&2; exit 1; }
@@ -302,8 +302,8 @@ fi
 # ── Post-conditions ──────────────────────────────────────────────────────────
 #
 # Vérifiées, jamais supposées. Si la neutralisation n'a pas produit son effet,
-# la pile reste ÉTEINTE : une recette éteinte n'a aucune conséquence, une
-# recette qui écrit aux clients en a.
+# la pile reste ÉTEINTE : une staging éteinte n'a aucune conséquence, une
+# staging qui écrit aux clients en a.
 if [ "${SANDBOX}" = true ]; then
   echo
   echo "== Vérification avant d'ouvrir la pile"
