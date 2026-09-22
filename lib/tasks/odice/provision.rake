@@ -71,6 +71,8 @@
       # Noms des axes du graphique d'évolution.
       'Tickets'                     => 'Tickets',
       'Minutes'                     => 'Minutes',
+      'No ticket has an owner yet: assign tickets to agents for this table to fill in.' =>
+        'Aucun ticket n’a encore de propriétaire : attribuez-en aux agents pour que ce tableau se remplisse.',
     }.each do |source, target|
       translation = ::Translation.find_or_initialize_by(locale: 'fr-fr', source: source)
       next if translation.persisted? && translation.target == target

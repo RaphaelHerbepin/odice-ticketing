@@ -69,6 +69,9 @@ const columns = [
           $t('Workload is a snapshot of the present; the other figures cover the selected period.')
         "
         :has-data="agents.length > 0"
+        :empty-message="
+          __('No ticket has an owner yet: assign tickets to agents for this table to fill in.')
+        "
         :loading="loading"
       >
         <div class="overflow-x-auto">
