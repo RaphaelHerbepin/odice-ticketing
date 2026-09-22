@@ -50,6 +50,7 @@ query ticketStatistics(
       name
       label
       buckets {
+        value
         label
         count
       }

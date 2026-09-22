@@ -131,18 +131,43 @@ class Service::Ticket::Statistics < Service::Base
     node   = ::Ticket.arel_table[column]
     counts = scope.group(node).order(count_all: :desc).limit(TOP_N).count
 
-    counts.map do |value, count|
-      { id: nil, label: humanize_value(value), count: }
+    buckets = counts.map do |value, count|
+      { value: value.nil? ? nil : value.to_s, label: humanize_value(value), count: }
     end
+
+    append_others(buckets)
+  end
+
+  # Au-delà de TOP_N, la somme des barres ne fait plus le total : tout
+  # pourcentage calculé à partir de l'affichage serait faux. Un seau résiduel
+  # explicite vaut mieux qu'un écart silencieux.
+  def append_others(buckets)
+    shown = buckets.sum { |bucket| bucket[:count] }
+    rest  = scope.count - shown
+    return buckets if rest <= 0
+
+    buckets << { value: nil, label: ::Translation.translate(locale, 'Others'), count: rest }
   end
 
   # Les champs arborescents stockent le chemin complet avec « :: » pour
-  # séparateur (« Flex::Bug ou erreur »). Tel quel, c'est illisible sur un
-  # graphique ; le chevron rend la hiérarchie sans l'expliquer.
+  # séparateur (« Flex::Bug ou erreur ») : illisible sur un graphique, le
+  # chevron rend la hiérarchie sans l'expliquer.
+  #
+  # `nil?` et non `blank?` : un champ booléen à `false` est « blank » au sens
+  # de Rails, et serait donc compté comme non renseigné — alors que « non
+  # bloquant » est une réponse, pas une absence de réponse.
   def humanize_value(value)
-    return ::Translation.translate(current_user&.locale || 'en-us', 'Not set') if value.blank?
+    return ::Translation.translate(locale, 'Not set') if value.nil?
 
-    value.to_s.gsub('::', ' › ')
+    case value
+    when true  then ::Translation.translate(locale, 'yes')
+    when false then ::Translation.translate(locale, 'no')
+    else value.to_s.gsub('::', ' › ')
+    end
+  end
+
+  def locale
+    current_user&.locale.presence || ::Setting.get('locale_default').presence || 'en-us'
   end
 
   def label_map(model, ids)

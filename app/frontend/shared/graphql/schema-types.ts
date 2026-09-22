@@ -5710,11 +5710,22 @@ export type TicketStatistics = {
 export type TicketStatisticsAxis = {
   __typename?: 'TicketStatisticsAxis';
   /** Counts per distinct value, most frequent first */
-  buckets: Array<TicketStatisticsBucket>;
+  buckets: Array<TicketStatisticsAxisBucket>;
   /** Human readable axis name, from the object attribute definition */
   label: Scalars['String']['output'];
   /** Logical axis name, as accepted by the query argument */
   name: Scalars['String']['output'];
+};
+
+/** Ticket count for one distinct value of a business axis */
+export type TicketStatisticsAxisBucket = {
+  __typename?: 'TicketStatisticsAxisBucket';
+  /** Number of tickets with this value */
+  count: Scalars['Int']['output'];
+  /** Value as shown to the user */
+  label: Scalars['String']['output'];
+  /** Raw stored value, null when the field is empty */
+  value?: Maybe<Scalars['String']['output']>;
 };
 
 /** A business axis that ticket statistics can be broken down by */

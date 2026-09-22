@@ -52,6 +52,7 @@ export const TicketStatisticsDocument = gql`
       name
       label
       buckets {
+        value
         label
         count
       }

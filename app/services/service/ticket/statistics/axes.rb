@@ -27,12 +27,7 @@ class Service::Ticket::Statistics::Axes
     # Les axes proposables au client : nom logique, libellé traduisible, et la
     # colonne sous-jacente — cette dernière n'est jamais exposée.
     def available
-      attributes.map do |attribute|
-        {
-          name:  attribute.name,
-          label: attribute.display,
-        }
-      end
+      attributes
     end
 
     # Traduit un nom reçu du client en nom de colonne sûr.
@@ -50,7 +45,7 @@ class Service::Ticket::Statistics::Axes
     end
 
     def label(name)
-      attributes.find { |attribute| attribute.name == name.to_s }&.display || name.to_s
+      attributes.find { |attribute| attribute[:name] == name.to_s }&.fetch(:label) || name.to_s
     end
 
     def valid?(name)
@@ -61,28 +56,38 @@ class Service::Ticket::Statistics::Axes
     end
 
     def names
-      @names ||= available.pluck(:name)
-    end
-
-    # Le cache vit le temps du processus : les attributs ne changent qu'à
-    # l'initiative d'un administrateur, et Zammad redémarre alors ses workers.
-    def reset_cache!
-      @names = nil
-      @attributes = nil
+      attributes.pluck(:name)
     end
 
     private
 
+    # Pas de mémoïsation de classe : elle survivrait à toute la vie du
+    # processus, et un champ ajouté par un administrateur n'apparaîtrait
+    # qu'après redémarrage des workers. La clé de cache porte la date de
+    # dernière modification des attributs, donc s'invalide d'elle-même — et la
+    # requête sous-jacente ne lit qu'une cinquantaine de lignes.
     def attributes
-      @attributes ||= ::ObjectManager::Attribute
-                      .where(
-                        object_lookup_id: ::ObjectLookup.by_name('Ticket'),
-                        active:           true,
-                        data_type:        GROUPABLE_DATA_TYPES,
-                      )
-                      .reject { |attribute| EXCLUDED.include?(attribute.name) }
-                      .select { |attribute| ::Ticket.column_names.include?(attribute.name) }
-                      .sort_by(&:display)
+      version = ::ObjectManager::Attribute.maximum(:updated_at).to_i
+
+      ::Rails.cache.fetch("odice/statistics/axes/#{version}", expires_in: 1.hour) do
+        load_attributes
+      end
+    end
+
+    # Renvoie des hashes, pas des objets ActiveRecord : ce sont eux qui sont mis
+    # en cache, et sérialiser un modèle complet serait à la fois lourd et
+    # sensible à toute évolution du schéma.
+    def load_attributes
+      ::ObjectManager::Attribute
+        .where(
+          object_lookup_id: ::ObjectLookup.by_name('Ticket'),
+          active:           true,
+          data_type:        GROUPABLE_DATA_TYPES,
+        )
+        .reject { |attribute| EXCLUDED.include?(attribute.name) }
+        .select { |attribute| ::Ticket.column_names.include?(attribute.name) }
+        .sort_by(&:display)
+        .map { |attribute| { name: attribute.name, label: attribute.display } }
     end
   end
 end

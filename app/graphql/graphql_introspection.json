@@ -31625,7 +31625,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "OBJECT",
-                      "name": "TicketStatisticsBucket",
+                      "name": "TicketStatisticsAxisBucket",
                       "ofType": null
                     }
                   }
@@ -31662,6 +31662,61 @@
                   "name": "String",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "TicketStatisticsAxisBucket",
+          "description": "Ticket count for one distinct value of a business axis",
+          "fields": [
+            {
+              "name": "count",
+              "description": "Number of tickets with this value",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "label",
+              "description": "Value as shown to the user",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "value",
+              "description": "Raw stored value, null when the field is empty",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null

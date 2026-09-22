@@ -6,6 +6,6 @@ module Gql::Types::Ticket::Statistics
 
     field :name, String, null: false, description: 'Logical axis name, as accepted by the query argument'
     field :label, String, null: false, description: 'Human readable axis name, from the object attribute definition'
-    field :buckets, [Gql::Types::Ticket::Statistics::BucketType], null: false, description: 'Counts per distinct value, most frequent first'
+    field :buckets, [Gql::Types::Ticket::Statistics::AxisBucketType], null: false, description: 'Counts per distinct value, most frequent first'
   end
 end
