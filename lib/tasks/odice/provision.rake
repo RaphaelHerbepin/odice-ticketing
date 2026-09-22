@@ -45,6 +45,13 @@
         'No data for this period.'    => 'Aucune donnée sur cette période.',
       'Not set'                     => 'Non renseigné',
       'Others'                      => 'Autres',
+      'Agent'                       => 'Agent',
+      'Open'                        => 'Ouverts',
+      'Dormant'                     => 'Dormants',
+      'Received'                    => 'Reçus',
+      'Time logged'                 => 'Temps saisi',
+      'Workload is a snapshot of the present; the other figures cover the selected period.' =>
+        'La charge est un instantané ; les autres chiffres portent sur la période choisie.',
     }.each do |source, target|
       translation = ::Translation.find_or_initialize_by(locale: 'fr-fr', source: source)
       next if translation.persisted? && translation.target == target

@@ -1,0 +1,15 @@
+query ticketStatisticsAgents($from: ISO8601DateTime, $to: ISO8601DateTime) {
+  ticketStatisticsAgents(from: $from, to: $to) {
+    id
+    label
+    open
+    escalated
+    dormant
+    received
+    closed
+    averageFirstResponseMinutes
+    averageCloseMinutes
+    closeInTimePercent
+    timeLoggedMinutes
+  }
+}

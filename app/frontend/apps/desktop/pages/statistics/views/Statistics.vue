@@ -9,12 +9,17 @@ import CommonBarChart from '#desktop/components/CommonCharts/CommonBarChart/Comm
 import type { BarChartOptions } from '#desktop/components/CommonCharts/CommonBarChart/types.ts'
 import LayoutContent from '#desktop/components/layout/LayoutContent.vue'
 import { useTicketStatisticsQuery } from '#desktop/pages/statistics/graphql/queries/ticketStatistics.api.ts'
+import { useTicketStatisticsAgentsQuery } from '#desktop/pages/statistics/graphql/queries/ticketStatisticsAgents.api.ts'
 import { useTicketStatisticsAxesQuery } from '#desktop/pages/statistics/graphql/queries/ticketStatisticsAxes.api.ts'
 
 interface Bucket {
   label: string
   count: number
 }
+
+type AgentRow = NonNullable<
+  ReturnType<typeof useTicketStatisticsAgentsQuery>['result']['value']
+>['ticketStatisticsAgents'][number]
 
 // Périodes proposées, en jours. La charte demande des libellés explicites
 // plutôt que des abréviations.
@@ -44,6 +49,12 @@ const variables = computed(() => {
 })
 
 const { result, loading } = useTicketStatisticsQuery(variables)
+
+const { result: agentsResult } = useTicketStatisticsAgentsQuery(() => ({
+  from: variables.value.from,
+  to: variables.value.to,
+}))
+const agents = computed(() => agentsResult.value?.ticketStatisticsAgents ?? [])
 
 const statistics = computed(() => result.value?.ticketStatistics)
 const totals = computed(() => statistics.value?.totals)
@@ -150,6 +161,38 @@ const volumeOption = computed<BarChartOptions>(() => {
    répartitions génériques de Zammad. */
 const businessAxes = computed(() => statistics.value?.byAxis ?? [])
 
+/* Colonnes du tableau par agent. Stock d'abord — c'est ce qu'on regarde en
+   premier —, puis flux, puis délais. Le temps saisi ferme la marche : il est
+   attribué à qui l'a saisi, pas au propriétaire du ticket, et ne doit donc pas
+   être lu comme une mesure de la charge. */
+const agentColumns = [
+  { key: 'open', label: __('Open'), value: (a: AgentRow) => formatNumber(a.open) },
+  { key: 'escalated', label: __('Escalated'), value: (a: AgentRow) => formatNumber(a.escalated) },
+  { key: 'dormant', label: __('Dormant'), value: (a: AgentRow) => formatNumber(a.dormant) },
+  { key: 'received', label: __('Received'), value: (a: AgentRow) => formatNumber(a.received) },
+  { key: 'closed', label: __('Closed'), value: (a: AgentRow) => formatNumber(a.closed) },
+  {
+    key: 'first',
+    label: __('Average first response'),
+    value: (a: AgentRow) => formatDuration(a.averageFirstResponseMinutes),
+  },
+  {
+    key: 'close',
+    label: __('Average time to close'),
+    value: (a: AgentRow) => formatDuration(a.averageCloseMinutes),
+  },
+  {
+    key: 'inTime',
+    label: __('Closed in time'),
+    value: (a: AgentRow) => formatPercent(a.closeInTimePercent),
+  },
+  {
+    key: 'time',
+    label: __('Time logged'),
+    value: (a: AgentRow) => formatDuration(a.timeLoggedMinutes),
+  },
+]
+
 const breakdowns = computed(() => [
   { key: 'group', title: __('By service'), buckets: statistics.value?.byGroup ?? [] },
   {
@@ -208,6 +251,55 @@ const breakdowns = computed(() => [
         </h2>
         <div class="h-72 w-full">
           <CommonBarChart v-if="!loading" :option="volumeOption" />
+        </div>
+      </section>
+
+      <!-- Par agent -->
+      <section
+        v-if="agents.length"
+        class="rounded-lg border border-neutral-100 bg-neutral-50 p-4 dark:border-gray-900 dark:bg-gray-500"
+      >
+        <h2 class="text-base font-semibold text-gray-100 dark:text-neutral-400">
+          {{ $t('By agent') }}
+        </h2>
+        <!-- Les trois premières colonnes sont un instantané : les afficher sans
+             le dire laisserait croire qu'elles suivent la période choisie. -->
+        <p class="mt-1 mb-3 text-xs text-stone-200 dark:text-neutral-500">
+          {{ $t('Workload is a snapshot of the present; the other figures cover the selected period.') }}
+        </p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-neutral-100 text-left dark:border-gray-900">
+                <th class="py-2 pe-3 font-medium text-stone-200 dark:text-neutral-500">
+                  {{ $t('Agent') }}
+                </th>
+                <th
+                  v-for="column in agentColumns"
+                  :key="column.key"
+                  class="py-2 pe-3 text-end font-medium text-stone-200 dark:text-neutral-500"
+                >
+                  {{ $t(column.label) }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="agent in agents"
+                :key="agent.id"
+                class="border-b border-neutral-100 last:border-0 dark:border-gray-900"
+              >
+                <td class="py-2 pe-3 text-gray-100 dark:text-neutral-400">{{ agent.label }}</td>
+                <td
+                  v-for="column in agentColumns"
+                  :key="column.key"
+                  class="py-2 pe-3 text-end text-gray-100 tabular-nums dark:text-neutral-400"
+                >
+                  {{ column.value(agent) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 

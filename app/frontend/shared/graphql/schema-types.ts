@@ -3609,6 +3609,8 @@ export type Queries = {
   ticketSharedDraftZoomShow: TicketSharedDraftZoom;
   /** Aggregated ticket statistics for reporting */
   ticketStatistics: TicketStatistics;
+  /** Per-agent ticket workload and delays */
+  ticketStatisticsAgents: Array<TicketStatisticsAgent>;
   /** Business axes available for ticket statistics breakdowns */
   ticketStatisticsAxes: Array<TicketStatisticsAxisDefinition>;
   /** Fetch tickets of a given customer with optional filters */
@@ -4001,6 +4003,15 @@ export type QueriesTicketSharedDraftZoomShowArgs = {
 /** All available queries */
 export type QueriesTicketStatisticsArgs = {
   axes?: InputMaybe<Array<Scalars['String']['input']>>;
+  from?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  organizationIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  to?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+};
+
+
+/** All available queries */
+export type QueriesTicketStatisticsAgentsArgs = {
   from?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   organizationIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -5704,6 +5715,33 @@ export type TicketStatistics = {
   totals: TicketStatisticsTotals;
   /** Created and closed counts per day */
   volumeOverTime: Array<TicketStatisticsVolumePoint>;
+};
+
+/** Per-agent workload and delays */
+export type TicketStatisticsAgent = {
+  __typename?: 'TicketStatisticsAgent';
+  /** Mean time to close, in minutes */
+  averageCloseMinutes?: Maybe<Scalars['Float']['output']>;
+  /** Mean first response time, in minutes */
+  averageFirstResponseMinutes?: Maybe<Scalars['Float']['output']>;
+  /** Share of closures meeting their target */
+  closeInTimePercent?: Maybe<Scalars['Float']['output']>;
+  /** Tickets closed in the period */
+  closed: Scalars['Int']['output'];
+  /** Of those, untouched for three days or more */
+  dormant: Scalars['Int']['output'];
+  /** Of those, currently escalated */
+  escalated: Scalars['Int']['output'];
+  /** User id of the agent */
+  id: Scalars['ID']['output'];
+  /** Agent full name */
+  label: Scalars['String']['output'];
+  /** Tickets currently open and owned by this agent */
+  open: Scalars['Int']['output'];
+  /** Tickets created in the period and owned by this agent */
+  received: Scalars['Int']['output'];
+  /** Time logged by this agent in the period */
+  timeLoggedMinutes?: Maybe<Scalars['Float']['output']>;
 };
 
 /** Ticket counts broken down along a business axis (agency, department, request subject…) */
