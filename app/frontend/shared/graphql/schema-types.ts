@@ -5803,6 +5803,10 @@ export type TicketStatisticsTotals = {
   firstResponseInTimePercent?: Maybe<Scalars['Float']['output']>;
   /** Tickets not in a closed state */
   open: Scalars['Int']['output'];
+  /** Share of tickets with any time logged */
+  timeCoveragePercent?: Maybe<Scalars['Float']['output']>;
+  /** Time logged on tickets of the period, in minutes */
+  timeLoggedMinutes?: Maybe<Scalars['Float']['output']>;
   /** Tickets created in the period */
   total: Scalars['Int']['output'];
 };

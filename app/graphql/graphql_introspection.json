@@ -32183,6 +32183,30 @@
               "deprecationReason": null
             },
             {
+              "name": "timeCoveragePercent",
+              "description": "Share of tickets with any time logged",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "timeLoggedMinutes",
+              "description": "Time logged on tickets of the period, in minutes",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "total",
               "description": "Tickets created in the period",
               "args": [],

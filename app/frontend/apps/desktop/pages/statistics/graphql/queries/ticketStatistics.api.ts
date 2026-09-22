@@ -23,6 +23,8 @@ export const TicketStatisticsDocument = gql`
       averageCloseMinutes
       firstResponseInTimePercent
       closeInTimePercent
+      timeLoggedMinutes
+      timeCoveragePercent
     }
     byGroup {
       label

@@ -62,7 +62,27 @@ class Service::Ticket::Statistics < Service::Base
       # `first_response_diff_in_min` est positif quand l'objectif est tenu.
       first_response_in_time_percent: percentage_in_time(:first_response_diff_in_min),
       close_in_time_percent:          percentage_in_time(:close_diff_in_min),
+      time_logged_minutes:            time_logged_minutes,
+      # La saisie du temps étant facultative, un total seul est trompeur : il
+      # paraît mesurer l'effort alors qu'il ne mesure que la part déclarée. Le
+      # taux de couverture est donc calculé avec lui, et l'interface a la
+      # consigne de ne jamais montrer l'un sans l'autre.
+      time_coverage_percent:          time_coverage_percent,
     }
+  end
+
+  # `tickets.time_unit` est maintenu à jour par callback à chaque saisie : la
+  # somme ne demande aucune jointure avec la table de détail.
+  def time_logged_minutes
+    value = scope.sum(:time_unit)
+    value.to_f.round(1) if value&.positive?
+  end
+
+  def time_coverage_percent
+    total = scope.count
+    return if total.zero?
+
+    ((scope.where(time_unit: 0.001..).count.to_f / total) * 100).round(1)
   end
 
   def average(column)

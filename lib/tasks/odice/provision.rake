@@ -50,6 +50,13 @@
       'Dormant'                     => 'Dormants',
       'Received'                    => 'Reçus',
       'Time logged'                 => 'Temps saisi',
+      'Overview'                    => 'Vue d’ensemble',
+      'Business axes'               => 'Axes métier',
+      'Agents'                      => 'Agents',
+      'Time logging coverage'       => 'Taux de saisie du temps',
+      'of tickets'                  => 'des tickets',
+      'Too few tickets carry a time entry for the total to mean anything yet.' =>
+        'Trop peu de tickets portent une saisie de temps pour que le total ait un sens.',
       'Workload is a snapshot of the present; the other figures cover the selected period.' =>
         'La charge est un instantané ; les autres chiffres portent sur la période choisie.',
     }.each do |source, target|
@@ -176,6 +183,32 @@ namespace :odice do
         aligned += 1
       end
       puts "  mode d'affichage : #{aligned} compte(s) sans préférence alignés sur « #{theme} »"
+    end
+
+    # 6. Décompte du temps.
+    #
+    #    Le sélecteur VIDE est ce qui rend la saisie « facultative partout » :
+    #    le volet de saisie est proposé sur tous les tickets, et reste
+    #    annulable. Y mettre une condition la rendrait obligatoire là où elle
+    #    s'applique.
+    #
+    #    L'unité est purement cosmétique : AUCUN code Zammad ne convertit la
+    #    valeur, qui reste un nombre nu. Si un agent tape « 30 » en pensant
+    #    minutes et un autre « 0,5 » en pensant heures, rien ne les réconcilie.
+    #    D'où le choix d'une unité unique, annoncée à l'écran.
+    #
+    #    Les types d'activité restent désactivés : un champ de moins à remplir
+    #    améliore l'adoption, et on les activera si « déplacement / téléphone /
+    #    intervention » devient une question qu'on se pose vraiment.
+    if %w[1 true yes].include?(ENV.fetch('ODICE_TIME_ACCOUNTING', 'true').to_s.downcase)
+      {
+        'time_accounting'          => true,
+        'time_accounting_selector' => {},
+        'time_accounting_unit'     => 'minute',
+        'time_accounting_types'    => false,
+      }.each { |name, value| Setting.set(name, value) }
+
+      puts '  décompte du temps activé (saisie facultative, en minutes).'
     end
 
     # 6. Relance des tickets sans activité.

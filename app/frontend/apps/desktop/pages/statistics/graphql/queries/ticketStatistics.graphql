@@ -21,6 +21,8 @@ query ticketStatistics(
       averageCloseMinutes
       firstResponseInTimePercent
       closeInTimePercent
+      timeLoggedMinutes
+      timeCoveragePercent
     }
     byGroup {
       label

@@ -164,6 +164,29 @@ mot de passe administrateur.
 
 ---
 
+## Statistiques
+
+Trois onglets, à `/desktop/statistics` :
+
+| Onglet | Contenu |
+|---|---|
+| Vue d'ensemble | chiffres clés, volume créé/clôturé, état, priorité, canal |
+| Axes métier | agence, service, objet de la demande — dérivés de vos champs personnalisés |
+| Agents | charge, flux et délais par agent |
+
+La période vit dans l'URL : `/desktop/statistics/axes?days=90` se transmet tel
+quel, et changer d'onglet la conserve.
+
+**Les axes métier suivent vos champs.** Ils sont dérivés d'`ObjectManager::Attribute` :
+ajouter un champ de type liste ou arborescence dans l'administration suffit à le
+voir apparaître comme axe, sans intervention sur le code.
+
+**Le décompte du temps est facultatif**, en minutes, sur tous les tickets. Tant
+que moins de la moitié des tickets portent une saisie, la carte affiche le taux
+de saisie plutôt que le total — un total partiel présenté comme un total induit
+en erreur. L'unité n'est qu'un libellé : Zammad ne convertit rien, donc tout le
+monde saisit en minutes.
+
 ## Relances automatiques
 
 Une automatisation est provisionnée : **rappel au propriétaire d'un ticket sans

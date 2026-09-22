@@ -13,5 +13,9 @@ module Gql::Types::Ticket::Statistics
     field :average_close_minutes, Float, null: true, description: 'Mean time to closure, in minutes'
     field :first_response_in_time_percent, Float, null: true, description: 'Share of tickets meeting the first response target'
     field :close_in_time_percent, Float, null: true, description: 'Share of tickets meeting the closure target'
+    field :time_logged_minutes, Float, null: true, description: 'Time logged on tickets of the period, in minutes'
+    # Share of tickets carrying at least one time entry. Logging is optional,
+    # so the total above is a floor, never a measure of the whole effort.
+    field :time_coverage_percent, Float, null: true, description: 'Share of tickets with any time logged'
   end
 end
