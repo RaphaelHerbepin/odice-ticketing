@@ -6,6 +6,7 @@ import { computed } from 'vue'
 import CommonButton from '#desktop/components/CommonButton/CommonButton.vue'
 import LayoutContent from '#desktop/components/layout/LayoutContent.vue'
 import StatisticsCrossTable from '#desktop/pages/statistics/components/StatisticsCrossTable.vue'
+import StatisticsExportButton from '#desktop/pages/statistics/components/StatisticsExportButton.vue'
 import StatisticsPanel from '#desktop/pages/statistics/components/StatisticsPanel.vue'
 import StatisticsToolbar from '#desktop/pages/statistics/components/StatisticsToolbar.vue'
 import { useStatisticsAxes } from '#desktop/pages/statistics/composables/useStatisticsAxes.ts'
@@ -47,6 +48,10 @@ const crosstab = computed(() => result.value?.ticketStatisticsCrosstab)
     :active-tab="activeTab"
     width="full"
   >
+    <template #headerRight>
+      <StatisticsExportButton :row-axis="rowAxis" :column-axis="columnAxis" />
+    </template>
+
     <div class="flex flex-col gap-6 p-4">
       <StatisticsToolbar />
 

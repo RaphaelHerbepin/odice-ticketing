@@ -5,6 +5,7 @@ import { computed } from 'vue'
 
 import LayoutContent from '#desktop/components/layout/LayoutContent.vue'
 import StatisticsChart from '#desktop/pages/statistics/components/StatisticsChart.vue'
+import StatisticsExportButton from '#desktop/pages/statistics/components/StatisticsExportButton.vue'
 import StatisticsPanel from '#desktop/pages/statistics/components/StatisticsPanel.vue'
 import StatisticsToolbar from '#desktop/pages/statistics/components/StatisticsToolbar.vue'
 import { useStatisticsAxes } from '#desktop/pages/statistics/composables/useStatisticsAxes.ts'
@@ -47,6 +48,10 @@ const businessAxes = computed(() =>
     :active-tab="activeTab"
     width="full"
   >
+    <template #headerRight>
+      <StatisticsExportButton />
+    </template>
+
     <div class="flex flex-col gap-6 p-4">
       <StatisticsToolbar />
 

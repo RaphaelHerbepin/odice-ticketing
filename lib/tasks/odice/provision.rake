@@ -96,6 +96,15 @@
         'Nombre de tickets créés sur la période choisie.',
       'Shading runs from 0 to %s tickets, the busiest cell.' =>
         'L’intensité va de 0 à %s tickets, la cellule la plus chargée.',
+      # Export Excel : noms d'onglets et en-têtes de colonnes.
+      'Summary'                     => 'Synthèse',
+      'Volume'                      => 'Volume',
+      'Indicator'                   => 'Indicateur',
+      'Preceding period'            => 'Période précédente',
+      'Export (.xlsx)'              => 'Exporter (.xlsx)',
+      'Preparing the export…'       => 'Préparation de l’export…',
+      'The export has been downloaded.' => 'L’export a été téléchargé.',
+      'The export failed. Please try again.' => 'L’export a échoué. Réessayez.',
       'No ticket has an owner yet: assign tickets to agents for this table to fill in.' =>
         'Aucun ticket n’a encore de propriétaire : attribuez-en aux agents pour que ce tableau se remplisse.',
     }.each do |source, target|
