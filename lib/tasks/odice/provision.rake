@@ -43,6 +43,7 @@
         'By agent'                    => 'Par agent',
         'By channel'                  => 'Par canal',
         'No data for this period.'    => 'Aucune donnée sur cette période.',
+      'Not set'                     => 'Non renseigné',
     }.each do |source, target|
       translation = ::Translation.find_or_initialize_by(locale: 'fr-fr', source: source)
       next if translation.persisted? && translation.target == target

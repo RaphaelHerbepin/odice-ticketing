@@ -1,0 +1,6 @@
+query ticketStatisticsAxes {
+  ticketStatisticsAxes {
+    name
+    label
+  }
+}

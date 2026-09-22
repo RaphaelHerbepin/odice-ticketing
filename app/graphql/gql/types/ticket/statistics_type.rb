@@ -13,6 +13,7 @@ module Gql::Types::Ticket
     field :by_owner, [Gql::Types::Ticket::Statistics::BucketType], null: false, description: 'Ticket count per owning agent'
     field :by_channel, [Gql::Types::Ticket::Statistics::BucketType], null: false, description: 'Ticket count per creation channel'
 
+    field :by_axis, [Gql::Types::Ticket::Statistics::AxisType], null: false, description: 'Breakdowns along the business axes requested by the caller'
     field :volume_over_time, [Gql::Types::Ticket::Statistics::VolumePointType], null: false, description: 'Created and closed counts per day'
   end
 end

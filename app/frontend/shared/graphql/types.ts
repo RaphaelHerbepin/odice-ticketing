@@ -910,10 +910,16 @@ export type TicketStatisticsQueryVariables = Exact<{
   to?: string | null | undefined;
   groupIds?: Array<string | number> | string | number | null | undefined;
   organizationIds?: Array<string | number> | string | number | null | undefined;
+  axes?: Array<string> | string | null | undefined;
 }>;
 
 
-export type TicketStatisticsQuery = { ticketStatistics: { __typename: 'TicketStatistics', totals: { __typename: 'TicketStatisticsTotals', total: number, open: number, closed: number, escalated: number, averageFirstResponseMinutes: number | null | undefined, averageCloseMinutes: number | null | undefined, firstResponseInTimePercent: number | null | undefined, closeInTimePercent: number | null | undefined }, byGroup: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byOrganization: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byState: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byPriority: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byOwner: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byChannel: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, volumeOverTime: Array<{ __typename: 'TicketStatisticsVolumePoint', date: string, created: number, closed: number }> } };
+export type TicketStatisticsQuery = { ticketStatistics: { __typename: 'TicketStatistics', totals: { __typename: 'TicketStatisticsTotals', total: number, open: number, closed: number, escalated: number, averageFirstResponseMinutes: number | null | undefined, averageCloseMinutes: number | null | undefined, firstResponseInTimePercent: number | null | undefined, closeInTimePercent: number | null | undefined }, byGroup: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byOrganization: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byState: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byPriority: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byOwner: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byChannel: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }>, byAxis: Array<{ __typename: 'TicketStatisticsAxis', name: string, label: string, buckets: Array<{ __typename: 'TicketStatisticsBucket', label: string, count: number }> }>, volumeOverTime: Array<{ __typename: 'TicketStatisticsVolumePoint', date: string, created: number, closed: number }> } };
+
+export type TicketStatisticsAxesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TicketStatisticsAxesQuery = { ticketStatisticsAxes: Array<{ __typename: 'TicketStatisticsAxisDefinition', name: string, label: string }> };
 
 export type AiAssistantAnalyticsMetaFragment = { __typename: 'AIAnalyticsMetadata', run: { __typename: 'AIAnalyticsRun', id: string } | null | undefined, usage: { __typename: 'AIAnalyticsUsage', userHasProvidedFeedback: boolean | null | undefined } | null | undefined };
 

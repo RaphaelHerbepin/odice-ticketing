@@ -8,17 +8,18 @@
 class Service::Ticket::Statistics < Service::Base
   requires_current_user!
 
-  attr_reader :from, :to, :group_ids, :organization_ids
+  attr_reader :from, :to, :group_ids, :organization_ids, :axes
 
   # Nombre maximal de séries renvoyées par axe : au-delà, un graphique devient
   # illisible et la requête coûteuse.
   TOP_N = 15
 
-  def initialize(from: nil, to: nil, group_ids: nil, organization_ids: nil)
+  def initialize(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil)
     @from             = from || 30.days.ago.beginning_of_day
     @to               = to || Time.zone.now.end_of_day
     @group_ids        = group_ids.presence
     @organization_ids = organization_ids.presence
+    @axes             = Array(axes).presence
   end
 
   def execute
@@ -31,6 +32,7 @@ class Service::Ticket::Statistics < Service::Base
       by_priority:      count_by(:priority_id, ::Ticket::Priority),
       by_owner:         count_by_owner,
       by_channel:       count_by(:create_article_type_id, ::Ticket::Article::Type),
+      by_axis:          by_axis,
       volume_over_time: volume_over_time,
     }
   end
@@ -99,6 +101,48 @@ class Service::Ticket::Statistics < Service::Base
 
       { id:, label: users[id]&.fullname.presence || "##{id}", count: }
     end
+  end
+
+  # Agrégations sur les axes métier — agence, service, objet de la demande.
+  #
+  # Ces champs sont des colonnes de `tickets` portant directement le libellé :
+  # aucune jointure n'est nécessaire, contrairement aux clés étrangères.
+  def by_axis
+    return [] if axes.blank?
+
+    axes.filter_map do |name|
+      column = begin
+        Axes.resolve(name)
+      rescue Axes::UnknownAxis
+        # Un axe inconnu est ignoré plutôt que fatal : un tableau de bord
+        # enregistré peut référencer un champ qu'un administrateur a depuis
+        # désactivé, et ce n'est pas une raison pour ne rien afficher.
+        next
+      end
+
+      { name:, label: Axes.label(name), buckets: count_by_column(column) }
+    end
+  end
+
+  def count_by_column(column)
+    # `arel_table[...]` plutôt qu'une chaîne : la colonne est déjà validée par
+    # la liste blanche, mais Arel la cite correctement, ce qui protège aussi
+    # des noms de champs personnalisés qui heurteraient un mot réservé SQL.
+    node   = ::Ticket.arel_table[column]
+    counts = scope.group(node).order(count_all: :desc).limit(TOP_N).count
+
+    counts.map do |value, count|
+      { id: nil, label: humanize_value(value), count: }
+    end
+  end
+
+  # Les champs arborescents stockent le chemin complet avec « :: » pour
+  # séparateur (« Flex::Bug ou erreur »). Tel quel, c'est illisible sur un
+  # graphique ; le chevron rend la hiérarchie sans l'expliquer.
+  def humanize_value(value)
+    return ::Translation.translate(current_user&.locale || 'en-us', 'Not set') if value.blank?
+
+    value.to_s.gsub('::', ' › ')
   end
 
   def label_map(model, ids)

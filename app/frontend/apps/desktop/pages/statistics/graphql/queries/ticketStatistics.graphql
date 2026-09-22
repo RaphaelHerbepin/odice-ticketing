@@ -3,12 +3,14 @@ query ticketStatistics(
   $to: ISO8601DateTime
   $groupIds: [ID!]
   $organizationIds: [ID!]
+  $axes: [String!]
 ) {
   ticketStatistics(
     from: $from
     to: $to
     groupIds: $groupIds
     organizationIds: $organizationIds
+    axes: $axes
   ) {
     totals {
       total
@@ -43,6 +45,14 @@ query ticketStatistics(
     byChannel {
       label
       count
+    }
+    byAxis {
+      name
+      label
+      buckets {
+        label
+        count
+      }
     }
     volumeOverTime {
       date

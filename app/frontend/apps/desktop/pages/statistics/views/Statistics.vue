@@ -9,6 +9,7 @@ import CommonBarChart from '#desktop/components/CommonCharts/CommonBarChart/Comm
 import type { BarChartOptions } from '#desktop/components/CommonCharts/CommonBarChart/types.ts'
 import LayoutContent from '#desktop/components/layout/LayoutContent.vue'
 import { useTicketStatisticsQuery } from '#desktop/pages/statistics/graphql/queries/ticketStatistics.api.ts'
+import { useTicketStatisticsAxesQuery } from '#desktop/pages/statistics/graphql/queries/ticketStatisticsAxes.api.ts'
 
 interface Bucket {
   label: string
@@ -26,10 +27,20 @@ const periods = [
 
 const selectedDays = ref(30)
 
+/* Les axes métier ne sont pas codés ici : le serveur les dérive des champs
+   personnalisés réellement définis, et refuse tout nom hors de cette liste.
+   Ajouter un champ dans l'administration suffit donc à le voir apparaître. */
+const { result: axesResult } = useTicketStatisticsAxesQuery()
+const availableAxes = computed(() => axesResult.value?.ticketStatisticsAxes ?? [])
+
 const variables = computed(() => {
   const to = new Date()
   const from = new Date(to.getTime() - selectedDays.value * 24 * 60 * 60 * 1000)
-  return { from: from.toISOString(), to: to.toISOString() }
+  return {
+    from: from.toISOString(),
+    to: to.toISOString(),
+    axes: availableAxes.value.map((axis) => axis.name),
+  }
 })
 
 const { result, loading } = useTicketStatisticsQuery(variables)
@@ -134,6 +145,11 @@ const volumeOption = computed<BarChartOptions>(() => {
   }
 })
 
+/* Répartitions métier — agence, service, objet de la demande. Ce sont elles
+   qui portent la lecture d'activité propre à Odice, d'où leur place avant les
+   répartitions génériques de Zammad. */
+const businessAxes = computed(() => statistics.value?.byAxis ?? [])
+
 const breakdowns = computed(() => [
   { key: 'group', title: __('By service'), buckets: statistics.value?.byGroup ?? [] },
   {
@@ -194,6 +210,25 @@ const breakdowns = computed(() => [
           <CommonBarChart v-if="!loading" :option="volumeOption" />
         </div>
       </section>
+
+      <!-- Répartitions métier -->
+      <div v-if="businessAxes.length" class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <section
+          v-for="axis in businessAxes"
+          :key="axis.name"
+          class="rounded-lg border border-neutral-100 bg-neutral-50 p-4 dark:border-gray-900 dark:bg-gray-500"
+        >
+          <h2 class="mb-3 text-base font-semibold text-gray-100 dark:text-neutral-400">
+            {{ axis.label }}
+          </h2>
+          <div v-if="!loading && axis.buckets.length" class="h-64 w-full">
+            <CommonBarChart :option="barOption(axis.buckets, accentColor)" />
+          </div>
+          <p v-else-if="!loading" class="text-sm text-stone-200 dark:text-neutral-500">
+            {{ $t('No data for this period.') }}
+          </p>
+        </section>
+      </div>
 
       <!-- Répartitions -->
       <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">

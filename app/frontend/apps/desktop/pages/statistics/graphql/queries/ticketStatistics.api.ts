@@ -6,12 +6,13 @@ import * as VueCompositionApi from 'vue';
 export type ReactiveFunction<TParam> = () => TParam;
 
 export const TicketStatisticsDocument = gql`
-    query ticketStatistics($from: ISO8601DateTime, $to: ISO8601DateTime, $groupIds: [ID!], $organizationIds: [ID!]) {
+    query ticketStatistics($from: ISO8601DateTime, $to: ISO8601DateTime, $groupIds: [ID!], $organizationIds: [ID!], $axes: [String!]) {
   ticketStatistics(
     from: $from
     to: $to
     groupIds: $groupIds
     organizationIds: $organizationIds
+    axes: $axes
   ) {
     totals {
       total
@@ -46,6 +47,14 @@ export const TicketStatisticsDocument = gql`
     byChannel {
       label
       count
+    }
+    byAxis {
+      name
+      label
+      buckets {
+        label
+        count
+      }
     }
     volumeOverTime {
       date

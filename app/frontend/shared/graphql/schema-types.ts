@@ -3609,6 +3609,8 @@ export type Queries = {
   ticketSharedDraftZoomShow: TicketSharedDraftZoom;
   /** Aggregated ticket statistics for reporting */
   ticketStatistics: TicketStatistics;
+  /** Business axes available for ticket statistics breakdowns */
+  ticketStatisticsAxes: Array<TicketStatisticsAxisDefinition>;
   /** Fetch tickets of a given customer with optional filters */
   ticketsByCustomer: TicketConnection;
   /** Fetch tickets of a given organization with optional filters */
@@ -3998,6 +4000,7 @@ export type QueriesTicketSharedDraftZoomShowArgs = {
 
 /** All available queries */
 export type QueriesTicketStatisticsArgs = {
+  axes?: InputMaybe<Array<Scalars['String']['input']>>;
   from?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   organizationIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -5683,6 +5686,8 @@ export type TicketStateType = {
 /** Aggregated ticket statistics, scoped to the tickets the current user may read */
 export type TicketStatistics = {
   __typename?: 'TicketStatistics';
+  /** Breakdowns along the business axes requested by the caller */
+  byAxis: Array<TicketStatisticsAxis>;
   /** Ticket count per creation channel */
   byChannel: Array<TicketStatisticsBucket>;
   /** Ticket count per group (service) */
@@ -5699,6 +5704,26 @@ export type TicketStatistics = {
   totals: TicketStatisticsTotals;
   /** Created and closed counts per day */
   volumeOverTime: Array<TicketStatisticsVolumePoint>;
+};
+
+/** Ticket counts broken down along a business axis (agency, department, request subject…) */
+export type TicketStatisticsAxis = {
+  __typename?: 'TicketStatisticsAxis';
+  /** Counts per distinct value, most frequent first */
+  buckets: Array<TicketStatisticsBucket>;
+  /** Human readable axis name, from the object attribute definition */
+  label: Scalars['String']['output'];
+  /** Logical axis name, as accepted by the query argument */
+  name: Scalars['String']['output'];
+};
+
+/** A business axis that ticket statistics can be broken down by */
+export type TicketStatisticsAxisDefinition = {
+  __typename?: 'TicketStatisticsAxisDefinition';
+  /** Human readable name, from the object attribute definition */
+  label: Scalars['String']['output'];
+  /** Logical name to pass to the statistics query */
+  name: Scalars['String']['output'];
 };
 
 /** Ticket count for one value of a grouping axis */

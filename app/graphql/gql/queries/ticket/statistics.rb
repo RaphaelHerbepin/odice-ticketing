@@ -9,6 +9,10 @@ module Gql::Queries
     argument :to, GraphQL::Types::ISO8601DateTime, required: false, description: 'End of the period (defaults to now)'
     argument :group_ids, [GraphQL::Types::ID], required: false, description: 'Restrict to these groups'
     argument :organization_ids, [GraphQL::Types::ID], required: false, description: 'Restrict to these organizations'
+    # Logical axis names only. The service resolves them against a whitelist
+    # built from ObjectManager::Attribute and rejects anything else: a column
+    # name cannot be a bound parameter, so it must never come from the client.
+    argument :axes, [String], required: false, description: 'Business axes to break down by, e.g. agence, service_demandeur'
 
     type Gql::Types::Ticket::StatisticsType, null: false
 
@@ -18,10 +22,10 @@ module Gql::Queries
       ctx.current_user.permissions?('ticket.agent')
     end
 
-    def resolve(from: nil, to: nil, group_ids: nil, organization_ids: nil)
+    def resolve(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil)
       Service::Ticket::Statistics
         .with_current_user(context.current_user)
-        .execute(from:, to:, group_ids:, organization_ids:)
+        .execute(from:, to:, group_ids:, organization_ids:, axes:)
     end
   end
 end
