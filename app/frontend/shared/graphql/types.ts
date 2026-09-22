@@ -912,6 +912,7 @@ export type TicketStatisticsQueryVariables = Exact<{
   organizationIds?: Array<string | number> | string | number | null | undefined;
   axes?: Array<string> | string | null | undefined;
   interval?: string | null | undefined;
+  axisFilters?: Array<Types.TicketStatisticsAxisFilterInput> | Types.TicketStatisticsAxisFilterInput | null | undefined;
 }>;
 
 
@@ -920,6 +921,7 @@ export type TicketStatisticsQuery = { ticketStatistics: { __typename: 'TicketSta
 export type TicketStatisticsAgentsQueryVariables = Exact<{
   from?: string | null | undefined;
   to?: string | null | undefined;
+  axisFilters?: Array<Types.TicketStatisticsAxisFilterInput> | Types.TicketStatisticsAxisFilterInput | null | undefined;
 }>;
 
 
@@ -928,7 +930,7 @@ export type TicketStatisticsAgentsQuery = { ticketStatisticsAgents: Array<{ __ty
 export type TicketStatisticsAxesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TicketStatisticsAxesQuery = { ticketStatisticsAxes: Array<{ __typename: 'TicketStatisticsAxisDefinition', name: string, label: string }> };
+export type TicketStatisticsAxesQuery = { ticketStatisticsAxes: Array<{ __typename: 'TicketStatisticsAxisDefinition', name: string, label: string, values: Array<{ __typename: 'TicketStatisticsAxisValue', value: string, label: string }> }> };
 
 export type AiAssistantAnalyticsMetaFragment = { __typename: 'AIAnalyticsMetadata', run: { __typename: 'AIAnalyticsRun', id: string } | null | undefined, usage: { __typename: 'AIAnalyticsUsage', userHasProvidedFeedback: boolean | null | undefined } | null | undefined };
 

@@ -5,7 +5,9 @@ import { computed } from 'vue'
 
 import LayoutContent from '#desktop/components/layout/LayoutContent.vue'
 import StatisticsPanel from '#desktop/pages/statistics/components/StatisticsPanel.vue'
-import StatisticsPeriodFilter from '#desktop/pages/statistics/components/StatisticsPeriodFilter.vue'
+import StatisticsToolbar from '#desktop/pages/statistics/components/StatisticsToolbar.vue'
+import { useStatisticsAxes } from '#desktop/pages/statistics/composables/useStatisticsAxes.ts'
+import { useStatisticsFilters } from '#desktop/pages/statistics/composables/useStatisticsFilters.ts'
 import { useStatisticsFormat } from '#desktop/pages/statistics/composables/useStatisticsFormat.ts'
 import { useStatisticsPeriod } from '#desktop/pages/statistics/composables/useStatisticsPeriod.ts'
 import { useStatisticsTabs } from '#desktop/pages/statistics/composables/useStatisticsTabs.ts'
@@ -15,7 +17,11 @@ const { tabs, activeTab } = useStatisticsTabs()
 const { variables } = useStatisticsPeriod()
 const { formatNumber, formatDuration, formatPercent } = useStatisticsFormat()
 
-const { result, loading } = useTicketStatisticsAgentsQuery(variables)
+const { axes } = useStatisticsAxes()
+const { filterVariables } = useStatisticsFilters(axes)
+const queryVariables = computed(() => ({ ...variables.value, ...filterVariables.value }))
+
+const { result, loading } = useTicketStatisticsAgentsQuery(queryVariables)
 const agents = computed(() => result.value?.ticketStatisticsAgents ?? [])
 
 type AgentRow = (typeof agents.value)[number]
@@ -61,7 +67,7 @@ const columns = [
     width="full"
   >
     <div class="flex flex-col gap-6 p-4">
-      <StatisticsPeriodFilter />
+      <StatisticsToolbar />
 
       <StatisticsPanel
         :title="$t('By agent')"

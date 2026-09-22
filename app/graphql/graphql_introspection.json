@@ -21524,6 +21524,24 @@
                     "ofType": null
                   },
                   "defaultValue": null
+                },
+                {
+                  "name": "axisFilters",
+                  "description": "Restrict to tickets matching these business axis values",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "INPUT_OBJECT",
+                        "name": "TicketStatisticsAxisFilterInput",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
                 }
               ],
               "type": {
@@ -21592,6 +21610,24 @@
                       "ofType": {
                         "kind": "SCALAR",
                         "name": "ID",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "axisFilters",
+                  "description": "Restrict to tickets matching these business axis values",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "INPUT_OBJECT",
+                        "name": "TicketStatisticsAxisFilterInput",
                         "ofType": null
                       }
                     }
@@ -32029,6 +32065,116 @@
             {
               "name": "name",
               "description": "Logical name to pass to the statistics query",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "values",
+              "description": "Selectable values, as defined by the administrator",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "TicketStatisticsAxisValue",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "TicketStatisticsAxisFilterInput",
+          "description": "Restriction on one business axis. Values are OR-ed together; separate entries are AND-ed.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "name",
+              "description": "Logical axis name, as returned by ticketStatisticsAxes",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "values",
+              "description": "Accepted values; null or an empty string means \"not set\"",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "TicketStatisticsAxisValue",
+          "description": "One selectable value of a business axis, as defined by the administrator",
+          "fields": [
+            {
+              "name": "label",
+              "description": "Human readable label; tree paths use a chevron",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "value",
+              "description": "Stored value, to pass back as an axis filter",
               "args": [],
               "type": {
                 "kind": "NON_NULL",

@@ -6,7 +6,7 @@ import * as VueCompositionApi from 'vue';
 export type ReactiveFunction<TParam> = () => TParam;
 
 export const TicketStatisticsDocument = gql`
-    query ticketStatistics($from: ISO8601DateTime, $to: ISO8601DateTime, $groupIds: [ID!], $organizationIds: [ID!], $axes: [String!], $interval: String) {
+    query ticketStatistics($from: ISO8601DateTime, $to: ISO8601DateTime, $groupIds: [ID!], $organizationIds: [ID!], $axes: [String!], $interval: String, $axisFilters: [TicketStatisticsAxisFilterInput!]) {
   ticketStatistics(
     from: $from
     to: $to
@@ -14,6 +14,7 @@ export const TicketStatisticsDocument = gql`
     organizationIds: $organizationIds
     axes: $axes
     interval: $interval
+    axisFilters: $axisFilters
   ) {
     period {
       from

@@ -32,12 +32,13 @@ class Service::Ticket::Statistics < Service::Base
 
   attr_reader :interval
 
-  def initialize(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil, interval: nil)
+  def initialize(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil, interval: nil, axis_filters: nil)
     @from             = from || 30.days.ago.beginning_of_day
     @to               = to || Time.zone.now.end_of_day
     @group_ids        = group_ids.presence
     @organization_ids = organization_ids.presence
     @axes             = Array(axes).presence
+    @axis_filters     = axis_filters
     @interval         = INTERVALS.key?(interval.to_s) ? interval.to_s : auto_interval
   end
 
@@ -63,7 +64,7 @@ class Service::Ticket::Statistics < Service::Base
   # côte : celle-ci appliquait les filtres, celle de `volume_over_time` non.
   def stats_scope
     @stats_scope ||= Service::Ticket::Statistics::Scope.new(
-      current_user:, from:, to:, group_ids:, organization_ids:,
+      current_user:, from:, to:, group_ids:, organization_ids:, axis_filters: @axis_filters,
     )
   end
 
@@ -121,7 +122,7 @@ class Service::Ticket::Statistics < Service::Base
         next
       end
 
-      { name:, label: Axes.label(name), buckets: count_by_column(column) }
+      { name:, label: Axes.label(name, locale), buckets: count_by_column(column) }
     end
   end
 

@@ -5,6 +5,7 @@ query ticketStatistics(
   $organizationIds: [ID!]
   $axes: [String!]
   $interval: String
+  $axisFilters: [TicketStatisticsAxisFilterInput!]
 ) {
   ticketStatistics(
     from: $from
@@ -13,6 +14,7 @@ query ticketStatistics(
     organizationIds: $organizationIds
     axes: $axes
     interval: $interval
+    axisFilters: $axisFilters
   ) {
     period {
       from

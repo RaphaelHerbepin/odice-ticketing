@@ -16,14 +16,15 @@
 # Les confondre produit des chiffres qui ne se recoupent pas d'un écran à
 # l'autre, sans qu'on comprenne pourquoi.
 class Service::Ticket::Statistics::Scope
-  attr_reader :current_user, :from, :to, :group_ids, :organization_ids
+  attr_reader :current_user, :from, :to, :group_ids, :organization_ids, :axis_filters
 
-  def initialize(current_user:, from: nil, to: nil, group_ids: nil, organization_ids: nil)
+  def initialize(current_user:, from: nil, to: nil, group_ids: nil, organization_ids: nil, axis_filters: nil)
     @current_user     = current_user
     @from             = from || 30.days.ago.beginning_of_day
     @to               = to || Time.zone.now.end_of_day
     @group_ids        = group_ids.presence
     @organization_ids = organization_ids.presence
+    @axis_filters     = Service::Ticket::Statistics::AxisFilter.normalize(axis_filters)
   end
 
   # Flux entrant : tickets créés dans la fenêtre.
@@ -53,12 +54,16 @@ class Service::Ticket::Statistics::Scope
 
   private
 
+  # Les filtres d'axe s'appliquent ICI, au périmètre commun, et non dans chaque
+  # agrégation : c'est ce qui garantit que les trois relations exposées plus
+  # haut et `visible_ids` racontent la même histoire. Les poser en aval
+  # laisserait une série filtrée voisiner avec une autre qui ne l'est pas.
   def filtered
     @filtered ||= begin
       relation = TicketPolicy::ReadScope.new(current_user).resolve
       relation = relation.where(group_id: group_ids) if group_ids
       relation = relation.where(organization_id: organization_ids) if organization_ids
-      relation
+      axis_filters.reduce(relation) { |scoped, filter| filter.apply(scoped) }
     end
   end
 end

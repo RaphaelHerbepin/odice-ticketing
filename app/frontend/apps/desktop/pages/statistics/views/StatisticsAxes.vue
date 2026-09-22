@@ -6,24 +6,23 @@ import { computed } from 'vue'
 import LayoutContent from '#desktop/components/layout/LayoutContent.vue'
 import StatisticsChart from '#desktop/pages/statistics/components/StatisticsChart.vue'
 import StatisticsPanel from '#desktop/pages/statistics/components/StatisticsPanel.vue'
-import StatisticsPeriodFilter from '#desktop/pages/statistics/components/StatisticsPeriodFilter.vue'
+import StatisticsToolbar from '#desktop/pages/statistics/components/StatisticsToolbar.vue'
+import { useStatisticsAxes } from '#desktop/pages/statistics/composables/useStatisticsAxes.ts'
 import { accentColor, barOption } from '#desktop/pages/statistics/composables/useStatisticsChart.ts'
+import { useStatisticsFilters } from '#desktop/pages/statistics/composables/useStatisticsFilters.ts'
 import { useStatisticsPeriod } from '#desktop/pages/statistics/composables/useStatisticsPeriod.ts'
 import { useStatisticsTabs } from '#desktop/pages/statistics/composables/useStatisticsTabs.ts'
 import { useTicketStatisticsQuery } from '#desktop/pages/statistics/graphql/queries/ticketStatistics.api.ts'
-import { useTicketStatisticsAxesQuery } from '#desktop/pages/statistics/graphql/queries/ticketStatisticsAxes.api.ts'
 
 const { tabs, activeTab } = useStatisticsTabs()
 const { variables } = useStatisticsPeriod()
 
-/* Les axes ne sont pas listés ici : le serveur les dérive des champs
-   personnalisés réellement définis. Ajouter un champ dans l'administration
-   suffit donc à le voir apparaître, sans toucher au code. */
-const { result: axesResult } = useTicketStatisticsAxesQuery()
-const availableAxes = computed(() => axesResult.value?.ticketStatisticsAxes ?? [])
+const { axes: availableAxes } = useStatisticsAxes()
+const { filterVariables } = useStatisticsFilters(availableAxes)
 
 const queryVariables = computed(() => ({
   ...variables.value,
+  ...filterVariables.value,
   axes: availableAxes.value.map((axis) => axis.name),
 }))
 
@@ -49,7 +48,7 @@ const businessAxes = computed(() =>
     width="full"
   >
     <div class="flex flex-col gap-6 p-4">
-      <StatisticsPeriodFilter />
+      <StatisticsToolbar />
 
       <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <StatisticsPanel

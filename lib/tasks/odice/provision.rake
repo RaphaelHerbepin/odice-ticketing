@@ -71,6 +71,15 @@
       # Noms des axes du graphique d'évolution.
       'Tickets'                     => 'Tickets',
       'Minutes'                     => 'Minutes',
+      # Filtres par valeur d'axe métier.
+      'Add a filter'                => 'Ajouter un filtre',
+      'Choose a field'              => 'Choisissez un champ',
+      'All'                         => 'Tous',
+      'Clear all filters'           => 'Effacer tous les filtres',
+      '%s filter(s) active'         => '%s filtre(s) actif(s)',
+      'Remove the filter %s: %s'    => 'Retirer le filtre %s : %s',
+      'This address filters on a field that no longer exists (%s); that filter is ignored.' =>
+        'Cette adresse filtre sur un champ qui n’existe plus (%s) ; ce filtre est ignoré.',
       'No ticket has an owner yet: assign tickets to agents for this table to fill in.' =>
         'Aucun ticket n’a encore de propriétaire : attribuez-en aux agents pour que ce tableau se remplisse.',
     }.each do |source, target|

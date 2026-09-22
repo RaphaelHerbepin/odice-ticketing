@@ -26,11 +26,12 @@ class Service::Ticket::Statistics::Agents < Service::Base
   # n'a en réalité pas de propriétaire.
   SYSTEM_USER_ID = 1
 
-  def initialize(from: nil, to: nil, group_ids: nil, organization_ids: nil)
+  def initialize(from: nil, to: nil, group_ids: nil, organization_ids: nil, axis_filters: nil)
     @from             = from
     @to               = to
     @group_ids        = group_ids
     @organization_ids = organization_ids
+    @axis_filters     = axis_filters
   end
 
   def execute
@@ -65,6 +66,7 @@ class Service::Ticket::Statistics::Agents < Service::Base
   def scope
     @scope ||= Service::Ticket::Statistics::Scope.new(
       current_user:, from: @from, to: @to, group_ids: @group_ids, organization_ids: @organization_ids,
+      axis_filters: @axis_filters,
     )
   end
 

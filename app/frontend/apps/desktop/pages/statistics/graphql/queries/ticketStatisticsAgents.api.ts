@@ -6,8 +6,8 @@ import * as VueCompositionApi from 'vue';
 export type ReactiveFunction<TParam> = () => TParam;
 
 export const TicketStatisticsAgentsDocument = gql`
-    query ticketStatisticsAgents($from: ISO8601DateTime, $to: ISO8601DateTime) {
-  ticketStatisticsAgents(from: $from, to: $to) {
+    query ticketStatisticsAgents($from: ISO8601DateTime, $to: ISO8601DateTime, $axisFilters: [TicketStatisticsAxisFilterInput!]) {
+  ticketStatisticsAgents(from: $from, to: $to, axisFilters: $axisFilters) {
     id
     label
     open

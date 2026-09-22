@@ -14,7 +14,13 @@ module Gql::Queries
     # custom fields an administrator actually defined — no hard-coded catalogue
     # to keep in sync.
     def resolve(...)
-      Service::Ticket::Statistics::Axes.available
+      Service::Ticket::Statistics::Axes.available(locale)
+    end
+
+    private
+
+    def locale
+      context.current_user&.locale.presence || Setting.get('locale_default').presence || 'en-us'
     end
   end
 end

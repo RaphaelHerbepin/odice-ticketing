@@ -10,6 +10,10 @@ export const TicketStatisticsAxesDocument = gql`
   ticketStatisticsAxes {
     name
     label
+    values {
+      value
+      label
+    }
   }
 }
     `;

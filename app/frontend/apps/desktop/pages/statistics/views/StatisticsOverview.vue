@@ -8,12 +8,14 @@ import { useLocaleStore } from '#shared/stores/locale.ts'
 import LayoutContent from '#desktop/components/layout/LayoutContent.vue'
 import StatisticsChart from '#desktop/pages/statistics/components/StatisticsChart.vue'
 import StatisticsPanel from '#desktop/pages/statistics/components/StatisticsPanel.vue'
-import StatisticsPeriodFilter from '#desktop/pages/statistics/components/StatisticsPeriodFilter.vue'
+import StatisticsToolbar from '#desktop/pages/statistics/components/StatisticsToolbar.vue'
+import { useStatisticsAxes } from '#desktop/pages/statistics/composables/useStatisticsAxes.ts'
 import {
   accentColor,
   barOption,
   timeSeriesOption,
 } from '#desktop/pages/statistics/composables/useStatisticsChart.ts'
+import { useStatisticsFilters } from '#desktop/pages/statistics/composables/useStatisticsFilters.ts'
 import { useStatisticsFormat } from '#desktop/pages/statistics/composables/useStatisticsFormat.ts'
 import { useStatisticsPeriod } from '#desktop/pages/statistics/composables/useStatisticsPeriod.ts'
 import { useStatisticsTabs } from '#desktop/pages/statistics/composables/useStatisticsTabs.ts'
@@ -21,10 +23,14 @@ import { useTicketStatisticsQuery } from '#desktop/pages/statistics/graphql/quer
 
 const { tabs, activeTab } = useStatisticsTabs()
 const { seriesVariables } = useStatisticsPeriod()
+const { axes } = useStatisticsAxes()
+const { filterVariables } = useStatisticsFilters(axes)
 const { formatNumber, formatDuration, formatPercent } = useStatisticsFormat()
 const locale = useLocaleStore()
 
-const { result, loading } = useTicketStatisticsQuery(seriesVariables)
+const queryVariables = computed(() => ({ ...seriesVariables.value, ...filterVariables.value }))
+
+const { result, loading } = useTicketStatisticsQuery(queryVariables)
 const statistics = computed(() => result.value?.ticketStatistics)
 const totals = computed(() => statistics.value?.totals)
 
@@ -111,7 +117,7 @@ const breakdowns = computed(() => [
     width="full"
   >
     <div class="flex flex-col gap-6 p-4">
-      <StatisticsPeriodFilter show-interval />
+      <StatisticsToolbar show-interval />
 
       <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div

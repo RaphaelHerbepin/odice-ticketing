@@ -16,6 +16,10 @@ module Gql::Queries
     # Interpolated into a DATE_TRUNC, so the service checks it against its own
     # whitelist and silently falls back to a step chosen from the period length.
     argument :interval, String, required: false, description: 'Time step for the series: day, week or month. Chosen from the period length when omitted'
+    # Interpolated into no SQL directly, but the axis NAME designates a column:
+    # the service resolves every entry against the Axes whitelist and refuses
+    # anything else. See Service::Ticket::Statistics::AxisFilter.
+    argument :axis_filters, [Gql::Types::Input::Ticket::Statistics::AxisFilterInputType], required: false, description: 'Restrict to tickets matching these business axis values'
 
     type Gql::Types::Ticket::StatisticsType, null: false
 
@@ -25,10 +29,10 @@ module Gql::Queries
       ctx.current_user.permissions?('ticket.agent')
     end
 
-    def resolve(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil, interval: nil)
+    def resolve(from: nil, to: nil, group_ids: nil, organization_ids: nil, axes: nil, interval: nil, axis_filters: nil)
       Service::Ticket::Statistics
         .with_current_user(context.current_user)
-        .execute(from:, to:, group_ids:, organization_ids:, axes:, interval:)
+        .execute(from:, to:, group_ids:, organization_ids:, axes:, interval:, axis_filters: axis_filters&.map(&:to_h))
     end
   end
 end

@@ -24,10 +24,10 @@ class Service::Ticket::Statistics::Axes
   class UnknownAxis < StandardError; end
 
   class << self
-    # Les axes proposables au client : nom logique, libellé traduisible, et la
-    # colonne sous-jacente — cette dernière n'est jamais exposée.
-    def available
-      attributes
+    # Les axes proposables au client : nom logique, libellé, et les valeurs
+    # sélectionnables. La colonne sous-jacente n'est jamais exposée.
+    def available(locale = nil)
+      attributes(locale)
     end
 
     # Traduit un nom reçu du client en nom de colonne sûr.
@@ -44,8 +44,8 @@ class Service::Ticket::Statistics::Axes
       candidate
     end
 
-    def label(name)
-      attributes.find { |attribute| attribute[:name] == name.to_s }&.fetch(:label) || name.to_s
+    def label(name, locale = nil)
+      attributes(locale).find { |attribute| attribute[:name] == name.to_s }&.fetch(:label) || name.to_s
     end
 
     def valid?(name)
@@ -59,6 +59,11 @@ class Service::Ticket::Statistics::Axes
       attributes.pluck(:name)
     end
 
+    # Les valeurs déclarées d'un axe, telles qu'un administrateur les a définies.
+    def values(name, locale = nil)
+      attributes(locale).find { |attribute| attribute[:name] == name.to_s }&.fetch(:values) || []
+    end
+
     private
 
     # Pas de mémoïsation de classe : elle survivrait à toute la vie du
@@ -66,18 +71,21 @@ class Service::Ticket::Statistics::Axes
     # qu'après redémarrage des workers. La clé de cache porte la date de
     # dernière modification des attributs, donc s'invalide d'elle-même — et la
     # requête sous-jacente ne lit qu'une cinquantaine de lignes.
-    def attributes
+    def attributes(locale = nil)
       version = ::ObjectManager::Attribute.maximum(:updated_at).to_i
+      # La locale entre dans la clé : les libellés sont traduits ici, et un
+      # cache partagé entre locales servirait le français à un anglophone.
+      key     = locale.presence || 'src'
 
-      ::Rails.cache.fetch("odice/statistics/axes/#{version}", expires_in: 1.hour) do
-        load_attributes
+      ::Rails.cache.fetch("odice/statistics/axes/#{version}/#{key}", expires_in: 1.hour) do
+        load_attributes(locale)
       end
     end
 
     # Renvoie des hashes, pas des objets ActiveRecord : ce sont eux qui sont mis
     # en cache, et sérialiser un modèle complet serait à la fois lourd et
     # sensible à toute évolution du schéma.
-    def load_attributes
+    def load_attributes(locale = nil)
       ::ObjectManager::Attribute
         .where(
           object_lookup_id: ::ObjectLookup.by_name('Ticket'),
@@ -87,7 +95,46 @@ class Service::Ticket::Statistics::Axes
         .reject { |attribute| EXCLUDED.include?(attribute.name) }
         .select { |attribute| ::Ticket.column_names.include?(attribute.name) }
         .sort_by(&:display)
-        .map { |attribute| { name: attribute.name, label: attribute.display } }
+        .map do |attribute|
+          {
+            name:   attribute.name,
+            label:  translate(attribute.display, locale),
+            values: option_values(attribute, locale),
+          }
+        end
+    end
+
+    # Les valeurs SÉLECTIONNABLES viennent de la définition du champ, jamais des
+    # seaux d'une agrégation : ceux-ci sont issus de la requête déjà filtrée,
+    # donc cocher une agence ferait disparaître toutes les autres de la liste et
+    # le filtre se refermerait sur lui-même. Ils sont aussi tronqués au top 15.
+    #
+    # Trois formats coexistent selon le type d'attribut, et le type arborescent
+    # se lit en profondeur : ses valeurs stockées sont les chemins complets.
+    def option_values(attribute, locale)
+      options = attribute.data_option&.fetch('options', nil)
+      return [] if options.blank?
+
+      case options
+      when ::Hash  then options.map { |value, label| { value: value.to_s, label: translate(label.to_s, locale) } }
+      when ::Array then flatten_tree(options, locale)
+      else []
+      end
+    end
+
+    def flatten_tree(nodes, locale, collected = [])
+      Array(nodes).each do |node|
+        value = node['value'] || node[:value]
+        collected << { value: value.to_s, label: value.to_s.gsub('::', ' › ') } if value.present?
+        flatten_tree(node['children'] || node[:children], locale, collected)
+      end
+      collected
+    end
+
+    def translate(text, locale)
+      return text if locale.blank?
+
+      ::Translation.translate(locale, text)
     end
   end
 end

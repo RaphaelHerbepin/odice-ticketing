@@ -2,5 +2,9 @@ query ticketStatisticsAxes {
   ticketStatisticsAxes {
     name
     label
+    values {
+      value
+      label
+    }
   }
 }

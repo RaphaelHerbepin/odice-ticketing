@@ -4003,6 +4003,7 @@ export type QueriesTicketSharedDraftZoomShowArgs = {
 /** All available queries */
 export type QueriesTicketStatisticsArgs = {
   axes?: InputMaybe<Array<Scalars['String']['input']>>;
+  axisFilters?: InputMaybe<Array<TicketStatisticsAxisFilterInput>>;
   from?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   interval?: InputMaybe<Scalars['String']['input']>;
@@ -4013,6 +4014,7 @@ export type QueriesTicketStatisticsArgs = {
 
 /** All available queries */
 export type QueriesTicketStatisticsAgentsArgs = {
+  axisFilters?: InputMaybe<Array<TicketStatisticsAxisFilterInput>>;
   from?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   organizationIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -5776,6 +5778,25 @@ export type TicketStatisticsAxisDefinition = {
   label: Scalars['String']['output'];
   /** Logical name to pass to the statistics query */
   name: Scalars['String']['output'];
+  /** Selectable values, as defined by the administrator */
+  values: Array<TicketStatisticsAxisValue>;
+};
+
+/** Restriction on one business axis. Values are OR-ed together; separate entries are AND-ed. */
+export type TicketStatisticsAxisFilterInput = {
+  /** Logical axis name, as returned by ticketStatisticsAxes */
+  name: Scalars['String']['input'];
+  /** Accepted values; null or an empty string means "not set" */
+  values: Array<InputMaybe<Scalars['String']['input']>>;
+};
+
+/** One selectable value of a business axis, as defined by the administrator */
+export type TicketStatisticsAxisValue = {
+  __typename?: 'TicketStatisticsAxisValue';
+  /** Human readable label; tree paths use a chevron */
+  label: Scalars['String']['output'];
+  /** Stored value, to pass back as an axis filter */
+  value: Scalars['String']['output'];
 };
 
 /** Ticket count for one value of a grouping axis */
