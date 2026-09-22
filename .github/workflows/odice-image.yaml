@@ -125,9 +125,14 @@ jobs:
             echo ""
             echo "      ssh-keyscan <valeur exacte de ODICE_DEPLOY_HOST>"
             echo ""
+            # `ssh-keyscan` intercale des lignes de commentaire « # host:22 SSH-2.0… » :
+            # les afficher parmi les entrées rendait la liste illisible.
             echo "  Noms présents dans le secret actuel :"
-            cut -d' ' -f1 ~/.ssh/known_hosts | sed 's/^/    /'
-            echo "  Types de clés présents : $(cut -d' ' -f2 ~/.ssh/known_hosts | sort -u | tr '\n' ' ')"
+            grep -v '^#' ~/.ssh/known_hosts | cut -d' ' -f1 | sort -u | sed 's/^/    /'
+            echo "  Types de clés : $(grep -v '^#' ~/.ssh/known_hosts | cut -d' ' -f2 | sort -u | tr '\n' ' ')"
+            echo ""
+            echo "  Le nom ci-dessus doit correspondre EXACTEMENT à ODICE_DEPLOY_HOST."
+            echo "  Une entrée « [hôte]:22 » ne vaut pas pour « hôte » sans port."
             exit 1
           fi
 
