@@ -95,6 +95,52 @@ d'attente. Le script affiche alors les deux commandes de sortie. **Personne n'es
 prévenu automatiquement** — surveiller le journal du workflow, ou poser une
 tâche cron sur l'ancienneté de `.odice-maintenance-state`.
 
+### Les alias réseau sont partagés entre les deux piles
+
+Le conteneur nginx du staging appartient à **deux** réseaux : le sien, et celui
+de la production — sans quoi nginx-proxy ne pourrait pas l'atteindre. Or les deux
+contiennent des conteneurs portant les mêmes alias : `zammad-postgresql`,
+`zammad-redis`, `zammad-memcached`, `zammad-railsserver`. **Docker ne garantit
+aucun ordre de résolution.**
+
+C'est arrivé : depuis ce conteneur, `zammad-postgresql` résolvait vers la base de
+production. Rails mourait à l'authentification sans le moindre message — la
+boucle d'attente de l'entrypoint masque sa sortie par `&> /dev/null` — d'où un
+nginx qui ne démarrait jamais et un 502 permanent, que ni la mémoire, ni les
+migrations, ni les traductions n'expliquaient.
+
+D'où les noms de conteneurs **complets** dans le `.env` du staging
+(`POSTGRES_HOST`, `REDIS_URL`, `MEMCACHE_SERVERS`, `ZAMMAD_RAILSSERVER_HOST`,
+`ZAMMAD_WEBSOCKET_HOST`). Ils dérivent de `COMPOSE_PROJECT_NAME` : **les revoir
+si vous le changez**.
+
+Le contrôle qui vaut la peine, après toute modification réseau :
+
+```bash
+cd /opt/zammad-staging
+docker compose exec -T zammad-nginx getent hosts zammad-staging-zammad-postgresql-1
+#   doit répondre une adresse en 172.19.x (staging), jamais 172.18.x (production)
+```
+
+Deux conséquences si ce contrôle échoue : le staging ne démarre pas, et — si les
+mots de passe étaient identiques entre les piles — il travaillerait dans les
+données de production. C'est aussi pourquoi ces mots de passe doivent différer.
+
+### Diagnostiquer un nginx qui ne démarre pas
+
+Le symptôme est un 502, et des journaux qui répètent indéfiniment
+`waiting for init container to finish install or update`. L'entrypoint masque
+l'erreur ; pour la voir :
+
+```bash
+docker compose exec -T zammad-nginx bash -c \
+  'bundle exec rails r "ActiveRecord::Migration.check_all_pending!; Translation.any? || raise" 2>&1 | tail -25'
+```
+
+Comparez avec le même appel sur `zammad-railsserver` : s'il réussit là et échoue
+ici, c'est que **quelque chose distingue ce conteneur des autres** — le second
+réseau, en pratique.
+
 ### Les points d'entrée SSH vivent hors du dépôt
 
 Le déploiement fait `git checkout --force` sur le dépôt. Bash lit un script au
