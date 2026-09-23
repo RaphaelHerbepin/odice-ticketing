@@ -12,7 +12,7 @@ const props = {
     { value: null, label: 'Autres', count: 3 },
   ],
   rows: [
-    { value: 'MARTINON', label: 'MARTINON', total: 6, cells: [4, 2] },
+    { value: 'AGENCE NORD', label: 'AGENCE NORD', total: 6, cells: [4, 2] },
     { value: null, label: 'Autres', total: 2, cells: [1, 1] },
   ],
   total: 8,
@@ -34,7 +34,7 @@ describe('StatisticsCrossTable', () => {
     const view = renderComponent(StatisticsCrossTable, { props })
 
     expect(view.getByRole('columnheader', { name: 'Matériel' })).toBeInTheDocument()
-    expect(view.getByRole('rowheader', { name: 'MARTINON' })).toBeInTheDocument()
+    expect(view.getByRole('rowheader', { name: 'AGENCE NORD' })).toBeInTheDocument()
   })
 
   it('shows the marginal totals, without which a grid of numbers has no entry point', () => {

@@ -10,8 +10,8 @@ const axes = [
     name: 'agence',
     label: 'Agence',
     values: [
-      { value: 'MARTINON', label: 'MARTINON' },
-      { value: 'SAVEC', label: 'SAVEC' },
+      { value: 'AGENCE NORD', label: 'AGENCE NORD' },
+      { value: 'AGENCE SUD', label: 'AGENCE SUD' },
     ],
   },
   {
@@ -22,7 +22,7 @@ const axes = [
 ]
 
 const activeAgence: ActiveFilter[] = [
-  { axis: 'agence', label: 'Agence', values: [{ value: 'MARTINON', label: 'MARTINON' }] },
+  { axis: 'agence', label: 'Agence', values: [{ value: 'AGENCE NORD', label: 'AGENCE NORD' }] },
 ]
 
 const render = (filters: ActiveFilter[] = [], values: Record<string, string[]> = {}) =>
@@ -42,7 +42,7 @@ describe('sélecteur des axes à filtrer', () => {
   })
 
   it('leaves out an axis that is already filtered', () => {
-    const view = render(activeAgence, { agence: ['MARTINON'] })
+    const view = render(activeAgence, { agence: ['AGENCE NORD'] })
 
     expect(view.getByLabelText('Agence')).toBeInTheDocument()
   })
@@ -50,9 +50,9 @@ describe('sélecteur des axes à filtrer', () => {
 
 describe('sélecteur de valeurs', () => {
   it('shows the value carried by the URL', () => {
-    const view = render(activeAgence, { agence: ['MARTINON'] })
+    const view = render(activeAgence, { agence: ['AGENCE NORD'] })
 
-    expect(view.getByText('MARTINON')).toBeInTheDocument()
+    expect(view.getByText('AGENCE NORD')).toBeInTheDocument()
   })
 
   /* LE test qui manquait, et il doit porter sur un changement APRÈS le montage.
@@ -61,8 +61,8 @@ describe('sélecteur de valeurs', () => {
      une mise à jour ultérieure distingue `value` de `model-value` — et c'est
      exactement ce que fait l'application quand l'URL change. */
   it('follows a value that changes after mount, which `value` alone would not', async () => {
-    const view = render(activeAgence, { agence: ['MARTINON'] })
-    expect(view.queryByText('SAVEC')).not.toBeInTheDocument()
+    const view = render(activeAgence, { agence: ['AGENCE NORD'] })
+    expect(view.queryByText('AGENCE SUD')).not.toBeInTheDocument()
 
     await view.rerender({
       filters: [
@@ -70,33 +70,33 @@ describe('sélecteur de valeurs', () => {
           axis: 'agence',
           label: 'Agence',
           values: [
-            { value: 'MARTINON', label: 'MARTINON' },
-            { value: 'SAVEC', label: 'SAVEC' },
+            { value: 'AGENCE NORD', label: 'AGENCE NORD' },
+            { value: 'AGENCE SUD', label: 'AGENCE SUD' },
           ],
         },
       ],
-      valuesFor: (axis: string) => (axis === 'agence' ? ['MARTINON', 'SAVEC'] : []),
+      valuesFor: (axis: string) => (axis === 'agence' ? ['AGENCE NORD', 'AGENCE SUD'] : []),
     })
 
-    expect(view.getByText('SAVEC')).toBeInTheDocument()
+    expect(view.getByText('AGENCE SUD')).toBeInTheDocument()
   })
 
   it('reports a new selection to its parent', async () => {
-    const view = render(activeAgence, { agence: ['MARTINON'] })
+    const view = render(activeAgence, { agence: ['AGENCE NORD'] })
 
     await view.events.click(view.getByLabelText('Agence'))
-    await view.events.click(await view.findByRole('option', { name: 'SAVEC' }))
+    await view.events.click(await view.findByRole('option', { name: 'AGENCE SUD' }))
 
     const emitted = view.emitted().change as unknown[][]
     expect(emitted).toBeTruthy()
     expect(emitted.at(-1)?.[0]).toBe('agence')
-    expect(emitted.at(-1)?.[1]).toContain('SAVEC')
+    expect(emitted.at(-1)?.[1]).toContain('AGENCE SUD')
   })
 
   // `model-value` étant réactif, le champ réémet ce qu'on lui réinjecte : sans
   // garde, l'aller-retour URL → champ → URL se rejouerait sans fin.
   it('stays silent when the value it receives has not changed', () => {
-    const view = render(activeAgence, { agence: ['MARTINON'] })
+    const view = render(activeAgence, { agence: ['AGENCE NORD'] })
 
     expect(view.emitted().change).toBeUndefined()
   })

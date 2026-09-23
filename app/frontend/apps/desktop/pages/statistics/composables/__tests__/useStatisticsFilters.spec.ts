@@ -27,8 +27,8 @@ const axes = ref<AxisDefinition[]>([
     name: 'agence',
     label: 'Agence',
     values: [
-      { value: 'MARTINON', label: 'MARTINON' },
-      { value: 'SAVEC', label: 'SAVEC' },
+      { value: 'AGENCE NORD', label: 'AGENCE NORD' },
+      { value: 'AGENCE SUD', label: 'AGENCE SUD' },
     ],
   },
   {
@@ -48,13 +48,13 @@ describe('lecture de la query string', () => {
   // Les trois arrivent en usage normal ; le dernier dès qu'on filtre sur
   // « non renseigné ».
   it('accepts a single value written as a plain string', () => {
-    query.value = { 'f.agence': 'MARTINON' }
-    expect(useStatisticsFilters(axes).valuesFor('agence')).toEqual(['MARTINON'])
+    query.value = { 'f.agence': 'AGENCE NORD' }
+    expect(useStatisticsFilters(axes).valuesFor('agence')).toEqual(['AGENCE NORD'])
   })
 
   it('accepts a repeated key as a list', () => {
-    query.value = { 'f.agence': ['MARTINON', 'SAVEC'] }
-    expect(useStatisticsFilters(axes).valuesFor('agence')).toEqual(['MARTINON', 'SAVEC'])
+    query.value = { 'f.agence': ['AGENCE NORD', 'AGENCE SUD'] }
+    expect(useStatisticsFilters(axes).valuesFor('agence')).toEqual(['AGENCE NORD', 'AGENCE SUD'])
   })
 
   it('reads a valueless key as "not set"', () => {
@@ -70,7 +70,10 @@ describe('lecture de la query string', () => {
 
 describe('filtres actifs', () => {
   it('counts values and not axes', () => {
-    query.value = { 'f.agence': ['MARTINON', 'SAVEC'], 'f.it_categorie': 'Windows::Imprimante' }
+    query.value = {
+      'f.agence': ['AGENCE NORD', 'AGENCE SUD'],
+      'f.it_categorie': 'Windows::Imprimante',
+    }
     expect(useStatisticsFilters(axes).filterCount.value).toBe(3)
   })
 
@@ -96,7 +99,7 @@ describe('filtres actifs', () => {
   })
 
   it('orders filters by the axis catalogue, not by the URL', () => {
-    query.value = { 'f.it_categorie': 'Windows::Imprimante', 'f.agence': 'MARTINON' }
+    query.value = { 'f.it_categorie': 'Windows::Imprimante', 'f.agence': 'AGENCE NORD' }
     expect(useStatisticsFilters(axes).filters.value.map((f) => f.axis)).toEqual([
       'agence',
       'it_categorie',
@@ -112,30 +115,34 @@ describe('variables et paramètres', () => {
     })
   })
 
+  // Les valeurs d'axe contiennent des espaces en pratique (« FROID CUISINE 33 »),
+  // que l'encodage d'URL rend par des « + ». Le serveur les décode ; ce qui
+  // compte est que l'aller-retour conserve la valeur exacte.
   it('builds REST parameters from the same source as the page URL', () => {
-    query.value = { 'f.agence': ['MARTINON', 'SAVEC'] }
-    expect(useStatisticsFilters(axes).restParams.value.toString()).toBe(
-      'f.agence=MARTINON&f.agence=SAVEC',
-    )
+    query.value = { 'f.agence': ['AGENCE NORD', 'AGENCE SUD'] }
+    const params = useStatisticsFilters(axes).restParams.value
+
+    expect(params.toString()).toBe('f.agence=AGENCE+NORD&f.agence=AGENCE+SUD')
+    expect(params.getAll('f.agence')).toEqual(['AGENCE NORD', 'AGENCE SUD'])
   })
 })
 
 describe('écriture', () => {
   it('drops the key entirely when the last value goes', () => {
-    query.value = { days: '90', 'f.agence': 'MARTINON' }
-    useStatisticsFilters(axes).removeValue('agence', 'MARTINON')
+    query.value = { days: '90', 'f.agence': 'AGENCE NORD' }
+    useStatisticsFilters(axes).removeValue('agence', 'AGENCE NORD')
     expect(replace).toHaveBeenCalledWith({ query: { days: '90' } })
   })
 
   it('removes one value and keeps the others', () => {
-    query.value = { 'f.agence': ['MARTINON', 'SAVEC'] }
-    useStatisticsFilters(axes).removeValue('agence', 'MARTINON')
-    expect(replace).toHaveBeenCalledWith({ query: { 'f.agence': ['SAVEC'] } })
+    query.value = { 'f.agence': ['AGENCE NORD', 'AGENCE SUD'] }
+    useStatisticsFilters(axes).removeValue('agence', 'AGENCE NORD')
+    expect(replace).toHaveBeenCalledWith({ query: { 'f.agence': ['AGENCE SUD'] } })
   })
 
   // Vider les filtres ne doit pas emporter la période ni le pas de temps.
   it('clears filters without touching the other settings', () => {
-    query.value = { days: '90', step: 'week', 'f.agence': 'MARTINON', 'f.it_categorie': 'x' }
+    query.value = { days: '90', step: 'week', 'f.agence': 'AGENCE NORD', 'f.it_categorie': 'x' }
     useStatisticsFilters(axes).clearFilters()
     expect(replace).toHaveBeenCalledWith({ query: { days: '90', step: 'week' } })
   })

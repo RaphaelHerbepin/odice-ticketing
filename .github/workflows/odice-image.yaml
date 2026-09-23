@@ -191,7 +191,7 @@ jobs:
           chmod 600 ~/.ssh/known_hosts
 
           # L'entrée doit porter EXACTEMENT le nom utilisé pour se connecter.
-          # Un relevé fait sur « srv1943441 » ne vaut pas pour une IP, ni
+          # Un relevé fait sur « votre-serveur » ne vaut pas pour une IP, ni
           # l'inverse : OpenSSH compare la chaîne, il ne résout rien. Sans ce
           # contrôle, l'échec ne dit que « Host key verification failed », ce
           # qui n'oriente vers rien.

@@ -151,8 +151,8 @@ contrib/odice/switch/use-legacy.sh --dump /opt/odice-rollback/<fichier>.psql.gz
 ## Copier la production sur un poste de développement
 
 ```bash
-contrib/odice/vps-pull.sh --host raphael@srv1943441 --path /opt/zammad-docker-compose --inspect
-contrib/odice/vps-pull.sh --host raphael@srv1943441 --path /opt/zammad-docker-compose
+contrib/odice/vps-pull.sh --host utilisateur@votre-serveur --path /opt/zammad-docker-compose --inspect
+contrib/odice/vps-pull.sh --host utilisateur@votre-serveur --path /opt/zammad-docker-compose
 contrib/odice/restore-local.sh --from tmp/import
 ```
 
