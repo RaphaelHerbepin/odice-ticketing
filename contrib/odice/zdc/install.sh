@@ -44,14 +44,40 @@ FILES="${FILES}:docker-compose.odice.yml"
 [ -f "${ENV_FILE}" ] || touch "${ENV_FILE}"
 [ -s "${ENV_FILE}" ] && [ -n "$(tail -c1 "${ENV_FILE}")" ] && printf '\n' >> "${ENV_FILE}"
 
+# La chaîne est RECONSTRUITE à chaque exécution, et pas seulement complétée du
+# maillon Odice.
+#
+# Un docker-compose.override.yml déposé APRÈS un premier passage de ce script
+# n'était sinon jamais chaîné : le script voyait son propre complément déjà
+# présent, annonçait « déjà présent », et l'override restait silencieusement
+# ignoré par Compose. Un fichier de configuration sans effet et sans message
+# est le pire des deux mondes.
 if grep -qE '^[[:space:]]*COMPOSE_FILE=' "${ENV_FILE}"; then
   CURRENT="$(grep -E '^[[:space:]]*COMPOSE_FILE=' "${ENV_FILE}" | tail -n1 | cut -d= -f2-)"
-  case ":${CURRENT}:" in
-    *:docker-compose.odice.yml:*) echo "  COMPOSE_FILE contient déjà le complément" ;;
-    *) sed -i.bak -E "s|^[[:space:]]*COMPOSE_FILE=.*|COMPOSE_FILE=${CURRENT}:docker-compose.odice.yml|" "${ENV_FILE}"
-       rm -f "${ENV_FILE}.bak"
-       echo "  COMPOSE_FILE complété" ;;
+  WANTED="${CURRENT}"
+
+  # L'override de l'exploitant vient juste après le fichier de base, avant le
+  # complément Odice : ce dernier doit pouvoir surcharger ce qu'il y trouve.
+  if [ -f "${ZDC}/docker-compose.override.yml" ]; then
+    case ":${WANTED}:" in
+      *:docker-compose.override.yml:*) ;;
+      *) WANTED="$(printf '%s' "${WANTED}" | sed 's|docker-compose\.yml|docker-compose.yml:docker-compose.override.yml|')"
+         echo "  votre docker-compose.override.yml manquait dans la chaîne — ajouté" ;;
+    esac
+  fi
+
+  case ":${WANTED}:" in
+    *:docker-compose.odice.yml:*) ;;
+    *) WANTED="${WANTED}:docker-compose.odice.yml" ;;
   esac
+
+  if [ "${WANTED}" = "${CURRENT}" ]; then
+    echo "  COMPOSE_FILE déjà complet"
+  else
+    sed -i.bak -E "s|^[[:space:]]*COMPOSE_FILE=.*|COMPOSE_FILE=${WANTED}|" "${ENV_FILE}"
+    rm -f "${ENV_FILE}.bak"
+    echo "  COMPOSE_FILE=${WANTED}"
+  fi
 else
   printf 'COMPOSE_FILE=%s\n' "${FILES}" >> "${ENV_FILE}"
   echo "  COMPOSE_FILE=${FILES}"
