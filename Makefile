@@ -19,7 +19,7 @@ COMPOSE_AT   = $(if $(ZDC),cd $(ZDC) && docker compose,$(COMPOSE))
 SWITCH_DIR   = $(if $(ZDC),--dir $(ZDC),)
 COMPOSE_DEV := docker compose -f docker-compose.dev.yml
 
-.PHONY: .check-stack help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local image-tag deploy use-odice use-legacy use-legacy-dry-run which-version install-zdc refresh-staging maintenance-on maintenance-off maintenance-status deploy-production install-ci-entry
+.PHONY: .check-stack help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local image-tag deploy use-odice use-legacy use-legacy-dry-run which-version install-zdc refresh-staging maintenance-on maintenance-off maintenance-status deploy-production install-ci-entry enable-maintenance
 
 help: ## Affiche cette aide
 	@echo "Pile visée : $(if $(ZDC),$(ZDC),ce dépôt — export ZDC=/opt/zammad-docker-compose pour en viser une autre)"
@@ -149,6 +149,9 @@ maintenance-status: .check-stack ## Dit si une maintenance est active (ZDC=…)
 
 deploy-production: .check-stack ## Mise en production complète, page de maintenance comprise
 	@contrib/odice/switch/deploy-production.sh $(SWITCH_DIR)
+
+enable-maintenance: .check-stack ## Rend une pile existante compatible avec la page de maintenance (ZDC=…)
+	@contrib/odice/switch/enable-maintenance-support.sh $(SWITCH_DIR)
 
 install-ci-entry: ## (Re)installe les points d'entrée SSH hors du dépôt — à rejouer après toute modification
 	@contrib/odice/switch/install-ci-entry.sh
