@@ -91,6 +91,34 @@ else
 fi
 
 echo
+# Un « $ » nu dans une valeur du .env est interprété par Compose comme le début
+# d'une variable : le mot de passe « aB3$Ks-9xQ2mZ » arrive au conteneur amputé,
+# en « aB3-9xQ2mZ ». Compose le signale par un avertissement noyé au milieu des
+# autres, et la valeur réellement en service n'est PAS celle qu'on a écrite.
+#
+# On avertit sans bloquer : un .env peut légitimement référencer une variable.
+# Les « $$ » correctement échappés sont retirés AVANT de chercher un « $ »
+# restant : les signaler serait pire qu'inutile, l'exploitant se mettant alors à
+# douter d'une ligne qui est juste.
+SUSPECTES="$(awk '/^[[:space:]]*[A-Za-z_][A-Za-z0-9_]*=/ { v = $0; gsub(/\$\$/, "", v); if (v ~ /\$/) printf "%d ", NR }' "${ENV_FILE}" 2>/dev/null || true)"
+if [ -n "${SUSPECTES}" ]; then
+  cat <<AVERTISSEMENT
+
+  ATTENTION — un « \$ » non doublé figure dans ${ENV_FILE}, ligne(s) : ${SUSPECTES}
+
+  Compose y voit le début d'une variable et TRONQUE la valeur. Un mot de passe
+  « aB3\$Ks-9xQ2mZ » arrive au conteneur en « aB3-9xQ2mZ » : ce n'est pas celui
+  que vous avez choisi, et cela ne se découvre qu'à la première connexion.
+
+  Corrigez en doublant le dollar (\$\$), ou — plus simple — en régénérant la
+  valeur sans ce caractère :
+
+      tr -dc 'A-Za-z0-9_-' < /dev/urandom | head -c 32; echo
+
+AVERTISSEMENT
+fi
+
+echo
 echo '== Vérification — les fichiers réellement chargés'
 ( cd "${ZDC}" && docker compose config --no-interpolate >/dev/null 2>&1 \
   && echo '  la configuration se résout correctement' \
