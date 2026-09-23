@@ -225,8 +225,22 @@ SINCE="$(date -u +'%Y-%m-%dT%H:%M:%S')"
 #
 # On ne démarre donc que ce qui restaure et migre. Le reste attend que
 # `odice:sandbox` soit passé ET vérifié.
-dc up -d zammad-redis zammad-memcached zammad-elasticsearch
-dc up -d zammad-backup
+dc up -d zammad-redis zammad-memcached
+
+# Elasticsearch seulement si la pile l'utilise. Le NOMMER explicitement suffirait
+# à l'activer, même placé sous un profil inactif — c'est ainsi qu'un nœud de
+# 1,5 Go s'est retrouvé démarré sur une pile qui l'avait délibérément coupé.
+if [ "$(env_get ELASTICSEARCH_ENABLED true)" != 'false' ]; then
+  dc up -d zammad-elasticsearch
+fi
+
+# `--force-recreate`, et non un simple `up -d`.
+#
+# `backup.sh` ne teste la présence du répertoire de restauration QU'À SON
+# DÉMARRAGE (contrib/docker/backup.sh:112). Sur une pile déjà en marche, Compose
+# répond « Running » sans rien recréer : les archives ne sont jamais vues, et le
+# script attend indéfiniment un « Restore completed » qui ne viendra pas.
+dc up -d --force-recreate zammad-backup
 
 # Le service porte `restart: unless-stopped` : un échec de restauration ne
 # l'arrête pas, il le relance en boucle. On surveille donc le contenu des
