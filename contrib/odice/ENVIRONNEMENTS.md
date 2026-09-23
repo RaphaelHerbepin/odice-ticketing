@@ -110,7 +110,15 @@ make install-ci-entry              # sinon le serveur exécute l'ancienne versio
 
 ## Installation, une fois
 
-Dans l'ordre. Les étapes 1 à 6 ne touchent pas la production.
+Dans l'ordre. Les étapes 1 à 7 ne touchent pas la production.
+
+**Elasticsearch est coupé sur le staging** : le serveur dispose de 4 Go libres
+et d'aucun espace d'échange, et un second nœud en réclamerait un à deux, au
+détriment direct de la production. Zammad le supporte nativement — l'entrypoint
+pose `es_url` à vide et la recherche bascule sur SQL. En contrepartie, **la
+recherche du staging n'est pas représentative** : pas de plein texte dans le
+corps des articles, pas de pertinence. Une régression de recherche ne se verra
+donc qu'en production.
 
 ```bash
 # 1. Mesurer AVANT. Deux Elasticsearch, c'est la mémoire qui cède en premier.
@@ -124,39 +132,46 @@ docker volume ls | grep zammad-docker-compose
 #    acme-companion tente le challenge dès qu'il voit LETSENCRYPT_HOST, et un
 #    échec le met en retrait exponentiel.
 
-# 4. La pile de staging
+# 4. Relever le nom du réseau du proxy — il n'est PAS « nginx-proxy » ici :
+#    le proxy fait partie du projet Compose de la production, ses volumes
+#    s'appelant « zammad-docker-compose_nginx-proxy-* ».
+docker inspect nginx-proxy \
+  --format '{{range $k,$v := .NetworkSettings.Networks}}{{println $k}}{{end}}'
+
+# 5. La pile de staging
 git clone https://github.com/zammad/zammad-docker-compose.git /opt/zammad-staging
 git clone git@github.com:RaphaelHerbepin/odice-ticketing.git /opt/odice-ticketing-staging
 cd /opt/odice-ticketing-staging && git checkout odice/main
 ./contrib/odice/zdc/install.sh /opt/zammad-staging
-cp contrib/odice/zdc/docker-compose.nginx-proxy.yml.example /opt/zammad-staging/docker-compose.override.yml
+cp contrib/odice/staging/docker-compose.staging.yml /opt/zammad-staging/docker-compose.override.yml
 cat contrib/odice/staging/env.staging.example >> /opt/zammad-staging/.env
-$EDITOR /opt/zammad-staging/.env          # mots de passe, domaine
+$EDITOR /opt/zammad-staging/.env   # mots de passe, et ODICE_PROXY_NETWORK si
+                                   # le nom relevé en 4 n'est pas celui par défaut
 
-# 5. Vérifier l'ISOLEMENT avant tout démarrage — c'est le contrôle qui compte
+# 6. Vérifier l'ISOLEMENT avant tout démarrage — c'est le contrôle qui compte
 cd /opt/zammad-staging
 docker compose config --format json | python3 -c 'import json,sys;d=json.load(sys.stdin);print(d["name"], list(d.get("volumes",{}).keys()))'
 docker compose config | grep -E 'VIRTUAL_HOST|LETSENCRYPT'
 
-# 6. Premier démarrage, base VIDE. Puis vérifier que les volumes sont NEUFS.
+# 7. Premier démarrage, base VIDE. Puis vérifier que les volumes sont NEUFS.
 docker compose up -d
 docker volume ls | grep zammad-staging
 docker volume ls | grep zammad-docker-compose      # doit être inchangé
 
-# 7. Barrière réseau : la seule protection qui survive à une erreur de script
+# 8. Barrière réseau : la seule protection qui survive à une erreur de script
 SUBNET=$(docker network inspect zammad-staging_default -f '{{(index .IPAM.Config 0).Subnet}}')
 sudo iptables -I DOCKER-USER -s "$SUBNET" -p tcp -m multiport --dports 25,465,587,143,993 -j REJECT
 sudo apt install iptables-persistent && sudo netfilter-persistent save
 
-# 8. Premières données, en surveillant le planificateur
+# 9. Premières données, en surveillant le planificateur
 cd /opt/odice-ticketing-staging && make refresh-staging
 
-# 9. Répéter la maintenance SUR LE STAGING avant de l'essayer en production
+# 10. Répéter la maintenance SUR LE STAGING avant de l'essayer en production
 export ZDC=/opt/zammad-staging
 make maintenance-on && curl -sI https://staging.support.odice.info/ | head -3
 make maintenance-off
 
-# 10. Points d'entrée et clés
+# 11. Points d'entrée et clés
 cd /opt/odice-ticketing-staging && sudo make install-ci-entry
 ssh-keygen -t ed25519 -f ~/.ssh/odice-ci-staging -C odice-ci-staging -N ''
 ssh-keygen -t ed25519 -f ~/.ssh/odice-ci-prod    -C odice-ci-prod    -N ''

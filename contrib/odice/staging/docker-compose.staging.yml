@@ -1,0 +1,45 @@
+# Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+#
+# Odice — complément de la pile de STAGING.
+#
+# À copier en `docker-compose.override.yml` dans /opt/zammad-staging.
+# Il fait deux choses : rattacher le staging au proxy, et couper Elasticsearch.
+
+services:
+  zammad-nginx:
+    environment:
+      # Interpolé depuis le .env, jamais écrit en dur : c'est ce qui permet à
+      # maintenance.sh de retirer l'application des vhosts en vidant une
+      # variable — le seul état qui survive à une recréation de conteneur.
+      VIRTUAL_HOST: ${ZAMMAD_VIRTUAL_HOST:-}
+      # Port INTERNE du conteneur, pas celui publié sur l'hôte.
+      VIRTUAL_PORT: ${NGINX_PORT:-8080}
+      LETSENCRYPT_HOST: ${LETSENCRYPT_HOST:-}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}
+    networks:
+      - default
+      - proxy
+
+  # Elasticsearch ne démarre pas sur le staging.
+  #
+  # Un profil non activé suffit : `docker compose up -d` ignore alors ce
+  # service. Aucun autre n'en dépend dans zammad-docker-compose — vérifié, il
+  # n'apparaît dans aucun `depends_on` —, donc rien d'autre à neutraliser.
+  #
+  # Pour le rallumer un jour : ELASTICSEARCH_ENABLED=true dans le .env, puis
+  # `docker compose --profile search up -d`.
+  zammad-elasticsearch:
+    profiles: ['search']
+
+networks:
+  # Le réseau sur lequel tourne nginx-proxy. Sur cette installation, le proxy
+  # fait partie du projet Compose de la production (ses volumes s'appellent
+  # « zammad-docker-compose_nginx-proxy-* ») : son réseau est donc celui de ce
+  # projet, et non un réseau « nginx-proxy » autonome.
+  #
+  # Le nom exact se relève ainsi :
+  #   docker inspect nginx-proxy \
+  #     --format '{{range $k,$v := .NetworkSettings.Networks}}{{println $k}}{{end}}'
+  proxy:
+    external: true
+    name: ${ODICE_PROXY_NETWORK:-zammad-docker-compose_default}
