@@ -140,7 +140,9 @@ docker inspect nginx-proxy \
 
 # 5. La pile de staging
 git clone https://github.com/zammad/zammad-docker-compose.git /opt/zammad-staging
-git clone git@github.com:RaphaelHerbepin/odice-ticketing.git /opt/odice-ticketing-staging
+# HTTPS et non SSH : le point d'entrée de déploiement fera « git fetch »
+# derrière une commande forcée, donc sans agent SSH. Le dépôt est public.
+git clone https://github.com/RaphaelHerbepin/odice-ticketing.git /opt/odice-ticketing-staging
 cd /opt/odice-ticketing-staging && git checkout odice/main
 ./contrib/odice/zdc/install.sh /opt/zammad-staging
 cp contrib/odice/staging/docker-compose.staging.yml /opt/zammad-staging/docker-compose.override.yml

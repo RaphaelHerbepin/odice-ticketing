@@ -78,7 +78,28 @@ fi
 
 # On se place exactement sur le commit que la CI a construit, pas sur la pointe
 # de la branche : entre le build et ce déploiement, elle a pu avancer.
-git fetch --quiet origin
+#
+# Ce script s'exécute derrière une commande forcée SSH, donc SANS agent et sans
+# transfert d'agent (`no-agent-forwarding` est explicitement posé). Un `origin`
+# en git@github.com échoue alors par « Permission denied (publickey) » — un
+# message qui laisse chercher du côté des droits, alors qu'il s'agit du contexte
+# d'exécution. Le dépôt étant public, une URL HTTPS n'a besoin de rien.
+if ! git fetch --quiet origin 2>/dev/null; then
+  say "REFUS : impossible de récupérer les commits depuis « $(git remote get-url origin 2>/dev/null) »"
+  cat >&2 <<FAIL
+
+Ce script tourne sans agent SSH — la commande forcée l'interdit.
+
+Si l'URL commence par « git@github.com: », c'est la cause. Pour un dépôt
+public, basculez sur HTTPS :
+
+  git -C "${REPO}" remote set-url origin https://github.com/<compte>/<dépôt>.git
+
+Pour un dépôt privé, il faut une clé de déploiement dédiée, déclarée dans
+~/.ssh/config pour l'hôte github.com.
+FAIL
+  exit 1
+fi
 if ! git rev-parse --verify --quiet "${SHA8}^{commit}" >/dev/null; then
   say "REFUS : commit ${SHA8} inconnu du dépôt"
   exit 1

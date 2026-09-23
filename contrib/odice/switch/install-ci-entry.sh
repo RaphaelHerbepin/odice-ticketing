@@ -22,6 +22,30 @@ DEST="${ODICE_SBIN_DIR:-/usr/local/sbin}"
 install -m 0755 "${HERE}/ci-deploy-staging.sh"    "${DEST}/odice-deploy-staging"
 install -m 0755 "${HERE}/ci-deploy-production.sh" "${DEST}/odice-deploy-production"
 
+# Le point d'entrée fera `git fetch` sans agent SSH. Autant le dire ici, où la
+# correction coûte une commande, plutôt qu'au premier déploiement.
+REPO_DIR="$(cd "${HERE}/../../.." && pwd)"
+ORIGIN="$(git -C "${REPO_DIR}" remote get-url origin 2>/dev/null || true)"
+case "${ORIGIN}" in
+  git@*|ssh://*)
+    cat <<AVERTISSEMENT
+
+  ATTENTION — ${REPO_DIR} utilise une URL SSH :
+
+      ${ORIGIN}
+
+  Les points d'entrée s'exécutent derrière une commande forcée, donc sans agent
+  SSH : le « git fetch » y échouera par « Permission denied (publickey) ».
+
+  Pour un dépôt public :
+
+      git -C "${REPO_DIR}" remote set-url origin \
+        "$(printf '%s' "${ORIGIN}" | sed -E 's|^git@([^:]+):|https://\1/|; s|^ssh://git@([^/]+)/|https://\1/|')"
+
+AVERTISSEMENT
+    ;;
+esac
+
 cat <<DONE
 Points d'entrée installés :
 
