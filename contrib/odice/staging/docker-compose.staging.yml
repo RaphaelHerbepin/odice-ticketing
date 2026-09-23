@@ -16,6 +16,14 @@ services:
       VIRTUAL_PORT: ${NGINX_PORT:-8080}
       LETSENCRYPT_HOST: ${LETSENCRYPT_HOST:-}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}
+      # Vers QUI ce nginx doit router. Ces deux variables ne sont pas déclarées
+      # dans le compose amont : sans elles, l'entrypoint retombe sur les alias
+      # « zammad-railsserver » et « zammad-websocket » — que ce conteneur, étant
+      # aussi sur le réseau de la production, résout vers la PRODUCTION.
+      # Le staging aurait alors servi l'instance de production sous son propre
+      # domaine. Voir la note sur les alias partagés dans env.staging.example.
+      ZAMMAD_RAILSSERVER_HOST: ${ZAMMAD_RAILSSERVER_HOST:-zammad-railsserver}
+      ZAMMAD_WEBSOCKET_HOST: ${ZAMMAD_WEBSOCKET_HOST:-zammad-websocket}
     networks:
       - default
       - proxy
