@@ -16,9 +16,9 @@ on:
     branches: [odice/main]
   workflow_dispatch:
 
-concurrency:
-  group: odice-image-${{ github.ref }}
-  cancel-in-progress: true
+# Volontairement PAS de concurrence au niveau du workflow : elle s'appliquerait
+# aussi au déploiement, qu'il ne faut jamais interrompre. Chaque job porte donc
+# la sienne.
 
 jobs:
   # Barrière minimale, et volontairement minimale.
@@ -32,6 +32,10 @@ jobs:
   # C'est le rôle du staging, qu'on regarde avant de poser une étiquette.
   checks:
     runs-on: ubuntu-24.04
+    # Annulable : un contrôle sur un commit dépassé n'apprend rien.
+    concurrency:
+      group: odice-checks-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -81,6 +85,10 @@ jobs:
 
   build:
     runs-on: ubuntu-24.04
+    # Annulable : l'image d'un commit dépassé ne sera pas déployée.
+    concurrency:
+      group: odice-build-${{ github.ref }}
+      cancel-in-progress: true
     permissions:
       contents: read
       packages: write
@@ -145,6 +153,15 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
     environment: staging
+    # JAMAIS annulable, et c'est le point important.
+    #
+    # Un `docker compose up -d` interrompu laisse la pile à mi-chemin : c'est
+    # ainsi que le conteneur nginx de production s'est retrouvé « Created » et
+    # jamais démarré, site injoignable, alors que tout le reste tournait. Le
+    # déploiement suivant attend donc son tour au lieu de tuer le précédent.
+    concurrency:
+      group: odice-deploy-staging
+      cancel-in-progress: false
     steps:
       - name: Déployer sur le staging
         env:

@@ -50,12 +50,37 @@ fi
 
 echo
 echo '== Disponibilité'
-if ! docker pull "${REPO}:${TAG}" >/dev/null 2>&1; then
+
+# Plusieurs tentatives, et non une seule.
+#
+# Le déploiement suit immédiatement la construction : il s'est déjà produit
+# qu'un `pull` lancé NEUF SECONDES après la fin du push échoue, le registre
+# n'ayant pas fini d'indexer le nouveau tag. Un échec à cet instant est
+# transitoire, mais il arrête le déploiement et laisse croire à une image
+# manquante.
+PULL_TRIES="${ODICE_PULL_TRIES:-4}"
+PULL_DELAY="${ODICE_PULL_DELAY:-15}"
+PULLED=false
+for attempt in $(seq 1 "${PULL_TRIES}"); do
+  if docker pull "${REPO}:${TAG}" >/dev/null 2>&1; then
+    PULLED=true
+    break
+  fi
+  if [ "${attempt}" -lt "${PULL_TRIES}" ]; then
+    echo "  tentative ${attempt}/${PULL_TRIES} sans succès, nouvelle tentative dans ${PULL_DELAY} s…"
+    sleep "${PULL_DELAY}"
+  fi
+done
+
+if [ "${PULLED}" != true ]; then
   cat >&2 <<FAIL
-Erreur : ${REPO}:${TAG} est introuvable au registry.
+Erreur : ${REPO}:${TAG} est introuvable au registry après ${PULL_TRIES} tentatives.
 
   La CI a-t-elle terminé pour ce commit ?
     gh run list --repo <compte>/odice-ticketing --limit 3
+
+  Le serveur est-il encore authentifié auprès du registre ?
+    docker pull ${REPO}:${TAG}
 
   Un build prend 6 à 7 minutes. Rien n'a été modifié sur la pile.
 FAIL
