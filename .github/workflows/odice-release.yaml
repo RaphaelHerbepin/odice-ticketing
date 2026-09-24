@@ -143,8 +143,32 @@ jobs:
 
           # La clé porte côté serveur une commande forcée qui ne peut lancer que
           # odice-deploy-production : l'environnement n'est pas transmis ici.
-          ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=yes -o BatchMode=yes \
-            "${DEPLOY_USER:-raphael}@${DEPLOY_HOST}" "${TAG}"
+          #
+          # `-4` : les runners GitHub n'ont pas d'IPv6 sortant, et un nom qui
+          # résout en AAAA donne « Network is unreachable » après deux minutes
+          # d'attente. Forcer IPv4 supprime cette classe d'échec.
+          #
+          # Trois tentatives, et seulement sur échec de CONNEXION : une
+          # coupure réseau passagère ne doit pas réclamer une relance à la
+          # main. Le code 255 est celui de ssh lui-même ; tout autre code vient
+          # du script distant, qui a donc bien été atteint — le rejouer
+          # risquerait de déployer deux fois.
+          for tentative in 1 2 3; do
+            set +o errexit
+            ssh -4 -i ~/.ssh/id_deploy -o StrictHostKeyChecking=yes -o BatchMode=yes \
+              -o ConnectTimeout=20 \
+              "${DEPLOY_USER:-raphael}@${DEPLOY_HOST}" "${TAG}"
+            CODE=$?
+            set -o errexit
+
+            [ "${CODE}" -eq 0 ] && break
+            if [ "${CODE}" -ne 255 ] || [ "${tentative}" -eq 3 ]; then
+              echo "::error::le déploiement a échoué (code ${CODE})."
+              exit "${CODE}"
+            fi
+            echo "connexion impossible (tentative ${tentative}/3), nouvelle tentative dans 20 s…"
+            sleep 20
+          done
 
           {
             echo "### Mise en production"
