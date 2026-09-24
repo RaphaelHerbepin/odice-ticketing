@@ -1,0 +1,35 @@
+/* Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+ *
+ * Odice — bandeau d'environnement (interface historique).
+ *
+ * Posé par `zzz_odice_environment_banner.coffee`, qui n'ajoute la classe que
+ * lorsque l'instance se déclare autre chose que la production. En production,
+ * ces règles ne s'appliquent donc jamais.
+ */
+
+.odice-environment-banner {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 10000;
+  padding: 0.3rem 1rem;
+
+  /* Ambre plutôt que rouge : c'est un avertissement permanent, pas une erreur.
+     Le rouge s'use quand il est affiché en continu. */
+  background: #b45309;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+
+  /* Le bandeau ne doit jamais intercepter un clic destiné à l'interface. */
+  pointer-events: none;
+}
+
+/* L'interface historique se positionne en absolu depuis le haut : sans ce
+   décalage, le bandeau recouvrirait la barre de navigation au lieu de la
+   pousser. */
+.odice-has-environment-banner {
+  top: 1.55rem !important;
+}

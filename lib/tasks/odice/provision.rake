@@ -71,6 +71,9 @@
       # Noms des axes du graphique d'évolution.
       'Tickets'                     => 'Tickets',
       'Minutes'                     => 'Minutes',
+      # Bandeau d'environnement.
+      'Staging — fictitious data, changes here have no effect on production.' =>
+        'Staging — données fictives, ce qui est modifié ici n’a aucun effet sur la production.',
       # Filtres par valeur d'axe métier.
       'Add a filter'                => 'Ajouter un filtre',
       'Choose a field'              => 'Choisissez un champ',
@@ -132,13 +135,13 @@ namespace :odice do
     # À INCRÉMENTER à chaque ajout d'étape sous le compteur, sans quoi une
     # instance déjà provisionnée saute la nouveauté en silence : elle a déjà
     # atteint la cible. La version 2 ajoute le décompte du temps et la relance
-    # automatique.
+    # automatique ; la version 3, le marqueur d'environnement.
     # `.presence ||` et non `ENV.fetch(..., défaut)` : le fichier compose
     # DÉCLARE toutes les variables ODICE_* avec `${VAR:-}`, donc elles existent
     # dans le conteneur, vides. `fetch` trouve alors la clé et renvoie la chaîne
     # vide — jamais le défaut. C'est ce qui ramenait la cible à 0 en production
     # et faisait sortir la tâche avant d'avoir rien appliqué.
-    target  = (ENV['ODICE_PROVISION_VERSION'].presence || '2').to_i
+    target  = (ENV['ODICE_PROVISION_VERSION'].presence || '3').to_i
     applied = Setting.get('odice_provision_version').to_i
     forced  = %w[1 true yes].include?(ENV['ODICE_PROVISION_FORCE'].to_s.downcase)
 
@@ -357,6 +360,25 @@ namespace :odice do
         warn "  !! ODICE_LOGO_PATH introuvable : #{path}"
       end
     end
+
+    # 8 bis. L'environnement, exposé au frontend.
+    #
+    #    C'est ce qui permet aux deux interfaces d'afficher un bandeau sur le
+    #    staging et rien en production, à partir de la MÊME image. Le fonder
+    #    sur le nom de domaine marcherait aussi, mais deviendrait faux le jour
+    #    où l'adresse change — alors que ce réglage, lui, décrit l'intention.
+    Setting.create_if_not_exists(
+      title:       'Odice environment',
+      name:        'odice_environment',
+      area:        'Core',
+      description: 'Environnement de cette instance : production ou staging.',
+      options:     {},
+      state:       'production',
+      preferences: { prio: 1 },
+      frontend:    true,
+    )
+    Setting.set('odice_environment', ENV['ODICE_ENVIRONMENT'].presence || 'production')
+    puts "  environnement déclaré : #{Setting.get('odice_environment')}"
 
     # 9. Marqueur de version, pour que la tâche ne réécrase pas des réglages
     #    modifiés depuis l'interface d'administration.

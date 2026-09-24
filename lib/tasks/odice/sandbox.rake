@@ -94,10 +94,16 @@ namespace :odice do
       puts "  mot de passe appliqué à #{admins.count} compte(s) administrateur."
     end
 
-    # 7. Marqueur visible dans l'interface, pour qu'on ne confonde jamais cette
-    #    copie avec la production en cours de démonstration.
-    product_name = Setting.get('product_name').to_s.sub(/ — COPIE\z/, '')
-    Setting.set('product_name', "#{product_name} — COPIE")
+    # 7. Le nom du produit n'est plus suffixé ici.
+    #
+    #    Il l'était par « — COPIE », ce qui alourdissait chaque titre de page
+    #    pour redire ce qu'ODICE_PRODUCT_NAME porte déjà — « Odice Helpdesk
+    #    (staging) ». La distinction visible entre les deux instances est
+    #    désormais assurée par un bandeau permanent dans l'interface, qui se
+    #    voit bien mieux qu'un suffixe en fin de titre.
+    #
+    #    On retire le suffixe s'il subsiste d'une exécution précédente.
+    Setting.set('product_name', Setting.get('product_name').to_s.sub(/ — COPIE\z/, ''))
 
     Rails.cache.clear
     puts 'odice:sandbox — copie neutralisée.'

@@ -19,7 +19,7 @@ COMPOSE_AT   = $(if $(ZDC),cd $(ZDC) && docker compose,$(COMPOSE))
 SWITCH_DIR   = $(if $(ZDC),--dir $(ZDC),)
 COMPOSE_DEV := docker compose -f docker-compose.dev.yml
 
-.PHONY: .check-stack help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local image-tag deploy use-odice use-legacy use-legacy-dry-run which-version install-zdc refresh-staging maintenance-on maintenance-off maintenance-status deploy-production install-ci-entry enable-maintenance
+.PHONY: .check-stack help build push up down restart logs ps console provision backup dev-up dev-down dev-logs lint-odice remote-inspect remote-pull restore-local image-tag deploy use-odice use-legacy use-legacy-dry-run which-version install-zdc refresh-staging maintenance-on maintenance-off maintenance-status deploy-production install-ci-entry enable-maintenance seed-demo
 
 help: ## Affiche cette aide
 	@echo "Pile visée : $(if $(ZDC),$(ZDC),ce dépôt — export ZDC=/opt/zammad-docker-compose pour en viser une autre)"
@@ -135,7 +135,11 @@ install-zdc: ## Installe le complément Odice dans un zammad-docker-compose
 STAGING ?= /opt/zammad-staging
 PROD    ?= /opt/zammad-docker-compose
 
-refresh-staging: ## Recharge le staging avec une copie neutralisée de la production
+seed-demo: .check-stack ## Crée un jeu de données FICTIVES sur le staging (ZDC=…)
+	@$(COMPOSE_AT) exec -T -e ODICE_ENVIRONMENT=staging zammad-railsserver \
+		bundle exec rake odice:seed_demo
+
+refresh-staging: ## [déconseillé] Recharge le staging avec une COPIE de la production
 	@contrib/odice/staging/refresh.sh --from "$(PROD)" --to "$(STAGING)"
 
 maintenance-on: .check-stack ## Coupe le site et affiche la page de maintenance (ZDC=…)

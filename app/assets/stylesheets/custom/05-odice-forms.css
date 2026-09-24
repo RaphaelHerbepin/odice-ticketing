@@ -1,0 +1,161 @@
+/* Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
+ *
+ * Odice — formulaires de l'interface historique, rapprochés de /desktop.
+ *
+ * CE QUE CETTE FEUILLE FAIT, ET CE QU'ELLE NE FAIT PAS.
+ *
+ * Les deux interfaces reposent sur des technologies différentes : /desktop est
+ * en Vue avec Tailwind, l'historique en Spine avec ses propres feuilles. Les
+ * rendre IDENTIQUES supposerait de réécrire la seconde — des mois de travail
+ * pour une interface que Zammad remplace progressivement.
+ *
+ * Ce qui est fait ici, en revanche, rapproche nettement les deux : mêmes coins
+ * arrondis, mêmes champs à fond teinté, mêmes libellés en casse normale, mêmes
+ * onglets en pilule. L'écart restant tient à la structure du HTML, pas au
+ * style.
+ *
+ * Aucun fichier Zammad n'est modifié : `application.css` charge ce répertoire
+ * par `require_tree ./custom/`, et la cascade fait le reste.
+ */
+
+:root {
+  /* Fond des champs, repris de /desktop : un bleu très désaturé qui distingue
+     la zone de saisie du fond de page sans ajouter de bordure. C'est ce qui
+     donne à l'autre interface son aspect posé. */
+  --od-field-bg: #eaeff5;
+  --od-field-bg-hover: #e2e9f2;
+  --od-field-border: #d3dce8;
+}
+
+/* ---------- Libellés ---------------------------------------------------- */
+
+/* Les majuscules forcées rendent « SERVICE DU DEMANDEUR » plus long et moins
+   lisible que « Service du demandeur », et nuisent particulièrement aux
+   libellés accentués. /desktop les écrit en casse normale. */
+.ticket-create .form-group > label,
+.modal .form-group > label,
+.content .form-group > label,
+.sidebar .form-group > label {
+  text-transform: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--od-charcoal);
+}
+
+/* ---------- Champs ------------------------------------------------------ */
+
+.ticket-create .form-control,
+.modal .form-control,
+.content .form-group .form-control,
+.ticket-create .token-input,
+.modal .token-input {
+  background-color: var(--od-field-bg);
+  border: 1px solid transparent;
+  border-radius: var(--od-r-md);
+  box-shadow: none;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.ticket-create .form-control:hover,
+.modal .form-control:hover {
+  background-color: var(--od-field-bg-hover);
+}
+
+/* Le focus reste celui de la charte, et il doit rester VISIBLE : c'est la
+   seule indication de position pour qui navigue au clavier. */
+.ticket-create .form-control:focus,
+.modal .form-control:focus,
+.content .form-group .form-control:focus {
+  background-color: #fff;
+  border-color: var(--od-focus);
+  outline: var(--od-focus-width) solid var(--od-focus);
+  outline-offset: var(--od-focus-offset);
+}
+
+/* Les champs de saisie enrichie (corps du message) suivent la même logique,
+   bordure comprise : leur hauteur les rend trop grands pour n'être qu'un aplat. */
+.ticket-create .richtext-content,
+.modal .richtext-content {
+  background-color: var(--od-field-bg);
+  border: 1px solid var(--od-field-border);
+  border-radius: var(--od-r-md);
+}
+
+/* ---------- Onglets de type d'article ----------------------------------- */
+
+/* « Appel reçu / Appel émis / Envoyer un e-mail » : trois rectangles collés
+   dans l'historique, une pilule segmentée dans /desktop. La seconde forme dit
+   mieux qu'il s'agit d'un choix unique parmi trois. */
+.ticket-create .tabsSidebar-tab,
+.ticket-create .create-tabs,
+.ticket-create .tabs {
+  gap: 0.25rem;
+  border: 0;
+  background: transparent;
+}
+
+.ticket-create .tabs .tab,
+.ticket-create .create-tabs .tab {
+  border: 0;
+  border-radius: var(--od-r-pill);
+  padding-inline: 0.9rem;
+  font-weight: 500;
+  color: var(--od-charcoal);
+  background: transparent;
+}
+
+.ticket-create .tabs .tab.active,
+.ticket-create .create-tabs .tab.active {
+  background: #fff;
+  color: var(--od-bleu-2020);
+  box-shadow: var(--od-shadow-1);
+}
+
+/* ---------- Respiration ------------------------------------------------- */
+
+/* L'historique serre ses champs ; /desktop les espace. L'écart se voit surtout
+   sur les formulaires longs, où tout paraît sinon compressé. */
+.ticket-create .form-group,
+.modal .form-group {
+  margin-bottom: 1rem;
+}
+
+/* Le bloc gris des attributs n'a pas besoin d'un fond différent pour se
+   distinguer : un filet suffit, et la page respire davantage. */
+.ticket-create .article-attributes,
+.ticket-create .newTicket-controls {
+  background: transparent;
+  border-top: 1px solid var(--od-field-border);
+}
+
+/* ---------- Mode sombre ------------------------------------------------- */
+
+/* Sans ces valeurs, les champs resteraient clairs sur fond sombre — c'est-à-dire
+   éblouissants, et sans rapport avec /desktop. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --od-field-bg: #1f2937;
+    --od-field-bg-hover: #253244;
+    --od-field-border: #334155;
+  }
+}
+
+:root[data-theme='dark'] {
+  --od-field-bg: #1f2937;
+  --od-field-bg-hover: #253244;
+  --od-field-border: #334155;
+}
+
+:root[data-theme='dark'] .ticket-create .form-group > label,
+:root[data-theme='dark'] .modal .form-group > label {
+  color: #cbd5e1;
+}
+
+:root[data-theme='dark'] .ticket-create .tabs .tab.active,
+:root[data-theme='dark'] .ticket-create .create-tabs .tab.active {
+  background: #0f172a;
+  color: #e2e8f0;
+}

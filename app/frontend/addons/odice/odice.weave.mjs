@@ -12,6 +12,21 @@
 // touchant l'un de ces composants doit être vérifiée ici.
 
 export const addonWeaveRules = [
+  // Bandeau d'environnement, inséré comme FRÈRE de la racine et non en
+  // l'enveloppant : envelopper changerait la grille de mise en page, dont ce
+  // bandeau n'est pas responsable. Vue 3 accepte plusieurs racines, et le
+  // composant se positionne en `fixed` — il ne décale donc rien.
+  {
+    target: 'apps/desktop/components/layout/LayoutPage.vue',
+    scriptSetup:
+      "import OdiceEnvironmentBanner from '#shared/components/Odice/OdiceEnvironmentBanner.vue'",
+    template: [
+      {
+        match: { element: 'div', root: true },
+        insertBefore: '<OdiceEnvironmentBanner />',
+      },
+    ],
+  },
   {
     // Le composant porte d'ailleurs un TODO amont : « Add custom branding ».
     target:
