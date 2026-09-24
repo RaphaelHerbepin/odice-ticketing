@@ -135,9 +135,19 @@ install-zdc: ## Installe le complément Odice dans un zammad-docker-compose
 STAGING ?= /opt/zammad-staging
 PROD    ?= /opt/zammad-docker-compose
 
+# La tâche est montée DEPUIS LE DÉPÔT plutôt que prise dans l'image : celle-ci
+# a pu être construite avant la dernière correction, et l'on obtiendrait alors
+# une erreur sur une ligne qu'on vient pourtant de corriger. Même raison que
+# pour restore-local.sh.
+#
+# `run --rm --no-deps` plutôt qu'`exec` : l'entrypoint retombe sur `exec "$@"`
+# pour une commande qu'il ne reconnaît pas, et les services nécessaires
+# tournent déjà.
 seed-demo: .check-stack ## Crée un jeu de données FICTIVES sur le staging (ZDC=…)
-	@$(COMPOSE_AT) exec -T -e ODICE_ENVIRONMENT=staging zammad-railsserver \
-		bundle exec rake odice:seed_demo
+	@$(COMPOSE_AT) run --rm --no-deps \
+		-v "$(CURDIR)/lib/tasks/odice:/opt/zammad/lib/tasks/odice:ro" \
+		-e ODICE_ENVIRONMENT=staging \
+		zammad-railsserver bundle exec rake odice:seed_demo
 
 refresh-staging: ## [déconseillé] Recharge le staging avec une COPIE de la production
 	@contrib/odice/staging/refresh.sh --from "$(PROD)" --to "$(STAGING)"
