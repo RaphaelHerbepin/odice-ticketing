@@ -33,3 +33,19 @@
 .odice-has-environment-banner {
   top: 1.55rem !important;
 }
+
+/* Mention portée par la page Version (voir zzz_odice_version.coffee). */
+.odice-version-environment {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--od-r-md);
+  background: #fef3c7;
+  color: #78350f;
+  font-weight: 600;
+}
+
+:root[data-theme='dark'] .odice-version-environment {
+  background: #451a03;
+  color: #fcd34d;
+}

@@ -74,6 +74,8 @@
       # Bandeau d'environnement.
       'Staging — fictitious data, changes here have no effect on production.' =>
         'Staging — données fictives, ce qui est modifié ici n’a aucun effet sur la production.',
+      'Staging instance — fictitious data, changes here have no effect on production.' =>
+        'Instance de staging — données fictives, ce qui est modifié ici n’a aucun effet sur la production.',
       # Filtres par valeur d'axe métier.
       'Add a filter'                => 'Ajouter un filtre',
       'Choose a field'              => 'Choisissez un champ',
