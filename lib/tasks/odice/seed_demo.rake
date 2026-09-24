@@ -117,7 +117,10 @@ namespace :odice do
       updated_by_id: 1,
     )
 
-    ObjectManager::Attribute.migration_execute if ObjectManager::Attribute.migration_execute?
+    # `pending_migration?` et non `migration_execute?` : cette dernière n'existe
+    # pas. Sans cette exécution, les colonnes ne sont pas créées en base et les
+    # champs restent déclarés mais inutilisables.
+    ObjectManager::Attribute.migration_execute if ObjectManager::Attribute.pending_migration?
     puts "  #{attributes.size + 1} champs personnalisés en place."
 
     # ── Comptes ────────────────────────────────────────────────────────────

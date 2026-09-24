@@ -37,8 +37,13 @@ STATE="${COMPOSE_DIR}/.odice-maintenance-state"
 # l'application, et disparaître sans emporter autre chose.
 MAINT_PROJECT="odice-maintenance-$(basename "${COMPOSE_DIR}")"
 
+# Le réseau du proxy est propre à l'installation : il est lu dans le .env de la
+# pile pilotée, avec le même défaut que partout ailleurs.
+PROXY_NETWORK="$(env_get ODICE_PROXY_NETWORK 'zammad-docker-compose_default')"
+
 function maint {
-  docker compose -p "${MAINT_PROJECT}" -f "${MAINT_FILE}" "$@"
+  ODICE_PROXY_NETWORK="${PROXY_NETWORK}" \
+    docker compose -p "${MAINT_PROJECT}" -f "${MAINT_FILE}" "$@"
 }
 
 # Le vhost réellement publié, tel qu'il est ou tel qu'il était avant la coupure.
@@ -99,14 +104,34 @@ case "${ACTION}" in
     env_set ZAMMAD_VIRTUAL_HOST ''
     dc up -d zammad-nginx
 
+    # À partir d'ici le site n'a plus de vhost : toute sortie prématurée le
+    # laisserait INVISIBLE, sans page de maintenance et sans message. Un échec
+    # de la mise en maintenance doit donc rendre le site — rien n'a encore été
+    # déployé, il n'y a rien à protéger.
+    #
+    # C'est l'inverse d'un échec du DÉPLOIEMENT, où la page doit au contraire
+    # rester : là, l'application est peut-être cassée.
+    function rendre_le_site {
+      echo "   échec : remise en service de ${HOST}…" >&2
+      MAINTENANCE_VIRTUAL_HOST="${HOST}" maint down --remove-orphans 2>/dev/null || true
+      env_set ZAMMAD_VIRTUAL_HOST "${HOST}"
+      dc up -d zammad-nginx || true
+      rm -f "${STATE}"
+    }
+    trap rendre_le_site ERR
+
     MAINTENANCE_VIRTUAL_HOST="${HOST}" maint up -d
 
     echo "   attente de la page de maintenance…"
-    wait_for_state "${HOST}" maintenance 60 || {
+    if ! wait_for_state "${HOST}" maintenance 60; then
       echo "Erreur : la page de maintenance ne répond pas sur https://${HOST}/." >&2
-      echo "  NE PAS DÉPLOYER. Remettre en service : $0 off --dir ${COMPOSE_DIR}" >&2
+      echo "  Le site est remis en service ; NE PAS DÉPLOYER." >&2
       exit 1
-    }
+    fi
+
+    # Passé ce point, la maintenance est effective : on ne la retire plus
+    # automatiquement.
+    trap - ERR
 
     printf '%s\thost=%s\n' "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" "${HOST}" > "${STATE}"
     echo "   page de maintenance active (503)."

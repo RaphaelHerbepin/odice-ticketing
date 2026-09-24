@@ -21,8 +21,15 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./html:/usr/share/nginx/html:ro
-    networks: [nginx-proxy]
+    networks: [proxy]
 
 networks:
-  nginx-proxy:
+  # Le réseau sur lequel tourne nginx-proxy. Il ne s'appelle PAS forcément
+  # « nginx-proxy » : quand le proxy fait partie du projet Compose de la
+  # production, c'est le réseau de ce projet. Se relève ainsi :
+  #
+  #   docker inspect nginx-proxy \
+  #     --format '{{range $k,$v := .NetworkSettings.Networks}}{{println $k}}{{end}}'
+  proxy:
     external: true
+    name: ${ODICE_PROXY_NETWORK:-zammad-docker-compose_default}
