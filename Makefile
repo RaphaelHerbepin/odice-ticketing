@@ -148,6 +148,8 @@ seed-demo: .check-stack ## Crée un jeu de données FICTIVES sur le staging (ZDC
 		-v "$(CURDIR)/lib/tasks/odice:/opt/zammad/lib/tasks/odice:ro" \
 		-e ODICE_ENVIRONMENT=staging \
 		zammad-railsserver bundle exec rake odice:seed_demo
+	@echo "== Recréation des services applicatifs (nouveau schéma)"
+	@$(COMPOSE_AT) up -d --force-recreate zammad-railsserver zammad-websocket zammad-nginx
 
 refresh-staging: ## [déconseillé] Recharge le staging avec une COPIE de la production
 	@contrib/odice/staging/refresh.sh --from "$(PROD)" --to "$(STAGING)"

@@ -212,7 +212,18 @@ namespace :odice do
     end
 
     puts "  #{Ticket.where('title LIKE ?', '[démo]%').count} tickets de démonstration."
+
+    # Créer des attributs ajoute des COLONNES à `tickets` : le schéma en mémoire
+    # des processus déjà lancés ne les connaît pas, et la configuration servie
+    # au navigateur reste celle d'avant. L'interface reste alors sur son écran
+    # de chargement, sans erreur — un symptôme qui n'oriente vers rien.
     Rails.cache.clear
+    ActiveRecord::Base.connection.schema_cache.clear!
+    ::Ticket.reset_column_information
+
     puts 'odice:seed_demo — jeu de données fictives en place.'
+    puts
+    puts '  Les processus en cours gardent l’ancien schéma en mémoire. Pour finir :'
+    puts '    docker compose up -d --force-recreate zammad-railsserver zammad-websocket zammad-nginx'
   end
 end
