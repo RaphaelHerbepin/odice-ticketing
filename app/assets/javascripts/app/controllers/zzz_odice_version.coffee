@@ -8,37 +8,42 @@
 #
 # Le contrôleur d'origine n'est pas exposé globalement — CoffeeScript compile
 # chaque fichier dans sa propre portée — mais `App.Config` en garde la
-# référence. On l'étend plutôt que de le réécrire : la page suit ainsi toute
-# évolution amont, et seule la mention est à nous.
+# référence, SOUS LE GROUPE `NavBarAdmin` : `version.coffee` l'enregistre avec
+# `App.Config.set('Version', …, 'NavBarAdmin')`, et `_configSingleton.set`
+# range alors la valeur dans `@config['NavBarAdmin']['Version']`. La lire sans
+# ce groupe renvoie `undefined`.
+#
+# Ce détail n'est pas cosmétique : tous les contrôleurs sont concaténés dans un
+# seul `application.js`, donc une exception levée ICI, au niveau supérieur du
+# fichier, interrompt l'exécution de TOUT le paquet. L'application reste alors
+# sur son écran « Loading… », sur chaque page. D'où la garde ci-dessous : si
+# l'entrée disparaissait un jour en amont, la page Version perdrait sa mention
+# — et rien d'autre.
 #
 # `require_tree` charge dans l'ordre alphabétique : le préfixe « zzz_ »
 # garantit que ce fichier passe APRÈS `version.coffee`. Fichier NOUVEAU, donc
 # aucun fichier Zammad n'est modifié.
 
-class OdiceVersion extends (App.Config.get('Version').controller)
-  render: ->
-    super
+entree = App.Config.get('Version', 'NavBarAdmin')
 
-    environment = App.Config.get('odice_environment')
-    return if !environment or environment is 'production'
+if entree?.controller
 
-    @$('.page-content').prepend(
-      $('<p class="odice-version-environment"></p>').text(
-        App.i18n.translateContent(
-          'Staging instance — fictitious data, changes here have no effect on production.'
+  class OdiceVersion extends entree.controller
+    render: ->
+      super
+
+      environment = App.Config.get('odice_environment')
+      return if !environment or environment is 'production'
+
+      @$('.page-content').prepend(
+        $('<p class="odice-version-environment"></p>').text(
+          App.i18n.translatePlain(
+            'Staging instance — fictitious data, changes here have no effect on production.'
+          )
         )
       )
-    )
 
-App.Config.set(
-  'Version',
-  {
-    prio: 3830
-    name: __('Version')
-    parent: '#system'
-    target: '#system/version'
-    controller: OdiceVersion
-    permission: ['admin']
-  },
-  'NavBarAdmin'
-)
+  # L'entrée d'origine est reprise telle quelle et seul le contrôleur change :
+  # une évolution amont de `prio`, de `permission` ou de la cible est ainsi
+  # suivie sans que ce fichier ait à la connaître.
+  App.Config.set('Version', $.extend({}, entree, controller: OdiceVersion), 'NavBarAdmin')
