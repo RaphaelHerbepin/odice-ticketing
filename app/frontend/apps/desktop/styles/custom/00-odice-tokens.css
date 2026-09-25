@@ -143,8 +143,18 @@
  * Dérivé du charcoal, pas inventé. Le Bleu 2020 brut (#134c82) ne tient pas le
  * contraste AA sur fond charbon : l'action passe à une variante éclaircie.
  * Le variant Tailwind dark est `[data-theme=dark]` (posé par stores/theme.ts),
- * pas la classe `.dark`. */
-:root[data-theme='dark'] {
+ * pas la classe `.dark`.
+ *
+ * Le sélecteur ne peut PAS s'ancrer sur `:root` : `LayoutPage.vue` marque
+ * `data-theme="dark"` sur un simple <div> — la barre latérale est sombre même
+ * quand la page est claire. Avec `:root[data-theme='dark']`, ce sous-arbre
+ * gardait donc les valeurs CLAIRES : Tailwind y appliquait bien ses variantes
+ * `dark:` (son variant est un sélecteur descendant), mais celles-ci pointaient
+ * sur des jetons de thème clair. D'où un Bleu 2020 brut posé sur le navy de la
+ * barre, illisible. Les autres feuilles de cette charte ciblent déjà
+ * `[data-theme='dark']` sans `:root` ; c'est ici que se trouvait l'exception. */
+:root[data-theme='dark'],
+[data-theme='dark'] {
   --color-blue-800: #4a90d9;  /* action — éclairci pour AA sur fond sombre */
   --color-blue-850: #6aa9e4;
   --color-blue-700: #3fb3d6;  /* accent froid éclairci */

@@ -53,3 +53,35 @@
 [data-zammad-target='TicketOverviewsSidebar'] [role='button'] {
   color: var(--color-stone-200);
 }
+
+/* ---------- Icônes d'action de la barre ----------
+ *
+ * La barre est navy dans les DEUX thèmes (LayoutPage.vue y force le thème
+ * sombre). Les icônes qui s'y trouvent doivent donc être traitées une seule
+ * fois, sans condition sur le thème de la page : le fond étant le même, deux
+ * rendus différents ne se justifieraient pas.
+ *
+ * Zammad donne au bouton « Nouveau ticket » la variante `secondary`, soit
+ * `text-blue-800` — et cette variante ne prévoit AUCUN `dark:text-…`. Sur le
+ * navy de la barre, le Bleu 2020 disparaissait presque. L'engrenage voisin,
+ * lui, est en `neutral-400` : deux actions de même rang avec deux niveaux de
+ * contraste, ce qui se lisait comme un défaut plutôt que comme une hiérarchie.
+ * Les deux passent donc en blanc.
+ *
+ * `color` ET `fill` : CommonIcon rend `class="icon fill-current"`, donc `color`
+ * suffit d'ordinaire — sauf là où une classe `fill-*` explicite l'écrase, ce
+ * qui est le cas de la loupe (`fill-stone-200 dark:fill-neutral-500`). */
+[data-zammad-target='MenuContainer'] button,
+[data-zammad-target='MenuContainer'] a,
+[data-zammad-target='MenuContainer'] .icon {
+  color: #fff;
+  fill: #fff;
+}
+
+/* La loupe et la croix d'effacement du champ de recherche. Ancré sur l'en-tête
+ * de la barre : `CommonInputSearch` sert aussi aux champs de formulaire, sur
+ * fond clair, où le blanc serait invisible. */
+[data-zammad-target='LeftSidebarHeader'] [data-zammad-target='CommonInputSearch'] .icon {
+  color: #fff;
+  fill: #fff;
+}
