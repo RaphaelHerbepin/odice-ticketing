@@ -68,14 +68,39 @@
  * contraste, ce qui se lisait comme un défaut plutôt que comme une hiérarchie.
  * Les deux passent donc en blanc.
  *
- * `color` ET `fill` : CommonIcon rend `class="icon fill-current"`, donc `color`
- * suffit d'ordinaire — sauf là où une classe `fill-*` explicite l'écrase, ce
- * qui est le cas de la loupe (`fill-stone-200 dark:fill-neutral-500`). */
+ * `color` et non `fill` : ces deux icônes sont dessinées EN TRAIT — leur SVG
+ * porte `fill="none" stroke="currentColor"` en dur (initializer/assets/), et
+ * `svgToSymbol()` conserve ces attributs. Un `fill` n'a donc aucune prise sur
+ * elles ; c'est `color` qui résout leur `currentColor`. Ce `color` couvre du
+ * même coup les icônes en aplat, que CommonIcon rend en `fill-current`.
+ *
+ * Le bouton « Nouveau ticket » demande un détour. `CommonActionMenu.vue:88`
+ * pose `text-blue-800!` — un important Tailwind — sur l'icône ET sur le bouton
+ * dès que l'action unique est de variante `secondary`. Or répondre par un
+ * `!important` ne marcherait PAS : pour les déclarations importantes, la
+ * cascade INVERSE l'ordre des couches, si bien qu'un important dans
+ * `@layer utilities` (vérifié dans le bundle compilé) l'emporte sur un
+ * important non-layered. C'est l'exact contraire du cas ordinaire, où ces
+ * feuilles gagnent sans avoir à insister.
+ *
+ * Le détour consiste à ne pas disputer la déclaration mais sa VALEUR :
+ * `text-blue-800!` vaut `color: var(--color-blue-800) !important`. Redéfinir le
+ * jeton pour ce sous-arbre suffit donc — une déclaration normale, où
+ * l'unlayered reprend l'avantage. C'est le patron déjà employé plus haut dans
+ * ce fichier pour les conteneurs de navigation.
+ *
+ * Effet de bord assumé : le liseré de focus du conteneur (`outline-blue-800!`)
+ * devient blanc lui aussi. Sur le navy, il y gagne en visibilité. */
+[data-zammad-target='MenuContainer'] {
+  --color-blue-800: #fff;
+}
+
+/* L'engrenage, de variante `neutral`, ne reçoit aucun important : une règle
+ * ordinaire lui suffit — et couvre tout ce qui viendrait s'ajouter ici. */
 [data-zammad-target='MenuContainer'] button,
 [data-zammad-target='MenuContainer'] a,
 [data-zammad-target='MenuContainer'] .icon {
   color: #fff;
-  fill: #fff;
 }
 
 /* La loupe et la croix d'effacement du champ de recherche. Ancré sur l'en-tête
