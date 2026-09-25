@@ -110,3 +110,33 @@
   color: #fff;
   fill: #fff;
 }
+
+/* ---------- Le bloc d'actions en thème clair ----------
+ *
+ * Demandé : ce bloc doit être BLANC quand la page est claire. Il tranche alors
+ * franchement sur le navy de la barre, au lieu du `bg-gray-700` charbon que
+ * Zammad y pose — lequel, sur navy, ne se distingue presque pas.
+ *
+ * Le thème est lu sur `:root`, et non sur la barre : celle-ci est marquée
+ * sombre en permanence (LayoutPage.vue), elle ne dit donc rien du thème choisi.
+ * `stores/theme.ts` résout « auto » AVANT d'écrire l'attribut (`sanitizeTheme`),
+ * qui vaut donc toujours `light` ou `dark` : le test est sans ambiguïté.
+ *
+ * Conséquence directe : sur blanc, des icônes blanches ne se verraient plus.
+ * Elles reprennent donc le Bleu 2020, y compris par le jeton — c'est lui que
+ * lit le `text-blue-800!` de CommonActionMenu, comme expliqué plus haut.
+ *
+ * `:not(.bg-transparent)` : barre repliée, Zammad retire lui-même le fond et
+ * met les icônes en colonne, directement sur le navy. Les peindre en blanc sur
+ * un fond blanc qui n'existe pas les ferait disparaître. */
+:root[data-theme='light'] [data-zammad-target='MenuContainer']:not(.bg-transparent) {
+  background-color: #fff;
+
+  --color-blue-800: var(--od-bleu-2020);
+}
+
+:root[data-theme='light'] [data-zammad-target='MenuContainer']:not(.bg-transparent) button,
+:root[data-theme='light'] [data-zammad-target='MenuContainer']:not(.bg-transparent) a,
+:root[data-theme='light'] [data-zammad-target='MenuContainer']:not(.bg-transparent) .icon {
+  color: var(--od-bleu-2020);
+}
