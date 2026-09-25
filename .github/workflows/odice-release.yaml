@@ -153,12 +153,18 @@ jobs:
           # main. Le code 255 est celui de ssh lui-même ; tout autre code vient
           # du script distant, qui a donc bien été atteint — le rejouer
           # risquerait de déployer deux fois.
+          # La sortie du script distant est conservée : elle seule dit quelle pile
+          # a réellement été servie. Voir le contrôle d'arrivée après la boucle.
+          JOURNAL="${RUNNER_TEMP}/deploiement.log"
+
           for tentative in 1 2 3; do
             set +o errexit
             ssh -4 -i ~/.ssh/id_deploy -o StrictHostKeyChecking=yes -o BatchMode=yes \
               -o ConnectTimeout=20 \
-              "${DEPLOY_USER:-raphael}@${DEPLOY_HOST}" "${TAG}"
-            CODE=$?
+              "${DEPLOY_USER:-raphael}@${DEPLOY_HOST}" "${TAG}" 2>&1 | tee "${JOURNAL}"
+            # Le code de ssh, pas celui de tee : sans PIPESTATUS, un échec du
+            # script distant passerait pour un succès.
+            CODE=${PIPESTATUS[0]}
             set -o errexit
 
             [ "${CODE}" -eq 0 ] && break
@@ -169,6 +175,30 @@ jobs:
             echo "connexion impossible (tentative ${tentative}/3), nouvelle tentative dans 20 s…"
             sleep 20
           done
+
+          # CONTRÔLE D'ARRIVÉE.
+          #
+          # L'environnement est choisi par la commande forcée de la clé SSH,
+          # côté serveur : ce workflow ne le décide pas, il ne peut que le
+          # constater. C'est une bonne propriété — une clé ne sait servir que sa
+          # propre pile — mais elle a un angle mort : si le secret contient la
+          # clé privée de l'AUTRE pile, l'autre pile est déployée et le job se
+          # conclut en vert.
+          #
+          # Ce n'est pas une hypothèse. Le 25/09/2026, le job « production » a
+          # déployé le staging et rapporté un succès ; ses propres logs
+          # disaient « [staging] déploiement terminé », et rien ne les lisait.
+          #
+          # `say()`, dans ci-deploy-common.sh, estampille chaque ligne de
+          # l'environnement qu'elle sert. C'est cette trace que l'on exige.
+          if ! grep -q '\[production\]' "${JOURNAL}"; then
+            echo "::error::le script distant n'a pas servi la PRODUCTION."
+            echo "  Environnement(s) annoncé(s) : $(grep -o '\[[a-z]*\]' "${JOURNAL}" | sort -u | tr '\n' ' ')"
+            echo "  ODICE_DEPLOY_KEY_PROD contient probablement la clé privée d'une autre pile."
+            echo "  Les empreintes attendues se relèvent ainsi, sur le serveur :"
+            echo "      ssh-keygen -lf ~/.ssh/authorized_keys"
+            exit 1
+          fi
 
           {
             echo "### Mise en production"
