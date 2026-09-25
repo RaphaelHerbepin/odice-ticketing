@@ -18,7 +18,6 @@ import { useAuthenticationStore } from '#shared/stores/authentication.ts'
 import { useLocaleStore } from '#shared/stores/locale.ts'
 import { useSessionStore } from '#shared/stores/session.ts'
 
-import { useBetaUiDisclaimer } from '#desktop/components/BetaUi/composables/useBetaUiDisclaimer.ts'
 import {
   useBetaUiFeedbackConsent,
   initializeBetaUiFeedbackConsentDialog,
@@ -72,11 +71,11 @@ if (switchValue.value) {
   useBetaUiFeedbackRouteGuard()
 }
 
-// Shows the warning for the BETA usage of the desktop view.
-//   The user has not yet enrolled into the BETA program.
-else {
-  useBetaUiDisclaimer()
-}
+// Odice : l'avertissement « New desktop BETA UI » a été retiré. Il prévient que
+// l'interface n'est pas prête pour la production et invite à signaler des
+// anomalies à Zammad — un message destiné aux clients de la fondation. Ici
+// cette interface EST la production, et le retour ne parviendrait à personne.
+// Le composable `useBetaUiDisclaimer` reste en place, simplement plus appelé.
 
 // We need to trigger a manual translation update for the form related strings.
 const formConfig = useFormKitConfig()
