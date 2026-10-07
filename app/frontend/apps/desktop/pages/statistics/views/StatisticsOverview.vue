@@ -13,6 +13,7 @@ import StatisticsPanel from '#desktop/pages/statistics/components/StatisticsPane
 import StatisticsToolbar from '#desktop/pages/statistics/components/StatisticsToolbar.vue'
 import StatisticsTrend from '#desktop/pages/statistics/components/StatisticsTrend.vue'
 import { useStatisticsAxes } from '#desktop/pages/statistics/composables/useStatisticsAxes.ts'
+import { useStatisticsBreakdowns } from '#desktop/pages/statistics/composables/useStatisticsBreakdowns.ts'
 import {
   accentColor,
   barOption,
@@ -154,22 +155,7 @@ const volumeOption = computed(() =>
   ),
 )
 
-/* Six répartitions, et non trois. Les trois premières décrivent la NATURE des
-   demandes, les trois suivantes leur RÉPARTITION dans l'organisation — deux
-   questions distinctes, que la page traitait à moitié. */
-const breakdowns = computed(() => [
-  { key: 'state', title: __('By state'), buckets: statistics.value?.byState ?? [] },
-  { key: 'priority', title: __('By priority'), buckets: statistics.value?.byPriority ?? [] },
-  { key: 'channel', title: __('By channel'), buckets: statistics.value?.byChannel ?? [] },
-  { key: 'group', title: __('By service'), buckets: statistics.value?.byGroup ?? [], accent: true },
-  { key: 'owner', title: __('By agent'), buckets: statistics.value?.byOwner ?? [], accent: true },
-  {
-    key: 'organization',
-    title: __('By organization'),
-    buckets: statistics.value?.byOrganization ?? [],
-    accent: true,
-  },
-])
+const breakdowns = useStatisticsBreakdowns(statistics)
 </script>
 
 <template>
@@ -225,7 +211,7 @@ const breakdowns = computed(() => [
         <StatisticsPanel
           v-for="breakdown in breakdowns"
           :key="breakdown.key"
-          :title="$t(breakdown.title)"
+          :title="breakdown.translated ? breakdown.title : $t(breakdown.title)"
           :has-data="breakdown.buckets.length > 0"
           :loading="loading"
         >

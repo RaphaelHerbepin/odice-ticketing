@@ -36,7 +36,7 @@
         'First response in time'      => 'Première réponse dans les délais',
         'Closed in time'              => 'Clôturés dans les délais',
         'Created and closed over time' => 'Créations et clôtures dans le temps',
-        'By service'                  => 'Par service',
+        'By group'                    => 'Par groupe',
         'By organization'             => 'Par organisation',
         'By state'                    => 'Par état',
         'By priority'                 => 'Par priorité',
