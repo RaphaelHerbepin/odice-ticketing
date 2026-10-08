@@ -29,9 +29,21 @@ const openAxes = computed(() =>
   props.axes.filter((axis) => activeNames.value.has(axis.name) || axis.name === pendingAxis.value),
 )
 
+/* L'axe EN COURS d'ouverture reste dans les options, bien qu'il n'ait plus à
+   être proposé.
+
+   Le champ `select` de Zammad efface toute valeur absente de ses options
+   (`useSelectOptions.ts`, `clearValue(false)`). En retirant l'axe au moment
+   même où il venait d'être choisi, on provoquait ce nettoyage : le champ se
+   vidait, `pendingAxis` repassait à `null`, et le sélecteur de valeurs
+   n'apparaissait jamais. De l'extérieur, « rien ne se passe ».
+
+   Il en sort de lui-même dès qu'une valeur est cochée : l'axe devient actif,
+   quitte cette liste, et le nettoyage vide alors le champ — ce qui est cette
+   fois le comportement voulu. */
 const addableAxes = computed(() =>
   props.axes
-    .filter((axis) => !activeNames.value.has(axis.name) && axis.name !== pendingAxis.value)
+    .filter((axis) => !activeNames.value.has(axis.name))
     .map((axis) => ({ value: axis.name, label: axis.label })),
 )
 

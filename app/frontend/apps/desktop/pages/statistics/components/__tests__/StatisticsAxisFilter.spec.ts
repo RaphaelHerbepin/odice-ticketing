@@ -46,6 +46,28 @@ describe('sélecteur des axes à filtrer', () => {
 
     expect(view.getByLabelText('Agence')).toBeInTheDocument()
   })
+
+  /* Le geste réel : on déroule « Ajouter un filtre » et on choisit un axe.
+     Le sélecteur de ses valeurs doit alors apparaître.
+
+     Ce test tient debout grâce au champ RÉEL de Zammad, qui efface toute
+     valeur absente de ses options. Tant que l'axe choisi était retiré de la
+     liste au moment du choix, ce nettoyage ramenait le champ à vide et aucun
+     sélecteur n'apparaissait — exactement ce que l'on voyait à l'écran. */
+  it('opens the value selector for the axis just picked', async () => {
+    const view = render()
+    const selecteurDeValeurs = () => document.getElementById('statistics-filter-service_demandeur')
+
+    expect(selecteurDeValeurs()).toBeNull()
+
+    await view.events.click(view.getByLabelText('Add a filter'))
+    await view.events.click(await view.findByRole('option', { name: 'Service du demandeur' }))
+
+    /* Par identifiant, et non par étiquette : une fois l'axe choisi, son nom
+       figure DEUX fois dans la page — comme étiquette du champ qui vient de
+       s'ouvrir, et comme valeur affichée par « Ajouter un filtre ». */
+    expect(selecteurDeValeurs()).toBeInTheDocument()
+  })
 })
 
 describe('sélecteur de valeurs', () => {
