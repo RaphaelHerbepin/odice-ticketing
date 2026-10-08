@@ -46,7 +46,7 @@ class Service::Ticket::Statistics::AxisFilter
   end
 
   def apply(relation)
-    node       = ::Ticket.arel_table[column]
+    node       = axis.node
     conditions = []
 
     # `empty?` ici aussi : une valeur `false` est une réponse, et `any?` sans
@@ -56,7 +56,10 @@ class Service::Ticket::Statistics::AxisFilter
 
     return relation if conditions.empty?
 
-    relation.where(conditions.reduce(:or))
+    # La jointure est posée AVANT le `where` : un filtre sur un champ du
+    # demandeur porte sur une colonne de `users`, que la relation ne connaît
+    # pas encore.
+    axis.scoped(relation).where(conditions.reduce(:or))
   end
 
   private
@@ -67,8 +70,8 @@ class Service::Ticket::Statistics::AxisFilter
   # inconnu : un graphique manquant se voit à l'écran, alors qu'un FILTRE ignoré
   # gonfle silencieusement tous les chiffres de la page. On ne répond pas à une
   # question qu'on n'a pas comprise.
-  def column
-    @column ||= Axes.resolve(name)
+  def axis
+    @axis ||= Axes.resolve(name)
   end
 
   def present_values
@@ -89,7 +92,7 @@ class Service::Ticket::Statistics::AxisFilter
   # « function btrim(boolean) does not exist » dès la première case cochée.
   def unset_condition(node)
     is_null = node.eq(nil)
-    return is_null if ::Ticket.columns_hash[column]&.type != :string
+    return is_null unless axis.string_column?
 
     is_null.or(Arel::Nodes::NamedFunction.new('BTRIM', [node]).eq(''))
   end

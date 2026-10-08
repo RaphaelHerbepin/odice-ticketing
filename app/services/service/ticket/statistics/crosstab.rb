@@ -38,7 +38,10 @@ class Service::Ticket::Statistics::Crosstab < Service::Base
     # plus gros, et une page entière pour ne rien apprendre.
     raise SameAxis, "Les deux axes sont identiques : #{@row_axis}" if @row_axis == @column_axis
 
-    counts = tally(Axes.resolve(@row_axis), Axes.resolve(@column_axis))
+    row_axis    = Axes.resolve(@row_axis)
+    column_axis = Axes.resolve(@column_axis)
+
+    counts = tally(row_axis, column_axis)
 
     row_totals = margin(counts, 0)
     col_totals = margin(counts, 1)
@@ -47,8 +50,8 @@ class Service::Ticket::Statistics::Crosstab < Service::Base
     top_cols, rest_cols = split(col_totals)
 
     {
-      row_axis:    { name: @row_axis, label: Axes.label(@row_axis, locale) },
-      column_axis: { name: @column_axis, label: Axes.label(@column_axis, locale) },
+      row_axis:    { name: @row_axis, label: row_axis.label },
+      column_axis: { name: @column_axis, label: column_axis.label },
       columns:     columns(col_totals, top_cols, rest_cols, counts),
       rows:        rows(counts, top_rows, rest_rows, top_cols, rest_cols, row_totals),
       total:       counts.values.sum,
@@ -74,11 +77,14 @@ class Service::Ticket::Statistics::Crosstab < Service::Base
   #
   # `pluck` plutôt que `group(...).count` : avec deux nœuds Arel, les clés du
   # hash renvoyé sont ambiguës.
-  def tally(row_column, col_column)
-    row_node = ::Ticket.arel_table[row_column]
-    col_node = ::Ticket.arel_table[col_column]
+  def tally(row_axis, column_axis)
+    row_node = row_axis.node
+    col_node = column_axis.node
 
-    scope
+    # Les deux jointures sont posées successivement ; ActiveRecord dédoublonne
+    # celles qui se répètent, donc croiser deux axes du demandeur ne joint
+    # `users` qu'une fois.
+    column_axis.scoped(row_axis.scoped(scope))
       .group(row_node, col_node)
       .pluck(row_node, col_node, Arel.sql('COUNT(*)'))
       .each_with_object(Hash.new(0)) do |(row, col, count), tallied|

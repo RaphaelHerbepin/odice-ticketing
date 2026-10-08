@@ -36,6 +36,12 @@ const locale = useLocaleStore()
 const queryVariables = computed(() => ({
   ...seriesVariables.value,
   ...filterVariables.value,
+  /* Sans cette liste, `byAxis` revient vide : le serveur ne calcule que les
+     axes qu'on lui NOMME, faute de quoi chaque page paierait l'agrégation de
+     tous les champs personnalisés de l'instance, y compris ceux qu'elle
+     n'affiche pas. L'oublier ne produit aucune erreur — juste des panneaux qui
+     ne s'affichent jamais. */
+  axes: axes.value.map((axis) => axis.name),
   compare: true,
 }))
 

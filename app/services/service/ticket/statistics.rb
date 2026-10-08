@@ -136,13 +136,15 @@ class Service::Ticket::Statistics < Service::Base
 
   # Agrégations sur les axes métier — agence, service, objet de la demande.
   #
-  # Ces champs sont des colonnes de `tickets` portant directement le libellé :
-  # aucune jointure n'est nécessaire, contrairement aux clés étrangères.
+  # Ces champs portent directement leur libellé, contrairement aux clés
+  # étrangères : aucune table de correspondance à joindre pour les nommer. Un
+  # axe du demandeur, lui, vit dans `users` — c'est la définition de l'axe qui
+  # pose la jointure, pas ce service.
   def by_axis
     return [] if axes.blank?
 
     axes.filter_map do |name|
-      column = begin
+      axis = begin
         Axes.resolve(name)
       rescue Axes::UnknownAxis
         # Un axe inconnu est ignoré plutôt que fatal : un tableau de bord
@@ -151,15 +153,15 @@ class Service::Ticket::Statistics < Service::Base
         next
       end
 
-      { name:, label: Axes.label(name, locale), buckets: count_by_column(column) }
+      { name:, label: axis.label, buckets: count_by_axis(axis) }
     end
   end
 
-  def count_by_column(column)
+  def count_by_axis(axis)
     # `arel_table[...]` plutôt qu'une chaîne : la colonne est déjà validée par
     # la liste blanche, mais Arel la cite correctement, ce qui protège aussi
     # des noms de champs personnalisés qui heurteraient un mot réservé SQL.
-    node = ::Ticket.arel_table[column]
+    node = axis.node
 
     # Pas de `limit` en base : la fusion des valeurs non renseignées doit
     # précéder la troncature, sinon NULL et la chaîne vide occupent deux des
@@ -171,7 +173,7 @@ class Service::Ticket::Statistics < Service::Base
     # successifs intervertiraient deux barres sans que rien n'ait changé. Les
     # valeurs non renseignées passent en dernier à égalité : une absence de
     # réponse n'a pas à devancer une vraie valeur en tête de classement.
-    counts  = Values.merge_unset(scope.group(node).count)
+    counts  = Values.merge_unset(axis.scoped(scope).group(node).count)
     buckets = counts
               .sort_by { |value, count| [-count, Values.unset?(value) ? 1 : 0, value.to_s] }
               .first(TOP_N)

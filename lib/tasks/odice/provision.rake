@@ -46,6 +46,10 @@
       'Not set'                     => 'Non renseigné',
       'Others'                      => 'Autres',
       'Agent'                       => 'Agent',
+      # Les axes portant sur l'auteur de la demande sont préfixés de ce mot,
+      # pour les distinguer des champs du ticket qui portent parfois le même
+      # nom. Zammad dit « Customer » ; « Demandeur » est le mot d'Odice.
+      'Requester'                   => 'Demandeur',
       'Open'                        => 'Ouverts',
       'Dormant'                     => 'Dormants',
       'Received'                    => 'Reçus',
