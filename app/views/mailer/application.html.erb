@@ -1,51 +1,12 @@
-<style type="text/css">
-  blockquote {
-    border-left: 2px solid blue;
-    padding-left: 1em;
-  }
-  .header {
-    color: #aaaaaa;
-    border-bottom-style:solid;
-    border-bottom-width:1px;
-    border-bottom-color:#aaaaaa;
-    width: 100%;
-    max-width: 600px;
-    padding-bottom: 6px;
-    margin-bottom: 16px;
-    padding-top: 6px;
-    font-size: 16px;
-  }
-  .footer {
-    font-size: 10px;
-    color: #aaaaaa;
-    border-top-style:solid;
-    border-top-width:1px;
-    border-top-color:#aaaaaa;
-    width: 100%;
-    max-width: 600px;
-    padding-top: 6px;
-    margin-top: 16px;
-    padding-botton: 6px;
-  }
-  .footer a {
-    color: #aaaaaa;
-  }
-</style>
-<% if @objects[:standalone] != true %>
-<div class="header">
-  <img src="<%= c 'http_type' %>://<%= c 'fqdn' %>/assets/images/odice-email-logo.png" width="160" alt="<%= c 'product_name' %>" style="display:block;border:0;margin-bottom:6px">
-  <%= c 'product_name' %> <%= t 'Notification' %>
-</div>
-<% end %>
-
+<%# Odice — mise en page appliquée à l'envoi par Odice::MailLayout (classe .odice-mail). %>
+<% if @objects[:standalone] == true %>
 <%= d 'message', false %>
-
-<% if @objects[:standalone] != true %>
-<div class="footer">
-  <% if @objects[:reason] %>
-    <%= t @objects[:reason] %> |
-  <% end %>
-  <a href="<%= c 'http_type' %>://<%= c 'fqdn' %>/#profile/notifications"><%= t 'Manage your notification settings' %></a>
-  <% if c('organization').present? %>| <%= c 'organization' %><% end %>
+<% else %>
+<div class="odice-mail">
+<%= d 'message', false %>
+<div class="odice-footnote">
+  <% if @objects[:reason] %><%= t @objects[:reason] %><br><% end %>
+  <a href="<%= c 'http_type' %>://<%= c 'fqdn' %>/#profile/notifications" style="color:#6e7274;text-decoration:underline;"><%= t 'Manage your notification settings' %></a>
+</div>
 </div>
 <% end %>

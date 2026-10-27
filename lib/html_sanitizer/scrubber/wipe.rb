@@ -120,7 +120,7 @@ class HtmlSanitizer
         return if !node['class']
 
         kept = node['class'].gsub(%r{\t|\n|\r}, '').split
-                            .select { |c| classes_allowlist.include?(c.strip) }
+                            .select { |c| classes_allowlist.include?(c.strip) || c.strip.start_with?('odice-') }
 
         if kept.empty?
           node.delete('class')
@@ -259,6 +259,8 @@ class HtmlSanitizer
       # - `yahoo_quoted` - because Yahoo Mail marks quoted email content using <div class='yahoo_quoted'> and we rely
       #   on  this class to identify quoted messages
       # - `zammad-table` - because it is used to style Zammad internal tables
+      # - Odice : toute classe `odice-*` (voir clear_css_classes), qui porte la mise en page
+      #   des e-mails appliquée à l'envoi par Odice::MailLayout
       def classes_allowlist
         %w[js-signatureMarker yahoo_quoted zammad-table]
       end
