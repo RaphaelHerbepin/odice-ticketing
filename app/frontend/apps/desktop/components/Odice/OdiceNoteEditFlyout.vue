@@ -85,14 +85,19 @@ const save = async (data: FormSubmitData<{ body: string }>) => {
     size="large"
     no-close-on-action
   >
-    <Form
-      id="odice-note-edit"
-      ref="form"
-      class="pt-4 pb-6"
-      should-autofocus
-      :schema="formSchema"
-      :initial-values="{ body: initialBody }"
-      @submit="save($event as FormSubmitData<{ body: string }>)"
-    />
+    <!-- La vue ticket pose --top-header-height (hauteur de son en-tête) sur la page :
+         sans remise à zéro, la barre d'outils collante de l'éditeur se place à cette
+         distance dans le panneau et recouvre le texte. -->
+    <div :style="{ '--top-header-height': '0px' }">
+      <Form
+        id="odice-note-edit"
+        ref="form"
+        class="pt-4 pb-6"
+        should-autofocus
+        :schema="formSchema"
+        :initial-values="{ body: initialBody }"
+        @submit="save($event as FormSubmitData<{ body: string }>)"
+      />
+    </div>
   </CommonFlyout>
 </template>

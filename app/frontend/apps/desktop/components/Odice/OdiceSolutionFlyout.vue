@@ -150,13 +150,18 @@ const save = async (data: FormSubmitData<SolutionFormData>) => {
     size="large"
     no-close-on-action
   >
-    <Form
-      :id="FORM_ID"
-      ref="form"
-      class="pt-4 pb-6"
-      should-autofocus
-      :schema="formSchema"
-      @submit="save($event as FormSubmitData<SolutionFormData>)"
-    />
+    <!-- La vue ticket pose --top-header-height (hauteur de son en-tête) sur la page :
+         sans remise à zéro, la barre d'outils collante de l'éditeur se place à cette
+         distance dans le panneau et recouvre le texte. -->
+    <div :style="{ '--top-header-height': '0px' }">
+      <Form
+        :id="FORM_ID"
+        ref="form"
+        class="pt-4 pb-6"
+        should-autofocus
+        :schema="formSchema"
+        @submit="save($event as FormSubmitData<SolutionFormData>)"
+      />
+    </div>
   </CommonFlyout>
 </template>
