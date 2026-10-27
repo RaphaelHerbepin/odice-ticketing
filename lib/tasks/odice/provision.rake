@@ -116,6 +116,24 @@
       'The export failed. Please try again.' => 'L’export a échoué. Réessayez.',
       'No ticket has an owner yet: assign tickets to agents for this table to fill in.' =>
         'Aucun ticket n’a encore de propriétaire : attribuez-en aux agents pour que ce tableau se remplisse.',
+      # Satisfaction (note moyenne de 1 à 5 laissée par le demandeur).
+      'Satisfaction'                => 'Satisfaction',
+      # Modification d'une note interne (OdiceNoteEditFlyout).
+      'Edit note'                   => 'Modifier la note',
+      'The note has been updated.'  => 'La note a été modifiée.',
+      'The note could not be updated.' => 'La note n’a pas pu être modifiée.',
+      'The note cannot be empty.'   => 'La note ne peut pas être vide.',
+      'Only internal notes can be edited.' => 'Seules les notes internes peuvent être modifiées.',
+      'You can only edit your own notes.' => 'Vous ne pouvez modifier que vos propres notes.',
+      # Solution saisie à la clôture (OdiceSolutionFlyout).
+      'Ticket closed – what was the solution?' => 'Ticket clôturé – quelle solution a été apportée ?',
+      'Visible to the customer'     => 'Visible par le demandeur',
+      'Solution'                    => 'Solution',
+      'Add the solution'            => 'Ajouter la solution',
+      'Enter a solution or add an attachment, or skip.' =>
+        'Saisissez une solution ou ajoutez une pièce jointe, ou passez.',
+      'The solution has been added to the ticket.' => 'La solution a été ajoutée au ticket.',
+      'The solution could not be added.' => 'La solution n’a pas pu être ajoutée.',
     }.each do |source, target|
       translation = ::Translation.find_or_initialize_by(locale: 'fr-fr', source: source)
       next if translation.persisted? && translation.target == target

@@ -926,7 +926,7 @@ export type TicketStatisticsAgentsQueryVariables = Exact<{
 }>;
 
 
-export type TicketStatisticsAgentsQuery = { ticketStatisticsAgents: Array<{ __typename: 'TicketStatisticsAgent', id: string, label: string, open: number, escalated: number, dormant: number, received: number, closed: number, averageFirstResponseMinutes: number | null | undefined, averageCloseMinutes: number | null | undefined, closeInTimePercent: number | null | undefined, timeLoggedMinutes: number | null | undefined }> };
+export type TicketStatisticsAgentsQuery = { ticketStatisticsAgents: Array<{ __typename: 'TicketStatisticsAgent', id: string, label: string, open: number, escalated: number, dormant: number, received: number, closed: number, averageFirstResponseMinutes: number | null | undefined, averageCloseMinutes: number | null | undefined, closeInTimePercent: number | null | undefined, timeLoggedMinutes: number | null | undefined, satisfactionAverage: number | null | undefined, satisfactionCount: number }> };
 
 export type TicketStatisticsAxesQueryVariables = Exact<{ [key: string]: never; }>;
 

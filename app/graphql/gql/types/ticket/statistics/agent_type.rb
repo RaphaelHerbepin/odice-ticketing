@@ -22,5 +22,9 @@ module Gql::Types::Ticket::Statistics
     # Attribué à qui a SAISI le temps, pas au propriétaire du ticket : les deux
     # chiffres répondent à deux questions distinctes et ne s'additionnent pas.
     field :time_logged_minutes, Float, null: true, description: 'Time logged by this agent in the period'
+
+    # Odice — enquête de satisfaction envoyée à la clôture (notes de 1 à 5).
+    field :satisfaction_average, Float, null: true, description: 'Mean customer satisfaction (1 to 5) on tickets closed in the period'
+    field :satisfaction_count, Integer, null: false, description: 'Number of satisfaction answers on tickets closed in the period'
   end
 end

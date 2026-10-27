@@ -38,4 +38,18 @@ export const addonWeaveRules = [
       },
     ],
   },
+  {
+    // Panneaux ODICE de la vue ticket : « Modifier la note » (action d'article
+    // odiceNoteEdit) et « Solution apportée » proposé à la clôture. Le composant
+    // hôte n'affiche rien ; il est placé à côté du formulaire caché d'édition.
+    target: 'apps/desktop/pages/ticket/components/TicketDetailView/TicketDetailViewContent.vue',
+    scriptSetup:
+      "import OdiceTicketHost from '#desktop/components/Odice/OdiceTicketHost.vue'",
+    template: [
+      {
+        match: { element: 'div', id: 'wrapper-form-ticket-edit' },
+        insertAfter: '<OdiceTicketHost v-if="ticket?.id" :ticket="ticket" />',
+      },
+    ],
+  },
 ]

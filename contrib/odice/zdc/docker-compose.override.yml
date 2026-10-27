@@ -23,6 +23,9 @@ services:
       # Interpolation explicite plutôt que la forme « CLE: » sans valeur : cette
       # dernière dépend d'une résolution implicite que `docker compose config`
       # n'affiche même pas, donc impossible à vérifier avant de démarrer.
+      # Sans elle, `odice:provision` retombe sur « production » et le staging
+      # n'affiche pas son bandeau : l'instance se croit en production.
+      ODICE_ENVIRONMENT: ${ODICE_ENVIRONMENT:-}
       ODICE_PRODUCT_NAME: ${ODICE_PRODUCT_NAME:-}
       ODICE_ORGANIZATION: ${ODICE_ORGANIZATION:-}
       ODICE_LOGO_PATH: ${ODICE_LOGO_PATH:-}

@@ -53,6 +53,17 @@ const columns = [
     value: (a: AgentRow) => formatPercent(a.closeInTimePercent),
   },
   {
+    // Moyenne des notes (1 à 5) laissées par les demandeurs après la clôture,
+    // suivie du nombre de réponses : une moyenne sur deux avis ne se lit pas
+    // comme une moyenne sur cinquante.
+    key: 'satisfaction',
+    label: __('Satisfaction'),
+    value: (a: AgentRow) =>
+      a.satisfactionCount && a.satisfactionAverage !== null && a.satisfactionAverage !== undefined
+        ? `${formatNumber(Math.round(a.satisfactionAverage * 10) / 10)} / 5 (${formatNumber(a.satisfactionCount)})`
+        : '—',
+  },
+  {
     key: 'time',
     label: __('Time logged'),
     value: (a: AgentRow) => formatDuration(a.timeLoggedMinutes),

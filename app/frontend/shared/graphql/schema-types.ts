@@ -5762,6 +5762,10 @@ export type TicketStatisticsAgent = {
   open: Scalars['Int']['output'];
   /** Tickets created in the period and owned by this agent */
   received: Scalars['Int']['output'];
+  /** Mean customer satisfaction (1 to 5) on tickets closed in the period */
+  satisfactionAverage?: Maybe<Scalars['Float']['output']>;
+  /** Number of satisfaction answers on tickets closed in the period */
+  satisfactionCount: Scalars['Int']['output'];
   /** Time logged by this agent in the period */
   timeLoggedMinutes?: Maybe<Scalars['Float']['output']>;
 };

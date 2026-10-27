@@ -19,6 +19,8 @@ export const TicketStatisticsAgentsDocument = gql`
     averageCloseMinutes
     closeInTimePercent
     timeLoggedMinutes
+    satisfactionAverage
+    satisfactionCount
   }
 }
     `;

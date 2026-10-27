@@ -15,5 +15,7 @@ query ticketStatisticsAgents(
     averageCloseMinutes
     closeInTimePercent
     timeLoggedMinutes
+    satisfactionAverage
+    satisfactionCount
   }
 }

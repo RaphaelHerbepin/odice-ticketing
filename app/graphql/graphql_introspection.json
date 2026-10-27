@@ -32043,6 +32043,34 @@
               "deprecationReason": null
             },
             {
+              "name": "satisfactionAverage",
+              "description": "Mean customer satisfaction (1 to 5) on tickets closed in the period",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "satisfactionCount",
+              "description": "Number of satisfaction answers on tickets closed in the period",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "timeLoggedMinutes",
               "description": "Time logged by this agent in the period",
               "args": [],

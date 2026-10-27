@@ -55,6 +55,8 @@ class Service::Ticket::Statistics::Agents < Service::Base
         average_close_minutes:          row && row[:close],
         close_in_time_percent:          row && row[:in_time_percent],
         time_logged_minutes:            time_logged_by[id],
+        satisfaction_average:           row && row[:satisfaction_average],
+        satisfaction_count:             row ? row[:satisfaction_count] : 0,
       }
     end.sort_by { |agent| [-agent[:open], agent[:label]] }
   end
@@ -91,8 +93,13 @@ class Service::Ticket::Statistics::Agents < Service::Base
     @received_counts ||= scope.created_in_period.group(:owner_id).count
   end
 
-  # Un seul passage pour les quatre mesures de flux : les faire séparément
-  # multiplierait par quatre le parcours de la même tranche de tickets.
+  # Un seul passage pour les mesures de flux : les faire séparément
+  # multiplierait le parcours de la même tranche de tickets.
+  #
+  # La satisfaction (note de 1 à 5 laissée par le demandeur après la clôture,
+  # voir Odice::TicketSatisfaction) est rattachée au propriétaire du ticket et
+  # à sa période de clôture. Le champ est créé par scripts/setup-satisfaction.rb :
+  # tant qu'il n'existe pas, les deux colonnes restent vides.
   def closed_rows
     @closed_rows ||= begin
       rows = scope.closed_in_period
@@ -104,17 +111,29 @@ class Service::Ticket::Statistics::Agents < Service::Base
                     Arel.sql('AVG(close_in_min)'),
                     Arel.sql('SUM(CASE WHEN close_diff_in_min >= 0 THEN 1 ELSE 0 END)'),
                     Arel.sql('COUNT(close_diff_in_min)'),
+                    *satisfaction_columns,
                   )
 
-      rows.to_h do |owner_id, closed, first_response, close, in_time, measured|
+      rows.to_h do |owner_id, closed, first_response, close, in_time, measured, satisfaction = nil, rated = 0|
         [owner_id, {
           closed:,
-          first_response:  first_response&.to_f&.round(1),
-          close:           close&.to_f&.round(1),
-          in_time_percent: measured.to_i.positive? ? ((in_time.to_f / measured) * 100).round(1) : nil,
+          first_response:       first_response&.to_f&.round(1),
+          close:                close&.to_f&.round(1),
+          in_time_percent:      measured.to_i.positive? ? ((in_time.to_f / measured) * 100).round(1) : nil,
+          satisfaction_average: satisfaction&.to_f&.round(2),
+          satisfaction_count:   rated.to_i,
         }]
       end
     end
+  end
+
+  # Ne garde que les valeurs 1 à 5 : un texte inattendu ne doit pas faire
+  # échouer le CAST, donc toute la page.
+  def satisfaction_columns
+    return [] if ::Ticket.column_names.exclude?('satisfaction_note')
+
+    rated = "CASE WHEN satisfaction_note IN ('1','2','3','4','5') THEN CAST(satisfaction_note AS integer) END"
+    [Arel.sql("AVG(#{rated})"), Arel.sql("COUNT(#{rated})")]
   end
 
   # Temps saisi, attribué à `created_by_id` — c'est-à-dire à celui qui l'a
