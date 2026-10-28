@@ -337,21 +337,28 @@ namespace :odice do
         perform:   {
           'notification.email' => {
             'recipient' => ['ticket_owner'],
-            'internal'  => 'true',
-            'subject'   => 'Relance : ticket #{ticket.title} sans activité depuis 3 jours',
+            'internal'  => true,
+            'subject'   => 'Relance : #{ticket.title} attend depuis 3 jours',
             # Heredoc NON interpolant : les #{...} sont des marqueurs Zammad,
             # résolus à l'envoi par NotificationFactory. Un heredoc ordinaire
             # les ferait évaluer par Ruby ici même, au provisionnement.
+            # Classes `odice-*` : mise en page appliquée à l'envoi par
+            # Odice::MailLayout (même apparence que les autres e-mails).
             'body'      => <<~'BODY',
-              <div>Bonjour #{ticket.owner.firstname},</div>
-              <br>
-              <div>Le ticket <b>##{ticket.number}</b> — #{ticket.title} — n'a pas évolué
-              depuis trois jours.</div>
-              <br>
-              <div>État actuel : #{ticket.state.name}<br>
-              Client : #{ticket.customer.fullname}</div>
-              <br>
-              <div><a href="#{config.http_type}://#{config.fqdn}/#ticket/zoom/#{ticket.id}">Ouvrir le ticket</a></div>
+              <div class="odice-mail">
+              <div class="odice-preheader">Le ticket n° #{ticket.number} n'a pas évolué depuis trois jours.</div>
+              <h1 class="odice-title">Un ticket attend votre action</h1>
+              <p>Bonjour #{ticket.owner.firstname},</p>
+              <p>Ce ticket n'a pas évolué depuis trois jours.</p>
+              <div class="odice-card">
+              <div class="odice-card-label">Demande n° #{ticket.number}</div>
+              <div class="odice-card-title">#{ticket.title}</div>
+              <div class="odice-card-line">État : <b>#{t(ticket.state.name)}</b></div>
+              <div class="odice-card-line">Demandeur : <b>#{ticket.customer.fullname}</b></div>
+              </div>
+              <p><a class="odice-btn" href="#{config.http_type}://#{config.fqdn}/#ticket/zoom/#{ticket.id}">Ouvrir le ticket</a></p>
+              <div class="odice-footnote">Relance automatique envoyée au propriétaire d'un ticket resté trois jours sans activité.</div>
+              </div>
             BODY
           },
         },
