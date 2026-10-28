@@ -43,8 +43,45 @@ module Odice::TicketApprobation
     approbateurs[ticket.try(:agence).to_s].presence || approbateurs['*'].presence
   end
 
+  # Espace du responsable : la liste de SES demandes (à valider, traitées),
+  # atteinte par un lien signé sur son adresse e-mail, sans compte Zammad.
+  ESPACE_PURPOSE = :odice_espace_approbateur
+
+  def self.token_for_email(email)
+    verifier.generate(email.to_s.downcase, purpose: ESPACE_PURPOSE)
+  end
+
+  def self.email_for(token)
+    verifier.verified(token.to_s, purpose: ESPACE_PURPOSE)
+  end
+
+  def self.espace_url(email)
+    "#{Setting.get('http_type')}://#{Setting.get('fqdn')}/odice/approbation/espace/#{token_for_email(email)}"
+  end
+
+  # Demandes de matériel relevant de ce responsable : celles de ses agences,
+  # plus, pour le responsable par défaut (« * »), celles des agences sans responsable.
+  def self.demandes_for(email)
+    email    = email.to_s.downcase
+    table    = approbateurs
+    agences  = table.except('*').select { |_, e| e.to_s.downcase == email }.keys
+    scope    = ::Ticket.where(it_categorie: 'Matériel')
+    if table['*'].to_s.downcase == email
+      autres = table.except('*').keys
+      scope.where(agence: agences).or(scope.where.not(agence: autres)).or(scope.where(agence: nil))
+    else
+      scope.where(agence: agences)
+    end
+  end
+
   # Lien de décision. Dans un gabarit : #{ticket.odice_approbation_url}
   # (1 = valider, 2 = refuser, pour présélectionner la décision).
+  # Dans un gabarit : #{ticket.odice_espace_approbateur_url}
+  def odice_espace_approbateur_url
+    email = Odice::TicketApprobation.approbateur_for(self)
+    email.present? ? Odice::TicketApprobation.espace_url(email) : ''
+  end
+
   def odice_approbation_url(choix = nil)
     base = "#{Setting.get('http_type')}://#{Setting.get('fqdn')}/odice/approbation/#{Odice::TicketApprobation.token_for(self)}"
     case choix.to_i

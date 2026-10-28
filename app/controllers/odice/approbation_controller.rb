@@ -17,6 +17,28 @@
 class Odice::ApprobationController < Odice::SatisfactionController
   DECIDEE = %w[Approuvé Refusé].freeze
 
+  # Liste des demandes du responsable : à valider, puis déjà traitées.
+  def espace
+    email = Odice::TicketApprobation.email_for(params[:token])
+    if email.blank?
+      render html: layout('Lien invalide', '<p>Ce lien est invalide ou a expiré.</p>').html_safe, status: :not_found # rubocop:disable Rails/OutputSafety
+      return
+    end
+
+    demandes  = Odice::TicketApprobation.demandes_for(email).where.not(state_id: Ticket::State.by_category_ids(:merged))
+    a_valider = demandes.where(approbation: [nil, '', 'En attente']).where.not(state_id: Ticket::State.by_category_ids(:closed))
+                        .order(created_at: :asc).limit(100)
+    traitees  = demandes.where(approbation: DECIDEE).order(updated_at: :desc).limit(30)
+
+    corps = +"<p>Demandes de matériel dont vous êtes le responsable de validation (#{h(email)}).</p>"
+    corps << '<h2 class="section">À valider</h2>'
+    corps << (a_valider.any? ? liste(a_valider, actions: true) : '<p class="vide">Aucune demande en attente de votre validation.</p>')
+    corps << '<h2 class="section">Déjà traitées</h2>'
+    corps << (traitees.any? ? liste(traitees, actions: false) : '<p class="vide">Aucune demande traitée pour l’instant.</p>')
+    corps << '<p class="note-bas">Gardez ce lien : il ouvre toujours la liste à jour de vos demandes, sans compte Zammad.</p>'
+    render html: layout('Mes demandes de matériel', corps).html_safe # rubocop:disable Rails/OutputSafety
+  end
+
   def show
     ticket = find_demande
     return if !ticket
@@ -43,6 +65,7 @@ class Odice::ApprobationController < Odice::SatisfactionController
     render html: layout('Merci', <<~HTML).html_safe # rubocop:disable Rails/OutputSafety
       <p class="decide #{valeur == 'Approuvé' ? 'ok' : 'ko'}">Votre décision a bien été enregistrée : demande #{valeur == 'Approuvé' ? 'validée' : 'refusée'}.</p>
       <p>#{valeur == 'Approuvé' ? 'Le service IT prend la suite et le demandeur est prévenu.' : 'Le demandeur est prévenu que sa demande n’a pas été validée.'} Vous pouvez fermer cette page.</p>
+      #{lien_espace(ticket)}
     HTML
   end
 
@@ -85,6 +108,34 @@ class Odice::ApprobationController < Odice::SatisfactionController
     UserInfo.current_user_id = nil
   end
 
+  def lien_espace(ticket)
+    url = ticket.odice_espace_approbateur_url
+    url.present? ? %(<p class="note-bas"><a href="#{h(url)}">Voir toutes mes demandes de matériel</a></p>) : ''
+  end
+
+  def liste(tickets, actions:)
+    lignes = tickets.map do |t|
+      materiel = [t.try(:mat_type), t.try(:mat_precision)].compact_blank.join(' — ')
+      cout     = t.try(:mat_cout_estime).present? ? "#{t.mat_cout_estime} €" : ''
+      etat = if actions
+               %(<a class="mini-btn" href="#{h(t.odice_approbation_url)}">Valider / refuser</a>)
+             elsif t.approbation == 'Approuvé'
+               '<span class="badge ok">Validée</span>'
+             else
+               '<span class="badge ko">Refusée</span>'
+             end
+      <<~HTML
+        <li class="demande">
+          <div class="demande-tete"><span class="num">n° #{h(t.number)}</span><span class="date">#{h(t.created_at.in_time_zone('Europe/Paris').strftime('%d/%m/%Y'))}</span></div>
+          <div class="demande-titre">#{h(t.title)}</div>
+          <div class="demande-info">#{h([t.customer&.fullname, t.try(:agence), materiel, cout].compact_blank.join(' · '))}</div>
+          <div class="demande-etat">#{etat}</div>
+        </li>
+      HTML
+    end
+    %(<ul class="demandes">#{lignes.join}</ul>)
+  end
+
   def ligne(libelle, valeur)
     valeur.present? ? "<dt>#{h(libelle)}</dt><dd>#{h(valeur)}</dd>" : ''
   end
@@ -113,7 +164,7 @@ class Odice::ApprobationController < Odice::SatisfactionController
 
     if DECIDEE.include?(ticket.approbation.to_s)
       etat = ticket.approbation == 'Approuvé' ? %(<p class="decide ok">Cette demande a déjà été validée.</p>) : %(<p class="decide ko">Cette demande a déjà été refusée.</p>)
-      return layout('Demande de matériel', recap + etat + '<p>Pour revenir sur cette décision, contactez le service IT.</p>')
+      return layout('Demande de matériel', recap + etat + '<p>Pour revenir sur cette décision, contactez le service IT.</p>' + lien_espace(ticket))
     end
 
     ok = choix == 'valider' ? ' checked' : ''
@@ -131,6 +182,6 @@ class Odice::ApprobationController < Odice::SatisfactionController
         <button type="submit">Envoyer ma décision</button>
       </form>
     HTML
-    layout('Une demande attend votre validation', recap + form)
+    layout('Une demande attend votre validation', recap + form + lien_espace(ticket))
   end
 end

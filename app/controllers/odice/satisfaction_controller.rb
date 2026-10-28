@@ -138,6 +138,19 @@ class Odice::SatisfactionController < ActionController::Base # rubocop:disable R
         .erreur { color: #b42318; font-weight: 600; }
         .decide { padding: 14px 16px; border-radius: 8px; font-weight: 600; }
         .decide.ok { background: #e5f3eb; color: #1f6b41; } .decide.ko { background: #fbeaea; color: #9c2423; }
+        h2.section { margin: 26px 0 10px; font-size: 1.05rem; color: #0c3258; }
+        .demandes { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+        .demande { padding: 12px 14px; border: 1px solid #dde2e4; border-radius: 10px; }
+        .demande-tete { display: flex; justify-content: space-between; font-size: .75rem; color: #6e7274; letter-spacing: .04em; text-transform: uppercase; }
+        .demande-titre { margin: 2px 0; font-weight: 700; color: #0c3258; }
+        .demande-info { font-size: .88rem; color: #414042; }
+        .demande-etat { margin-top: 8px; }
+        .mini-btn { display: inline-block; padding: 7px 14px; border-radius: 8px; background: #134c82; color: #fff; text-decoration: none; font-weight: 700; font-size: .88rem; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: .8rem; font-weight: 700; }
+        .badge.ok { background: #e5f3eb; color: #1f6b41; } .badge.ko { background: #fbeaea; color: #9c2423; }
+        .vide { color: #6e7274; font-style: italic; }
+        .note-bas { margin-top: 22px; font-size: .85rem; color: #6e7274; }
+        .note-bas a { color: #134c82; font-weight: 600; }
         footer { padding: 16px 32px; font-size: .78rem; color: #6e7274; text-align: center; background: #f7f9fb; }
         @media (max-width: 480px) { main { margin: 0; border-radius: 0; } .contenu { padding: 20px; } .notes { gap: 4px; } .libelle { font-size: .62rem; } }
       </style></head>

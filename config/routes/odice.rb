@@ -16,6 +16,7 @@ Zammad::Application.routes.draw do
   match '/odice/satisfaction/:token', to: 'odice/satisfaction#create', via: :post
 
   # Validation d'une demande de matériel par le responsable de l'agence : page PUBLIQUE, jeton signé.
+  match '/odice/approbation/espace/:token', to: 'odice/approbation#espace', via: :get, as: :odice_espace_approbateur
   match '/odice/approbation/:token', to: 'odice/approbation#show', via: :get, as: :odice_approbation
   match '/odice/approbation/:token', to: 'odice/approbation#create', via: :post
 end
