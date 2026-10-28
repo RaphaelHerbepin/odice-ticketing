@@ -14,4 +14,8 @@ Zammad::Application.routes.draw do
   # Enquête de satisfaction : page PUBLIQUE, protégée par un jeton signé.
   match '/odice/satisfaction/:token', to: 'odice/satisfaction#show', via: :get, as: :odice_satisfaction
   match '/odice/satisfaction/:token', to: 'odice/satisfaction#create', via: :post
+
+  # Validation d'une demande de matériel par le responsable de l'agence : page PUBLIQUE, jeton signé.
+  match '/odice/approbation/:token', to: 'odice/approbation#show', via: :get, as: :odice_approbation
+  match '/odice/approbation/:token', to: 'odice/approbation#create', via: :post
 end

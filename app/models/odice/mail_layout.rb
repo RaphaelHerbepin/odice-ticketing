@@ -77,6 +77,7 @@ module Odice::MailLayout
     root.css('a[target="zammad_app"]').each { |link| link['class'] = "#{link['class']} odice-btn".strip }
 
     root.css('.odice-rating').each { |node| node.replace(rating(node)) }
+    root.css('.odice-actions').each { |node| node.replace(actions(node)) }
     root.css('a.odice-btn').each { |node| button_paragraph(node) }
     root.css('.odice-card').each { |node| node.replace(card(node)) }
 
@@ -112,6 +113,29 @@ module Odice::MailLayout
     else
       link.replace(table)
     end
+  end
+
+  # Deux boutons côte à côte (ex. Valider / Refuser) : `a.odice-btn-ok`, `a.odice-btn-ko`.
+  ACTIONS = { 'odice-btn-ok' => '#2e8b57', 'odice-btn-ko' => '#c83433' }.freeze
+
+  def actions(node)
+    cells = node.css('a').map do |link|
+      color = ACTIONS.find { |klass, _| link['class'].to_s.include?(klass) }&.last || PRIMARY
+      <<~HTML
+        <td style="padding:0 10px 0 0;">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="display:table;width:auto;margin:0;border-collapse:separate;">
+            <tr><td bgcolor="#{color}" style="padding:0;border-radius:8px;background:#{color};">
+              <a href="#{ERB::Util.html_escape(link['href'])}" style="display:inline-block;padding:12px 24px;font-family:#{FONT};font-size:15px;font-weight:700;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:8px;">#{link.inner_html}</a>
+            </td></tr>
+          </table>
+        </td>
+      HTML
+    end
+    <<~HTML
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="display:table;width:auto;margin:6px 0 20px;border-collapse:collapse;">
+        <tr>#{cells.join}</tr>
+      </table>
+    HTML
   end
 
   def card(node)
