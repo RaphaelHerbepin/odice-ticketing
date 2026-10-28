@@ -3,7 +3,7 @@ Un autre ticket a été fusionné dans le ticket (#{ticket.title})
 <div>Bonjour #{recipient.firstname},</div>
 <br>
 <div>
-Un autre ticket a été fusionné dans le ticket (#{ticket.title}) par "<b>#{current_user.longname}</b>".
+Un autre ticket a été fusionné dans le ticket (#{ticket.title}) par "<b><% if @objects[:current_user]&.id == 1 %>Support ODICE (automatique)<% else %>#{current_user.longname}<% end %></b>".
 </div>
 <br>
 <div>

@@ -2,7 +2,7 @@ Nouveau Ticket (#{ticket.title})
 
 <div>Bonjour #{recipient.firstname},</div>
 <br>
-<div>Un nouveau ticket (#{ticket.title}) a été créé par "<b>#{current_user.longname}</b>".</div>
+<div>Un nouveau ticket (#{ticket.title}) a été créé par "<b><% if @objects[:current_user]&.id == 1 %>Support ODICE (automatique)<% else %>#{current_user.longname}<% end %></b>".</div>
 <br>
 <div>
 #{t('Group')} : #{ticket.group.name}<br>

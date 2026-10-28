@@ -3,7 +3,7 @@ Ticket mis à jour (#{ticket.title})
 <div>Bonjour #{recipient.firstname},</div>
 <br>
 <div>
-Le ticket (#{ticket.title}) a été mis à jour par "<b>#{current_user.longname}</b>".
+Le ticket (#{ticket.title}) a été mis à jour par "<b><% if @objects[:current_user]&.id == 1 %>Support ODICE (automatique)<% else %>#{current_user.longname}<% end %></b>".
 </div>
 <br>
 <% if @objects[:changes].present? %>
