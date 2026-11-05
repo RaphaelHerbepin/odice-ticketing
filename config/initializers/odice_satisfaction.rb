@@ -6,4 +6,5 @@
 Rails.application.config.to_prepare do
   Ticket.include(Odice::TicketSatisfaction) if !Ticket.include?(Odice::TicketSatisfaction)
   Ticket.include(Odice::TicketApprobation) if !Ticket.include?(Odice::TicketApprobation)
+  Ticket.include(Odice::TicketChampsDefaut) if !Ticket.include?(Odice::TicketChampsDefaut)
 end
