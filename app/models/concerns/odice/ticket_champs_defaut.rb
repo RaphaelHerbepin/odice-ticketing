@@ -1,24 +1,24 @@
 # Copyright (C) 2012-2026 Zammad Foundation, https://zammad-foundation.org/
 
-# Odice — création de tickets par clé API (connecteurs MCP, scripts).
+# Odice — création de tickets par clé API (connecteurs MCP, scripts).
 #
-# Problème : les champs « agence », « service_demandeur » et « it_categorie »
-# sont obligatoires dans le formulaire, et Zammad applique aussi cette règle
-# aux appels API. Un connecteur dont l'outil de création n'accepte pas les
-# champs personnalisés ne peut donc jamais créer de ticket.
+# Problème : les champs « agence », « service_demandeur » et « it_categorie »
+# sont obligatoires dans le formulaire, et Zammad applique aussi cette règle
+# aux appels API. Un connecteur dont l'outil de création n'accepte pas les
+# champs personnalisés ne peut donc jamais créer de ticket.
 #
-# Ce module, limité aux créations faites avec une clé API (jeton d'accès) :
-# 1. complète ce qui peut l'être de façon fiable :
-#    - agence : organisation du demandeur si elle correspond à une agence,
+# Ce module, limité aux créations faites avec une clé API (jeton d'accès) :
+# 1. complète ce qui peut l'être de façon fiable :
+#    - agence : organisation du demandeur si elle correspond à une agence,
 #      sinon l'agence de son dernier ticket ;
 #    - service_demandeur : celui de son dernier ticket ;
-#    - it_categorie : « Divers » pour un ticket IT sans catégorie ;
-# 2. ne bloque pas la création si un champ reste vide (comme pour un ticket
-#    arrivé par e-mail) : le connecteur peut le renseigner ensuite avec la
-#    mise à jour, qui accepte les champs personnalisés.
+#    - it_categorie : « Divers » pour un ticket IT sans catégorie ;
+# 2. ne bloque pas la création si un champ reste vide (comme pour un ticket
+#    arrivé par e-mail) : le connecteur peut le renseigner ensuite avec la
+#    mise à jour, qui accepte les champs personnalisés.
 #
-# Rien ne change pour l'interface (navigateur), les e-mails, ni les mises à
-# jour. Une valeur fournie n'est jamais remplacée.
+# Rien ne change pour l'interface (navigateur), les e-mails, ni les mises à
+# jour. Une valeur fournie n'est jamais remplacée.
 module Odice::TicketChampsDefaut
   extend ActiveSupport::Concern
 
@@ -31,7 +31,7 @@ module Odice::TicketChampsDefaut
   module Validation
     private
 
-    # ChecksCoreWorkflow#check_mandatory : ignoré pour une création par clé API
+    # ChecksCoreWorkflow#check_mandatory : ignoré pour une création par clé API
     def check_mandatory(perform_result)
       return if odice_creation_par_cle_api?
 
