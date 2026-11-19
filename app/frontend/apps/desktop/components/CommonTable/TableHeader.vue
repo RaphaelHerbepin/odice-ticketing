@@ -33,7 +33,7 @@ import {
 
 interface Props extends Pick<
   AdvancedTableProps,
-  'totalItemsCount' | 'hasBulkAction' | 'disableBulkAction'
+  'totalItemsCount' | 'hasBulkAction' | 'disableBulkAction' | 'noSelectAll'
 > {
   items: TableAdvancedItem[]
   maxItems: number
@@ -263,7 +263,8 @@ const itemCount = computed(() => (hasMoreItems.value ? props.maxItems : props.to
 const hasLoadedAllItems = computed(() => props.items.length === itemCount.value)
 
 const showSelectAllAction = computed(() => {
-  if (!itemCount.value || !props.selectedCount || selectAllActive.value) return false
+  if (props.noSelectAll || !itemCount.value || !props.selectedCount || selectAllActive.value)
+    return false
 
   return props.selectedCount < itemCount.value
 })

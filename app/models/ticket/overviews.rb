@@ -126,7 +126,7 @@ returns
     end
   end
 
-  def self.tickets_for_overview(overview, user, order_by: nil, order_direction: nil)
+  def self.tickets_for_overview(overview, user, order_by: nil, order_direction: nil, filters: nil)
     order_clause = [{
       column:    order_by || overview.order[:by],
       direction: order_direction || overview.order[:direction],
@@ -139,12 +139,19 @@ returns
                            })
     end
 
-    Ticket.raw_selectors(overview.condition, {
-                           access:       overview.condition.to_s.include?('ticket.mention_user_ids') ? 'read' : 'overview',
-                           current_user: user,
-                           order_by:     order_clause,
-                           locale:       user.preferences['locale'] || Locale.default,
-                         })
+    locale = user.preferences['locale'] || Locale.default
+
+    relation = Ticket.raw_selectors(overview.condition, {
+                                      access:       overview.condition.to_s.include?('ticket.mention_user_ids') ? 'read' : 'overview',
+                                      current_user: user,
+                                      order_by:     order_clause,
+                                      locale:       locale,
+                                    })
+
+    # Odice : filtres par colonne de la vue.
+    return relation if relation.nil? || filters.blank?
+
+    Ticket::Overviews::ColumnFilter.new(filters, locale:).apply(relation)
   end
 
   DB_QUERY_PARAMS = Struct.new(:query_condition, :bind_condition, :tables, :order_by, :direction)

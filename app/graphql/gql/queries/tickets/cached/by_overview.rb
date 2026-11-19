@@ -10,6 +10,8 @@ module Gql::Queries
     argument :overview_id, GraphQL::Types::ID, loads: Gql::Types::OverviewType, description: 'Overview ID'
     argument :order_by, String, required: false, description: 'Set a custom order by'
     argument :order_direction, Gql::Types::Enum::OrderDirectionType, required: false, description: 'Set a custom order direction'
+    # Odice : filtres par colonne, appliqués côté serveur à toute la vue.
+    argument :filters, [Gql::Types::Input::Ticket::OverviewColumnFilterInputType], required: false, description: 'Filter the overview tickets by displayed column values'
     argument :cache_ttl, Integer do
       description 'How long to cache the overview data, in seconds. This will be part of the cache key so that different durations get different caches.'
     end
@@ -33,18 +35,26 @@ module Gql::Queries
 
     end
 
-    def resolve(cache_ttl:, overview:, renew_cache: false, order_by: nil, order_direction: nil, known_collection_signature: nil)
+    def resolve(cache_ttl:, overview:, renew_cache: false, order_by: nil, order_direction: nil, known_collection_signature: nil, filters: nil)
       if renew_cache
         context.scoped_set!(:renew_cache, true)
       end
-      maybe_cached_value(cache_ttl:, overview:, order_by:, order_direction:)
+      maybe_cached_value(cache_ttl:, overview:, order_by:, order_direction:, filters:)
     end
 
-    def maybe_cached_value(cache_ttl:, overview:, order_by:, order_direction:)
-      cache_fragment(cache_key: { exclude_arguments: [:renew_cache] }, object_cache_key: object_cache_key(overview), expires_in: cache_ttl) do
+    def maybe_cached_value(cache_ttl:, overview:, order_by:, order_direction:, filters: nil)
+      cache_key = object_cache_key(overview)
+      # Les filtres comparent des libellés traduits : le résultat dépend de la langue.
+      cache_key = "#{cache_key}-locale:#{user_locale}" if filters.present?
+
+      cache_fragment(cache_key: { exclude_arguments: [:renew_cache] }, object_cache_key: cache_key, expires_in: cache_ttl) do
         # This will fetch tickets with 'overview' permissions, which logically include 'read' permissions.
-        ::Ticket::Overviews.tickets_for_overview(overview, context.current_user, order_by: order_by, order_direction: order_direction)
+        ::Ticket::Overviews.tickets_for_overview(overview, context.current_user, order_by: order_by, order_direction: order_direction, filters: filters&.map(&:to_h))
       end
+    end
+
+    def user_locale
+      context.current_user.preferences['locale'] || Locale.default
     end
   end
 end

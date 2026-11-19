@@ -109,6 +109,7 @@ const skeletonColumns = computed(() => columnWidths.value.length)
         v-model:select-all-active="selectAllActive"
         :has-bulk-action="bulkEditActive"
         :disable-bulk-action="isBulkTaskRunning"
+        :no-select-all="noSelectAll"
         :caption="caption"
         :object="EnumObjectManagerObjects.Ticket"
         :headers="headers"
@@ -174,6 +175,9 @@ const skeletonColumns = computed(() => columnWidths.value.length)
         @click-row="goToItem"
         @sort="resort"
       >
+        <template v-if="$slots['header-suffix']" #header-suffix="slotProps">
+          <slot name="header-suffix" v-bind="slotProps" />
+        </template>
         <template #column-cell-priorityIcon="{ item, isRowSelected }">
           <CommonTicketPriorityIndicatorIcon
             :data-priority-ui-color="(item as TicketByList).priority?.uiColor ?? undefined"

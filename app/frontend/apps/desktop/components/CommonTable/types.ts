@@ -116,6 +116,12 @@ export interface AdvancedTableProps extends BaseTableProps {
   hasBulkAction?: boolean
 
   /**
+   * Odice: hide the "select all results" action, e.g. when the server-side
+   * selector would not match what the table currently shows (column filters).
+   */
+  noSelectAll?: boolean
+
+  /**
    * Disable all checkbox cells, requires hasBulkAction to be true
    */
   disableBulkAction?: boolean
@@ -156,6 +162,7 @@ export interface ListTableProps<T> {
   loading: boolean
   loadingNewPage: boolean
   skeletonLoadingCount?: number
+  noSelectAll?: boolean
   onLoadMore?: () => Awaitable<void>
 }
 

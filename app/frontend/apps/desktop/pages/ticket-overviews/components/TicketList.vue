@@ -42,6 +42,14 @@ import { useTicketsCachedByOverviewQuery } from '#desktop/entities/ticket/graphq
 import { useTicketOverviewsStore } from '#desktop/entities/ticket/stores/ticketOverviews.ts'
 import { useLifetimeCustomerTicketsCount } from '#desktop/entities/user/current/composables/useLifetimeCustomerTicketsCount.ts'
 
+import {
+  isColumnFilterable,
+  useTicketOverviewColumnFilters,
+} from '../composables/useTicketOverviewColumnFilters.ts'
+
+import ColumnFilterBar from './TicketOverviewColumnFilter/ColumnFilterBar.vue'
+import ColumnFilterButton from './TicketOverviewColumnFilter/ColumnFilterButton.vue'
+
 const MAX_ITEMS = 2000
 
 interface Props {
@@ -77,6 +85,12 @@ const cacheTtl = computed(() =>
     : queryPollingConfig.value.background.cache_ttl_sec,
 )
 
+// Odice : filtres par colonne, appliqués côté serveur à toute la vue.
+const { filters, queryFilters, filterForColumn, applyFilter, removeFilter, clearFilters } =
+  useTicketOverviewColumnFilters(() => props.overviewId)
+
+const hasFilters = computed(() => filters.value.length > 0)
+
 const ticketsQueryVariables = computed<TicketsCachedByOverviewQueryVariables>(
   (currentVariables) => {
     const newVariables: TicketsCachedByOverviewQueryVariables = {
@@ -87,6 +101,8 @@ const ticketsQueryVariables = computed<TicketsCachedByOverviewQueryVariables>(
       cacheTtl: queryPollingConfig.value.foreground.cache_ttl_sec,
       renewCache: currentVariables?.overviewId !== props.overviewId,
     }
+
+    if (queryFilters.value) newVariables.filters = queryFilters.value
 
     const cachedTickets = readTicketsByOverviewCache(newVariables)
 
@@ -338,14 +354,20 @@ const localHeaders = computed(() => {
   return extendedHeaders
 })
 
-const { setOnSuccessCallback, checkedTicketIds, bulkContext } = useTicketBulkEdit()
+const { setOnSuccessCallback, checkedTicketIds, bulkContext, selectAllActive } =
+  useTicketBulkEdit()
 
+// Odice : la sélection « tous les résultats » s'appuie sur la vue côté serveur,
+// sans les filtres de colonne. Filtrée, la sélection se limite donc aux tickets
+// cochés, faute de quoi l'action toucherait des tickets masqués.
 watch(
-  () => props.overviewId,
-  (newValue) => {
-    bulkContext.value = {
-      overviewId: newValue,
-    }
+  [() => props.overviewId, hasFilters],
+  ([newValue, filtered]) => {
+    bulkContext.value = filtered
+      ? undefined
+      : {
+          overviewId: newValue,
+        }
   },
   { immediate: true },
 )
@@ -377,11 +399,30 @@ onBeforeRouteUpdate(() => checkedTicketIds.value.clear())
 
 const { visibleSkeletonLoadingCount } = useSkeletonLoadingCount(toRef(props, 'overviewCount'))
 
+// Un nouveau filtre donne une autre liste : on la reprend depuis le haut.
+watch(queryFilters, (newFilters, oldFilters) => {
+  if (isEqual(newFilters, oldFilters)) return
+
+  selectAllActive.value = false
+  checkedTicketIds.value.clear()
+  requestAnimationFrame(() => {
+    scrollContainerElement.value?.scrollTo({ top: 0 })
+  })
+})
+
 defineExpose({ tickets: readonly(tickets) })
 </script>
 
 <template>
   <div ref="scroll-container" class="overflow-y-auto focus-visible:outline-none">
+    <ColumnFilterBar
+      v-if="hasFilters"
+      :filters="filters"
+      :total-count="totalCount"
+      :loading="isLoadingTickets"
+      @remove="removeFilter"
+      @clear="clearFilters"
+    />
     <TicketListTable
       :table-id="overviewId"
       :caption="$t('Overview: %s', overviewName)"
@@ -398,12 +439,35 @@ defineExpose({ tickets: readonly(tickets) })
       :loading="isLoadingTickets"
       :skeleton-loading-count="visibleSkeletonLoadingCount"
       :loading-new-page="pagination.loadingNewPage"
+      :no-select-all="hasFilters"
       @load-more="loadMore"
       @sort="resort"
     >
+      <template #header-suffix="{ item }">
+        <ColumnFilterButton
+          v-if="isColumnFilterable(item)"
+          :attribute="item"
+          :filter="filterForColumn(item.name)"
+          @apply="applyFilter"
+          @remove="removeFilter"
+        />
+      </template>
       <template #empty-list>
         <CommonEmptyMessage
-          v-if="isCustomerAndCanCreateTickets && !hasAnyTicket"
+          v-if="hasFilters"
+          class="absolute top-1/2 w-full -translate-y-1/2 space-y-2.5 text-center ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2"
+          :title="$t('No matching tickets')"
+          icon="filter"
+        >
+          <CommonLabel class="block! py-5" tag="p">
+            {{ $t('No ticket in this overview matches the column filters.') }}
+          </CommonLabel>
+          <CommonButton class="mx-auto mt-4" variant="secondary" @click="clearFilters">
+            {{ $t('Clear filters') }}
+          </CommonButton>
+        </CommonEmptyMessage>
+        <CommonEmptyMessage
+          v-else-if="isCustomerAndCanCreateTickets && !hasAnyTicket"
           class="absolute top-1/2 w-full -translate-y-1/2 space-y-2.5 text-center ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2"
           :title="$t('Welcome!')"
         >

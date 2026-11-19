@@ -6509,6 +6509,65 @@
         },
         {
           "kind": "ENUM",
+          "name": "EnumTicketOverviewColumnFilterOperator",
+          "description": "Comparison applied by a ticket overview column filter",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "CONTAINS",
+              "description": "Displayed value contains the given text",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "NOT_CONTAINS",
+              "description": "Displayed value does not contain the given text",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "STARTS_WITH",
+              "description": "Displayed value starts with the given text",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ENDS_WITH",
+              "description": "Displayed value ends with the given text",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "EQUALS",
+              "description": "Displayed value equals the given text",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "NOT_EQUALS",
+              "description": "Displayed value differs from the given text",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_EMPTY",
+              "description": "Displayed value is empty",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_NOT_EMPTY",
+              "description": "Displayed value is not empty",
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
           "name": "EnumTicketScreenBehavior",
           "description": "Option to choose the ticket screen behavior",
           "fields": null,
@@ -22110,6 +22169,24 @@
                   "defaultValue": null
                 },
                 {
+                  "name": "filters",
+                  "description": "Filter the overview tickets by displayed column values",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "INPUT_OBJECT",
+                        "name": "TicketOverviewColumnFilterInput",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "cacheTtl",
                   "description": "How long to cache the overview data, in seconds. This will be part of the cache key so that different durations get different caches.",
                   "type": {
@@ -30338,6 +30415,55 @@
           ],
           "inputFields": null,
           "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "TicketOverviewColumnFilterInput",
+          "description": "Filter applied to one column of a ticket overview, on its displayed value",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "column",
+              "description": "Column (ticket attribute) name, e.g. title, customer_id or a custom attribute",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "operator",
+              "description": "Comparison to apply",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "EnumTicketOverviewColumnFilterOperator",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "value",
+              "description": "Text to compare with (case and accent insensitive)",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },

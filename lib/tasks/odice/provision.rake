@@ -134,6 +134,26 @@
         'Saisissez une solution ou ajoutez une pièce jointe, ou passez.',
       'The solution has been added to the ticket.' => 'La solution a été ajoutée au ticket.',
       'The solution could not be added.' => 'La solution n’a pas pu être ajoutée.',
+      # Filtres par colonne des vues de tickets (ColumnFilterButton/ColumnFilterBar).
+      'does not contain'            => 'ne contient pas',
+      'is equal to'                 => 'est égal à',
+      'is not equal to'             => 'est différent de',
+      'is empty'                    => 'est vide',
+      'is not empty'                => 'n’est pas vide',
+      'Filter by %s'                => 'Filtrer la colonne %s',
+      'Change filter on %s'         => 'Modifier le filtre de la colonne %s',
+      'Condition'                   => 'Condition',
+      'Text to search for'          => 'Texte recherché',
+      'Column filters'              => 'Filtres de colonne',
+      'Clear filters'               => 'Effacer les filtres',
+      '%s matching ticket(s)'       => '%s ticket(s) correspondant(s)',
+      'No matching tickets'         => 'Aucun ticket correspondant',
+      'No ticket in this overview matches the column filters.' =>
+        'Aucun ticket de cette vue ne correspond aux filtres de colonne.',
+      'Too many column filters.'    => 'Trop de filtres de colonne.',
+      'Unknown column filter operator.' => 'Condition de filtre inconnue.',
+      'Column filter value is too long.' => 'Le texte du filtre est trop long.',
+      'This column cannot be filtered.' => 'Cette colonne ne peut pas être filtrée.',
     }.each do |source, target|
       translation = ::Translation.find_or_initialize_by(locale: 'fr-fr', source: source)
       next if translation.persisted? && translation.target == target

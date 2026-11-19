@@ -508,6 +508,7 @@ watch(
       :table-attributes="tableAttributes"
       :has-bulk-action="hasBulkAction"
       :disable-bulk-action="disableBulkAction"
+      :no-select-all="noSelectAll"
       :actions="actions"
       :order-by="orderBy"
       :order-direction="orderDirection"
@@ -532,7 +533,10 @@ watch(
         :key="`suffix-${tableAttribute.name}`"
         #[`header-suffix-${tableAttribute.name}`]="slotProps"
       >
-        <slot :name="`header-suffix-${tableAttribute.name}`" v-bind="slotProps" />
+        <slot :name="`header-suffix-${tableAttribute.name}`" v-bind="slotProps">
+          <!-- Odice : suffixe commun à toutes les colonnes (filtres de colonne). -->
+          <slot name="header-suffix" v-bind="slotProps" />
+        </slot>
       </template>
     </TableHeader>
     <!-- :TODO tabindex should be -1 re-evaluate when we work on bulk action with checkbox  -->
