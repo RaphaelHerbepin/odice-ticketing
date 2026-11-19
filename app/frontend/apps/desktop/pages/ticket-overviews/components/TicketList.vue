@@ -46,6 +46,7 @@ import {
   isColumnFilterable,
   useTicketOverviewColumnFilters,
 } from '../composables/useTicketOverviewColumnFilters.ts'
+import { useTicketOverviewSorts } from '../composables/useTicketOverviewSorts.ts'
 
 import ColumnFilterBar from './TicketOverviewColumnFilter/ColumnFilterBar.vue'
 import ColumnFilterButton from './TicketOverviewColumnFilter/ColumnFilterButton.vue'
@@ -91,6 +92,9 @@ const { filters, queryFilters, filterForColumn, applyFilter, removeFilter, clear
 
 const hasFilters = computed(() => filters.value.length > 0)
 
+// Odice : tri sur plusieurs colonnes (croissant → décroissant → sans tri).
+const { sorts, querySorts, setSorts } = useTicketOverviewSorts(() => props.overviewId)
+
 const ticketsQueryVariables = computed<TicketsCachedByOverviewQueryVariables>(
   (currentVariables) => {
     const newVariables: TicketsCachedByOverviewQueryVariables = {
@@ -103,6 +107,7 @@ const ticketsQueryVariables = computed<TicketsCachedByOverviewQueryVariables>(
     }
 
     if (queryFilters.value) newVariables.filters = queryFilters.value
+    if (querySorts.value) newVariables.sorts = querySorts.value
 
     const cachedTickets = readTicketsByOverviewCache(newVariables)
 
@@ -354,8 +359,7 @@ const localHeaders = computed(() => {
   return extendedHeaders
 })
 
-const { setOnSuccessCallback, checkedTicketIds, bulkContext, selectAllActive } =
-  useTicketBulkEdit()
+const { setOnSuccessCallback, checkedTicketIds, bulkContext, selectAllActive } = useTicketBulkEdit()
 
 // Odice : la sélection « tous les résultats » s'appuie sur la vue côté serveur,
 // sans les filtres de colonne. Filtrée, la sélection se limite donc aux tickets
@@ -399,9 +403,10 @@ onBeforeRouteUpdate(() => checkedTicketIds.value.clear())
 
 const { visibleSkeletonLoadingCount } = useSkeletonLoadingCount(toRef(props, 'overviewCount'))
 
-// Un nouveau filtre donne une autre liste : on la reprend depuis le haut.
-watch(queryFilters, (newFilters, oldFilters) => {
-  if (isEqual(newFilters, oldFilters)) return
+// Un nouveau filtre ou un nouveau tri donne une autre liste : on la reprend
+// depuis le haut.
+watch([queryFilters, querySorts], (newValues, oldValues) => {
+  if (isEqual(newValues, oldValues)) return
 
   selectAllActive.value = false
   checkedTicketIds.value.clear()
@@ -429,6 +434,7 @@ defineExpose({ tickets: readonly(tickets) })
       :headers="localHeaders"
       :order-by="localOrderBy"
       :order-direction="localOrderDirection"
+      :sorts="sorts"
       :group-by="groupBy"
       :reached-scroll-top="reachedTop"
       :scroll-container="scrollContainerElement"
@@ -442,6 +448,7 @@ defineExpose({ tickets: readonly(tickets) })
       :no-select-all="hasFilters"
       @load-more="loadMore"
       @sort="resort"
+      @update:sorts="setSorts"
     >
       <template #header-suffix="{ item }">
         <ColumnFilterButton

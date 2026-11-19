@@ -21,10 +21,16 @@ import CommonTableSkeleton from '#desktop/components/CommonTable/Skeleton/Common
 import TableCaption from '#desktop/components/CommonTable/TableCaption.vue'
 import { useKeepAliveHooks } from '#desktop/composables/useKeepAliveHooks.ts'
 
+import { cycleTableSort } from './multiSort.ts'
 import TableHeader from './TableHeader.vue'
 import TableRow from './TableRow.vue'
 import TableRowGroupBy from './TableRowGroupBy.vue'
-import { type AdvancedTableProps, type TableAdvancedItem, type TableAttribute } from './types.ts'
+import {
+  type AdvancedTableProps,
+  type TableAdvancedItem,
+  type TableAttribute,
+  type TableSort,
+} from './types.ts'
 
 const props = withDefaults(defineProps<AdvancedTableProps>(), {
   maxItems: 1000,
@@ -34,6 +40,7 @@ const props = withDefaults(defineProps<AdvancedTableProps>(), {
 const emit = defineEmits<{
   'click-row': [TableAdvancedItem]
   sort: [string, EnumOrderDirection]
+  'update:sorts': [TableSort[]]
 }>()
 
 //  justify-* applies to the table header, text-* applies to the table cell.
@@ -247,6 +254,15 @@ const deselectAll = () => {
 }
 
 const sort = (column: string) => {
+  // Odice: multi-column sorting, the parent owns the list of sorts.
+  if (props.sorts) {
+    emit('update:sorts', cycleTableSort(props.sorts, column))
+
+    clearLastCheckedItemId()
+    deselectAll()
+    return
+  }
+
   let newDirection: EnumOrderDirection
 
   if (props.orderBy === column && props.orderDirection) {
@@ -512,6 +528,7 @@ watch(
       :actions="actions"
       :order-by="orderBy"
       :order-direction="orderDirection"
+      :sorts="sorts"
       :storage-key-id="storageKeyId"
       :total-items-count="totalItemsCount"
       :selected-count="selectedCount"

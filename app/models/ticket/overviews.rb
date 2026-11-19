@@ -126,11 +126,18 @@ returns
     end
   end
 
-  def self.tickets_for_overview(overview, user, order_by: nil, order_direction: nil, filters: nil)
+  # Odice : nombre maximal de niveaux d'un tri sur plusieurs colonnes.
+  MAX_SORTS = 10
+
+  def self.tickets_for_overview(overview, user, order_by: nil, order_direction: nil, filters: nil, sorts: nil)
     order_clause = [{
       column:    order_by || overview.order[:by],
       direction: order_direction || overview.order[:direction],
     }]
+
+    # Odice : les tris choisis par l'agent passent avant le tri de la vue, qui
+    # ne sert plus qu'à départager les ex aequo.
+    order_clause = multi_column_order(sorts) + order_clause if sorts.present?
 
     if overview.group_by.present?
       order_clause.unshift({
@@ -138,6 +145,10 @@ returns
                              direction: overview.group_direction || 'ASC'
                            })
     end
+
+    # Une colonne ne peut être triée qu'une fois : le tri avancé lui donne un
+    # alias SQL, qu'un doublon rendrait ambigu. Le premier niveau l'emporte.
+    order_clause = order_clause.uniq { |elem| elem[:column].to_s.delete_suffix('_id') }
 
     locale = user.preferences['locale'] || Locale.default
 
@@ -152,6 +163,19 @@ returns
     return relation if relation.nil? || filters.blank?
 
     Ticket::Overviews::ColumnFilter.new(filters, locale:).apply(relation)
+  end
+
+  def self.multi_column_order(sorts)
+    raise Exceptions::UnprocessableContent, __('Too many sort columns.') if sorts.size > MAX_SORTS
+
+    sorts.map do |sort|
+      sort      = sort.to_h.symbolize_keys
+      direction = sort[:direction].to_s.upcase
+
+      raise Exceptions::UnprocessableContent, __('Invalid sort direction.') if %w[ASC DESC].exclude?(direction)
+
+      { column: sort[:column].to_s, direction: }
+    end
   end
 
   DB_QUERY_PARAMS = Struct.new(:query_condition, :bind_condition, :tables, :order_by, :direction)

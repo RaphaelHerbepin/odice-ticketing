@@ -193,27 +193,76 @@ describe('TicketList', () => {
     // await waitFor(() => expect(firstTableHeader).toHaveStyle({ width: '30px' }))
   })
 
-  it('sorts table column', async () => {
+  // Odice : tri sur plusieurs colonnes, croissant → décroissant → sans tri.
+  it('sorts table columns cumulatively', async () => {
     applyMocks()
 
     const { wrapper } = renderTicketList()
 
-    const sortButton = await wrapper.findByRole('button', {
-      name: 'Sort by Title ascending',
-    })
-
-    await wrapper.events.click(sortButton)
-
-    const mock = await waitForTicketsCachedByOverviewQueryCalls()
-
-    expect(mock.at(-1)?.variables).toEqual({
+    const baseVariables = {
       cacheTtl: 5,
       knownCollectionSignature: undefined,
-      orderBy: 'title',
+      orderBy: 'group',
       orderDirection: EnumOrderDirection.Ascending,
       overviewId: convertToGraphQLId('Overview', 1),
       pageSize: 30,
       renewCache: false,
+    }
+
+    await wrapper.events.click(
+      await wrapper.findByRole('button', { name: 'Sort by Title ascending' }),
+    )
+
+    let mock = await waitForTicketsCachedByOverviewQueryCalls()
+
+    expect(mock.at(-1)?.variables).toEqual({
+      ...baseVariables,
+      sorts: [{ column: 'title', direction: EnumOrderDirection.Ascending }],
+    })
+
+    await wrapper.events.click(
+      await wrapper.findByRole('button', { name: 'Sort by Title descending' }),
+    )
+
+    // A second column only orders what the first one leaves tied.
+    await wrapper.events.click(
+      await wrapper.findByRole('button', { name: 'Then sort by Owner ascending' }),
+    )
+
+    mock = await waitForTicketsCachedByOverviewQueryCalls()
+
+    expect(mock.at(-1)?.variables).toMatchObject({
+      sorts: [
+        { column: 'title', direction: EnumOrderDirection.Descending },
+        { column: 'owner_id', direction: EnumOrderDirection.Ascending },
+      ],
+    })
+
+    // The third click on a column removes it from the sort.
+    await wrapper.events.click(
+      await wrapper.findByRole('button', { name: 'Remove sorting by Title' }),
+    )
+
+    mock = await waitForTicketsCachedByOverviewQueryCalls()
+
+    expect(mock.at(-1)?.variables).toMatchObject({
+      sorts: [{ column: 'owner_id', direction: EnumOrderDirection.Ascending }],
+    })
+
+    await wrapper.events.click(
+      await wrapper.findByRole('button', { name: 'Sort by Owner descending' }),
+    )
+    await wrapper.events.click(
+      await wrapper.findByRole('button', { name: 'Remove sorting by Owner' }),
+    )
+
+    mock = await waitForTicketsCachedByOverviewQueryCalls()
+
+    // Without any sort, the overview's own order applies again (the first
+    // unsorted page is known from the cache, hence its signature).
+    expect(mock.at(-1)?.variables).toEqual({
+      ...baseVariables,
+      knownCollectionSignature: expect.any(String),
     })
   })
 

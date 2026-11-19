@@ -8,6 +8,7 @@ query ticketsCachedByOverview(
   $renewCache: Boolean
   $knownCollectionSignature: String
   $filters: [TicketOverviewColumnFilterInput!]
+  $sorts: [TicketOverviewSortInput!]
 ) {
   ticketsCachedByOverview(
     overviewId: $overviewId
@@ -19,6 +20,7 @@ query ticketsCachedByOverview(
     renewCache: $renewCache
     knownCollectionSignature: $knownCollectionSignature
     filters: $filters
+    sorts: $sorts
   ) {
     totalCount
     edges {

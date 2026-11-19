@@ -29,6 +29,7 @@ import {
   type AdvancedTableProps,
   type TableAdvancedItem,
   type TableAttribute,
+  type TableSort,
 } from './types.ts'
 
 interface Props extends Pick<
@@ -42,6 +43,7 @@ interface Props extends Pick<
   actions?: unknown[]
   orderBy?: string
   orderDirection?: EnumOrderDirection
+  sorts?: TableSort[]
   storageKeyId?: string
   selectedCount?: number
 }
@@ -72,11 +74,33 @@ const cellAlignmentClasses: Record<string, string> = {
 }
 
 // Sorting logic
-const isSorted = (column: string) => props.orderBy === column
+// Odice: with `sorts`, several columns can be sorted at once, in priority order.
+const sortDirection = (column: string) => {
+  if (props.sorts) return props.sorts.find((sort) => sort.column === column)?.direction
 
-const sortIcon = computed(() =>
-  props.orderDirection === EnumOrderDirection.Ascending ? 'arrow-up-short' : 'arrow-down-short',
-)
+  return props.orderBy === column ? props.orderDirection : undefined
+}
+
+const isSorted = (column: string) => sortDirection(column) !== undefined
+
+const sortIcon = (column: string) =>
+  sortDirection(column) === EnumOrderDirection.Ascending ? 'arrow-up-short' : 'arrow-down-short'
+
+// Priority number, only shown when it tells something (two sorted columns or more).
+const sortPriority = (column: string) => {
+  if (!props.sorts || props.sorts.length < 2) return undefined
+
+  const index = props.sorts.findIndex((sort) => sort.column === column)
+
+  return index === -1 ? undefined : index + 1
+}
+
+const ariaSort = (column: string) => {
+  // aria-sort belongs on a single header: the primary sort column.
+  if (props.sorts && props.sorts[0]?.column !== column) return undefined
+
+  return sortDirection(column)?.toLocaleLowerCase() as 'ascending' | 'descending' | undefined
+}
 
 const sort = (column: string) => {
   emit('sort', column)
@@ -274,13 +298,19 @@ const getToolbarLabel = (tableAttribute: TableAttribute) => {
 
   const label = i18n.t(tableAttribute.label, ...(tableAttribute.labelPlaceholder || []))
 
-  if (!isSorted(tableAttribute.name)) {
+  const direction = sortDirection(tableAttribute.name)
+
+  if (!direction) {
+    if (props.sorts?.length) return i18n.t(__('Then sort by %s ascending'), label)
+
     return i18n.t(__('Sort by %s ascending'), label)
   }
 
-  if (props.orderDirection === EnumOrderDirection.Ascending) {
+  if (direction === EnumOrderDirection.Ascending) {
     return i18n.t(__('Sort by %s descending'), label)
   }
+
+  if (props.sorts) return i18n.t(__('Remove sorting by %s'), label)
 
   return i18n.t(__('Sort by %s ascending'), label)
 }
@@ -321,11 +351,7 @@ useOnEmitter('primary-sidebar-transition', () => initializeHeaderWidths())
         class="relative h-10 px-2.5 py-1 text-xs"
         :class="[tableAttribute.headerPreferences?.headerClass]"
         :aria-label="$t(tableAttribute.label, ...(tableAttribute.labelPlaceholder || []))"
-        :aria-sort="
-          !isSorted(tableAttribute.name)
-            ? undefined
-            : (orderDirection?.toLocaleLowerCase() as 'ascending' | 'descending')
-        "
+        :aria-sort="ariaSort(tableAttribute.name)"
       >
         <div
           class="flex size-full"
@@ -370,13 +396,18 @@ useOnEmitter('primary-sidebar-transition', () => initializeHeaderWidths())
               >
                 {{ $t(tableAttribute.label, ...(tableAttribute.labelPlaceholder || [])) }}
               </CommonLabel>
-              <CommonIcon
+              <span
                 v-if="!tableAttribute.headerPreferences?.noSorting && isSorted(tableAttribute.name)"
-                class="shrink-0 text-blue-800"
-                :name="sortIcon"
-                size="xs"
-                decorative
-              />
+                class="inline-flex shrink-0 items-center text-blue-800"
+              >
+                <CommonIcon :name="sortIcon(tableAttribute.name)" size="xs" decorative />
+                <span
+                  v-if="sortPriority(tableAttribute.name)"
+                  class="text-[10px] leading-none font-semibold"
+                  aria-hidden="true"
+                  >{{ sortPriority(tableAttribute.name) }}</span
+                >
+              </span>
             </div>
           </slot>
 

@@ -7,7 +7,7 @@ import * as VueCompositionApi from 'vue';
 export type ReactiveFunction<TParam> = () => TParam;
 
 export const TicketsCachedByOverviewDocument = gql`
-    query ticketsCachedByOverview($overviewId: ID!, $orderBy: String, $orderDirection: EnumOrderDirection, $cursor: String, $pageSize: Int = 25, $cacheTtl: Int!, $renewCache: Boolean, $knownCollectionSignature: String, $filters: [TicketOverviewColumnFilterInput!]) {
+    query ticketsCachedByOverview($overviewId: ID!, $orderBy: String, $orderDirection: EnumOrderDirection, $cursor: String, $pageSize: Int = 25, $cacheTtl: Int!, $renewCache: Boolean, $knownCollectionSignature: String, $filters: [TicketOverviewColumnFilterInput!], $sorts: [TicketOverviewSortInput!]) {
   ticketsCachedByOverview(
     overviewId: $overviewId
     orderBy: $orderBy
@@ -18,6 +18,7 @@ export const TicketsCachedByOverviewDocument = gql`
     renewCache: $renewCache
     knownCollectionSignature: $knownCollectionSignature
     filters: $filters
+    sorts: $sorts
   ) {
     totalCount
     edges {

@@ -154,6 +154,11 @@
       'Unknown column filter operator.' => 'Condition de filtre inconnue.',
       'Column filter value is too long.' => 'Le texte du filtre est trop long.',
       'This column cannot be filtered.' => 'Cette colonne ne peut pas être filtrée.',
+      # Tri sur plusieurs colonnes.
+      'Then sort by %s ascending'   => 'Puis trier par %s croissant',
+      'Remove sorting by %s'        => 'Ne plus trier par %s',
+      'Too many sort columns.'      => 'Trop de colonnes de tri.',
+      'Invalid sort direction.'     => 'Sens de tri invalide.',
     }.each do |source, target|
       translation = ::Translation.find_or_initialize_by(locale: 'fr-fr', source: source)
       next if translation.persisted? && translation.target == target

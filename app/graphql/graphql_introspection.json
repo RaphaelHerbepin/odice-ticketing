@@ -22187,6 +22187,24 @@
                   "defaultValue": null
                 },
                 {
+                  "name": "sorts",
+                  "description": "Sort by several columns, in priority order (takes precedence over orderBy)",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "INPUT_OBJECT",
+                        "name": "TicketOverviewSortInput",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "cacheTtl",
                   "description": "How long to cache the overview data, in seconds. This will be part of the cache key so that different durations get different caches.",
                   "type": {
@@ -30459,6 +30477,45 @@
                 "kind": "SCALAR",
                 "name": "String",
                 "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "TicketOverviewSortInput",
+          "description": "One level of a multi-column sort of a ticket overview",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "column",
+              "description": "Column (ticket attribute) name, e.g. title, customer_id or a custom attribute",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "direction",
+              "description": "Sort direction",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "EnumOrderDirection",
+                  "ofType": null
+                }
               },
               "defaultValue": null
             }

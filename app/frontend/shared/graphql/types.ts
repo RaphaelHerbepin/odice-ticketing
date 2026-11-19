@@ -409,6 +409,7 @@ export type TicketsCachedByOverviewQueryVariables = Exact<{
   renewCache?: boolean | null | undefined;
   knownCollectionSignature?: string | null | undefined;
   filters?: Array<Types.TicketOverviewColumnFilterInput> | Types.TicketOverviewColumnFilterInput | null | undefined;
+  sorts?: Array<Types.TicketOverviewSortInput> | Types.TicketOverviewSortInput | null | undefined;
 }>;
 
 

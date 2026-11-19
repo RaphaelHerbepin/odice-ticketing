@@ -143,6 +143,13 @@ export interface AdvancedTableProps extends BaseTableProps {
   orderBy?: string
   orderDirection?: EnumOrderDirection
 
+  /**
+   * Odice: multi-column sorting, in priority order. When given, a header click
+   * cycles ascending → descending → no sorting and emits `update:sorts`
+   * instead of `sort`; orderBy/orderDirection are then ignored for display.
+   */
+  sorts?: TableSort[]
+
   isSorting?: boolean
 }
 
@@ -163,9 +170,16 @@ export interface ListTableProps<T> {
   loadingNewPage: boolean
   skeletonLoadingCount?: number
   noSelectAll?: boolean
+  sorts?: TableSort[]
   onLoadMore?: () => Awaitable<void>
 }
 
 export interface ListTableEmits {
   sort: [string, EnumOrderDirection]
+  'update:sorts': [TableSort[]]
+}
+
+export interface TableSort {
+  column: string
+  direction: EnumOrderDirection
 }

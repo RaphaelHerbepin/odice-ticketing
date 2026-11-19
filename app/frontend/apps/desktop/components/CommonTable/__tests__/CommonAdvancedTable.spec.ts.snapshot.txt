@@ -15,6 +15,7 @@
     itemids="[object Set]"
     items="[object Object]"
     maxitems="1000"
+    noselectall="false"
     selectallloadedactive="false"
     selectedcount="0"
     tableattributes="[object Object],[object Object],[object Object],[object Object],[object Object]"

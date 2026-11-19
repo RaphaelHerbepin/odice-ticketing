@@ -52,6 +52,8 @@ export default function register(config: InMemoryCacheConfig): InMemoryCacheConf
     'orderDirection',
     // Odice : une vue filtrée est une autre collection, à ne pas fusionner.
     'filters',
+    // Odice : même chose pour un tri sur plusieurs colonnes.
+    'sorts',
   ])
 
   currentConfig.typePolicies ||= {}

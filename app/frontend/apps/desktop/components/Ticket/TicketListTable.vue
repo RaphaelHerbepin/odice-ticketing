@@ -115,6 +115,7 @@ const skeletonColumns = computed(() => columnWidths.value.length)
         :headers="headers"
         :order-by="orderBy"
         :order-direction="orderDirection"
+        :sorts="sorts"
         :group-by="groupBy"
         :reached-scroll-top="reachedScrollTop"
         :scroll-container="scrollContainer"
@@ -174,6 +175,7 @@ const skeletonColumns = computed(() => columnWidths.value.length)
         @load-more="loadMore"
         @click-row="goToItem"
         @sort="resort"
+        @update:sorts="emit('update:sorts', $event)"
       >
         <template v-if="$slots['header-suffix']" #header-suffix="slotProps">
           <slot name="header-suffix" v-bind="slotProps" />
